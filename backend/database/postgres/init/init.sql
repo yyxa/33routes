@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS routes (
     route_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
     name VARCHAR(255) NOT NULL,
-    url VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     -- start_point VARCHAR(255), -- точка старта но надо подумать
     -- end_point VARCHAR(255), -- аналогично для конечной точки тоже надо подумать
@@ -85,7 +85,9 @@ CREATE TABLE IF NOT EXISTS collections (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     tags tag_type[],
-    created_at BIGINT NOT NULL
+    created_at BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS collection_routes (

@@ -11,7 +11,7 @@ RUN cargo build --release
 
 FROM rust:alpine3.20
 
-COPY --from=builder /usr/src/app/target/release/auth_service /usr/local/bin/auth_service
+COPY --from=builder /usr/src/app/target/release/route_service /usr/local/bin/route_service
 
 EXPOSE 8001
 

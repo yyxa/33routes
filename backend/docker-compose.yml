@@ -36,6 +36,27 @@ services:
     networks:
       - user_network
 
+# Templates (шаблоны)
+# YAML поддерживает создание шаблонов данных, что особенно полезно при работе с 
+# конфигурационными файлами для контейнеризации (например, в Docker) или при написании 
+# сценариев для таких инструментов, как Ansible и Kubernetes. Шаблоны позволяют повторно 
+# использовать часто встречающиеся структуры данных и упрощают управление конфигурацией.
+
+# Например, в Docker Compose файле YAML можно создать шаблон для конфигурации нескольких контейнеров:
+
+# services:
+#   webapp: &app
+#     image: myapp:latest
+#     environment:
+#       - DATABASE_URL=mysql://db:3306/mydb
+#   api:
+#     <<: *app
+#     ports:
+#       - "8000:8000"
+#   worker:
+#     <<: *app
+#     command: celery -A app worker
+
   # 33routes_auth_service:
   #   container_name: 33routes_auth_service
   #   build:
