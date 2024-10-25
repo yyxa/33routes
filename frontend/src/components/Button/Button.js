@@ -1,9 +1,9 @@
 import React from 'react';
-import './Button.css';
+import './button.css';
 
-const Button = ({ label, onClick, filled }) => {
+const Button = ({ label, onClick, variant }) => {
   return (
-    <button className={filled ? 'filled-button' : 'outlined-button'} onClick={onClick}>
+    <button className={`button ${variant}`} onClick={onClick}>
       {label}
     </button>
   );

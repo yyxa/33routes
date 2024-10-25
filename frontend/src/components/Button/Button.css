@@ -1,29 +1,27 @@
-/* Кнопка без фона с подсветкой при наведении */
-.outlined-button {
-  background: transparent; /* Без фона */
-  border: none; /*Синий контур
-  color: #007bff; /* Текст синий */
+.button {
   padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background 0.5s, color 0.5s; /* Плавный переход */
+  border: 2px solid transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.outlined-button:hover {
-  background: #007bff; /* Синий фон при наведении */
-  color: white; /* Белый текст при наведении */
+.button.white {
+  background-color: white;
+  color: black;
+  border-color: black;
 }
 
-/* Кнопка с фоном, меняет цвет при наведении */
-
-.filled-button {
-  background: #007bff; /* Синий фон */
-  color: white; /* Белый текст */
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none; /* Без границы */
-  transition: background 0.3s; /* Плавный переход */
+.button.black {
+  background-color: black;
+  color: white;
 }
 
-.filled-button:hover {
-  background: #0056b3; /* Темно-синий фон при наведении */
+.button.white:hover {
+  background-color: #f0f0f0;
+}
+
+.button.black:hover {
+  background-color: #333;
 }

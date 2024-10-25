@@ -1,9 +1,10 @@
 // App.js
 import React from 'react';
-import SearchBar from './components/Search_bar/Search_bar';
-import Dropdown from './components/Dropdown/Dropdown';
-import ButtonGroup from './components/Button/Button';
-import ToggleSwitch from './components/Toggle_switch/Toggle_switch';
+import SearchBar from './components/search_bar/searchBar';
+import Dropdown from './components/dropdown/dropdown';
+import RoundButton from './components/round_button/roundButton';
+import ToggleSwitch from './components/toggle_switch/toggleSwitch';
+import Button from './components/button/button';
 
 const App = () => {
   const options = [
@@ -21,11 +22,19 @@ const App = () => {
   };
 
   const handleOutlinedButtonClick = () => {
-    alert('Полая кнопка нажата!');
+    alert('Белая кнопка нажата!');
   };
 
   const handleFilledButtonClick = () => {
-    alert('Заполненная кнопка нажата!');
+    alert('Черная кнопка нажата!');
+  };
+
+  const handleUserClick = () => {
+    alert('Кнопка пользователя нажата');
+  };
+
+  const handleMenuClick = () => {
+    alert('Кнопка меню нажата');
   };
 
   const handleToggle = (isOn) => {
@@ -34,24 +43,33 @@ const App = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Мое приложение</h1>
+      <h1>Все компоненты на одной странице</h1>
 
       {/* Компонент строки поиска */}
-      <SearchBar onSearch={handleSearch} />
+      <div style={{ marginBottom: '20px' }}>
+        <SearchBar onSearch={handleSearch} />
+      </div>
 
       {/* Компонент выпадающего списка */}
-      <Dropdown options={options} onSelect={handleSelect} />
+      <div style={{ marginBottom: '20px' }}>
+        <Dropdown options={options} onSelect={handleSelect} />
+      </div>
 
-      {/* Компонент группы кнопок */}
-      <ButtonGroup 
-        onOutlinedClick={handleOutlinedButtonClick} 
-        onFilledClick={handleFilledButtonClick} 
-      />
+      {/* Круглые кнопки */}
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+        <RoundButton onClick={handleUserClick} />
+      </div>
+
+      {/* Две версии обычных кнопок */}
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+        <Button label="Белая кнопка" onClick={handleOutlinedButtonClick} variant="white" />
+        <Button label="Черная кнопка" onClick={handleFilledButtonClick} variant="black" />
+      </div>
 
       {/* Переключатель */}
-      <ToggleSwitch onToggle={handleToggle} />
-
-      {/* Другие элементы вашего приложения могут быть добавлены здесь */}
+      <div style={{ marginBottom: '20px' }}>
+        <ToggleSwitch onToggle={handleToggle} />
+      </div>
     </div>
   );
 };

@@ -1,0 +1,24 @@
+.round-button {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  background-size: 50%; /* Размер иконки */
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Для будущих иконок */
+/* .round-button.user {
+  background-image: url('/path/to/user-icon.svg');
+} */
+
+.round-button:hover {
+  background-color: #f0f0f0;
+}
