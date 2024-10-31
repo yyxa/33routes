@@ -5,10 +5,10 @@ VALUES
 ('user2', 'Jane', 'Smith', 'Canada', 'Toronto', 'user2@example.com', 'hash2', 'https://example.com/avatar2.jpg', 'Nature lover.', '+9876543210', EXTRACT(EPOCH FROM NOW())::BIGINT);
 
 -- Настройки пользователей
-INSERT INTO user_settings (user_id, theme, show_phone, show_planned, show_visited, show_favorite, notification_settings)
+INSERT INTO user_settings (user_id, theme, show_phone, show_planned, show_visited, notification_settings)
 VALUES
-(1, 'dark', TRUE, TRUE, TRUE, TRUE, '{"email": true, "push": false}'::jsonb),
-(2, 'light', FALSE, TRUE, FALSE, TRUE, '{"email": false, "push": true}'::jsonb);
+(1, 'dark', TRUE, TRUE, TRUE, '{"email": true, "push": false}'::jsonb),
+(2, 'light', FALSE, TRUE, FALSE, '{"email": false, "push": true}'::jsonb);
 
 -- Добавляем маршруты
 INSERT INTO routes (user_id, name, url, description, length, duration, tags, category, created_at, rating, photos)
@@ -25,10 +25,10 @@ VALUES
 (2, 'Park Exit', 43.651570, -79.347515, 60, 10.0, 3.0);
 
 -- Добавляем коллекции
-INSERT INTO collections (user_id, title, description, tags, created_at)
+INSERT INTO collections (user_id, name, url, description, tags, created_at)
 VALUES 
-(1, 'Mountain Adventures', 'A collection of mountain routes.', '{forest}', EXTRACT(EPOCH FROM NOW())::BIGINT),
-(2, 'City Walks', 'A collection of city routes.', '{park}', EXTRACT(EPOCH FROM NOW())::BIGINT);
+(1, 'Mountain Adventures', 'https://example.com/collection1', 'A collection of mountain routes.', '{forest}', EXTRACT(EPOCH FROM NOW())::BIGINT),
+(2, 'City Walks', 'https://example.com/collection2', 'A collection of city routes.', '{park}', EXTRACT(EPOCH FROM NOW())::BIGINT);
 
 -- Добавляем маршруты в коллекции
 INSERT INTO collection_routes (collection_id, route_id)
@@ -48,18 +48,6 @@ VALUES
 (1, 2, 'I totally agree with you!', EXTRACT(EPOCH FROM NOW())::BIGINT),
 (2, 1, 'Thanks for the review!', EXTRACT(EPOCH FROM NOW())::BIGINT);
 
--- Добавляем лайки к отзывам
-INSERT INTO review_likes (user_id, review_id)
-VALUES 
-(1, 1),
-(2, 2);
-
--- Добавляем лайки к комментариям
-INSERT INTO comment_likes (user_id, comment_id)
-VALUES 
-(1, 1),
-(2, 2);
-
 -- Добавляем сохранённые маршруты
 INSERT INTO saved_routes (user_id, route_id)
 VALUES 
@@ -73,7 +61,7 @@ VALUES
 (2, 2, EXTRACT(EPOCH FROM NOW())::BIGINT);
 
 -- Добавляем жалобы
-INSERT INTO reports (user_id, report_type, reported_id, reason, created_at)
+INSERT INTO reports (user_id, reported_entity, entity_id, reason, created_at)
 VALUES 
 (1, 'route', 2, 'Inappropriate content', EXTRACT(EPOCH FROM NOW())::BIGINT),
 (2, 'review', 1, 'Offensive comment', EXTRACT(EPOCH FROM NOW())::BIGINT);

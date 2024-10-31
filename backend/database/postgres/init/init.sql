@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS user_settings (
     show_phone BOOLEAN DEFAULT FALSE,
     show_planned BOOLEAN DEFAULT TRUE,
     show_visited BOOLEAN DEFAULT TRUE,
-    show_favorite BOOLEAN DEFAULT TRUE,
     notification_settings JSONB
 );
 
@@ -82,12 +81,12 @@ CREATE TABLE IF NOT EXISTS route_points (
 CREATE TABLE IF NOT EXISTS collections (
     collection_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
-    title VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     tags tag_type[],
     created_at BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    url VARCHAR(255) NOT NULL UNIQUE
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE    
 );
 
 CREATE TABLE IF NOT EXISTS collection_routes (
@@ -96,14 +95,14 @@ CREATE TABLE IF NOT EXISTS collection_routes (
     PRIMARY KEY (collection_id, route_id)
 );
 
-CREATE TABLE IF NOT EXISTS reviews (
-    review_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id),
-    route_id INT REFERENCES routes(route_id),
-    rating FLOAT CHECK (rating >= 1 AND rating <= 5),
-    comment TEXT,
-    created_at BIGINT NOT NULL
-);
+-- CREATE TABLE IF NOT EXISTS reviews (
+--     review_id SERIAL PRIMARY KEY,
+--     user_id INT REFERENCES users(user_id),
+--     route_id INT REFERENCES routes(route_id),
+--     rating FLOAT CHECK (rating >= 1 AND rating <= 5),
+--     comment TEXT,
+--     created_at BIGINT NOT NULL
+-- );
 
 CREATE TABLE IF NOT EXISTS review_comments (
     comment_id SERIAL PRIMARY KEY,
@@ -114,17 +113,17 @@ CREATE TABLE IF NOT EXISTS review_comments (
     reply_to INT REFERENCES review_comments(comment_id)
 );
 
-CREATE TABLE IF NOT EXISTS review_likes (
-    user_id INT REFERENCES users(user_id),
-    review_id INT REFERENCES reviews(review_id),
-    PRIMARY KEY (user_id, review_id)
-);
+-- CREATE TABLE IF NOT EXISTS review_likes (
+--     user_id INT REFERENCES users(user_id),
+--     review_id INT REFERENCES reviews(review_id),
+--     PRIMARY KEY (user_id, review_id)
+-- );
 
-CREATE TABLE IF NOT EXISTS comment_likes (
-    user_id INT REFERENCES users(user_id),
-    comment_id INT REFERENCES review_comments(comment_id),
-    PRIMARY KEY (user_id, comment_id)
-);
+-- CREATE TABLE IF NOT EXISTS comment_likes (
+--     user_id INT REFERENCES users(user_id),
+--     comment_id INT REFERENCES review_comments(comment_id),
+--     PRIMARY KEY (user_id, comment_id)
+-- );
 
 CREATE TABLE IF NOT EXISTS saved_routes (
     user_id INT REFERENCES users(user_id),
@@ -140,13 +139,14 @@ CREATE TABLE IF NOT EXISTS completed_routes (
 );
 
 CREATE TYPE entity_type AS ENUM ('route', 'review', 'collection', 'user', 'comment');
+-- CREATE TYPE report_type AS ENUM ('spam');
 
 -- мб добавить енамы для частых видов репортов по типу спам мат и тд
 CREATE TABLE IF NOT EXISTS reports (
     report_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
-    report_type entity_type,
-    reported_id INT,
+    reported_entity entity_type,
+    entity_id INT,
     reason TEXT,
     created_at BIGINT NOT NULL,
     closed_at  BIGINT
