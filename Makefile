@@ -8,5 +8,4 @@ backend:
 .PHONY: frontend
 frontend:
 	cd frontend && \
-	npm install && \
-	npm start
+	$(MAKE) all
