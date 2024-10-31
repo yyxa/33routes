@@ -1,3 +1,5 @@
+CREATE EXTENSION postgis;
+
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = '33routes') THEN
@@ -57,25 +59,24 @@ CREATE TABLE IF NOT EXISTS routes (
     -- start_point VARCHAR(255), -- точка старта но надо подумать
     -- end_point VARCHAR(255), -- аналогично для конечной точки тоже надо подумать
     length INT NOT NULL,
-    duration INT NOT NULL,
+    duration BIGINT NOT NULL,
     tags tag_type[],
     category category_type NOT NULL,
     created_at BIGINT NOT NULL,
     status status_type DEFAULT 'pending',
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     rating FLOAT NOT NULL DEFAULT 0.0,
-    photos TEXT[]
+    images TEXT[]
 );
 
 CREATE TABLE IF NOT EXISTS route_points (
     point_id SERIAL PRIMARY KEY,
     route_id INT REFERENCES routes(route_id),
     point_name VARCHAR(255),
-    latitude NUMERIC(10, 8),
-    longitude NUMERIC(11, 8),
-    time_offset INT,
-    elevation NUMERIC(6, 2),
-    speed NUMERIC(5, 2)
+    coordinates GEOGRAPHY(Point, 4326),
+    time_offset BIGINT,
+    elevation INT,
+    speed FLOAT
 );
 
 CREATE TABLE IF NOT EXISTS collections (
@@ -95,14 +96,15 @@ CREATE TABLE IF NOT EXISTS collection_routes (
     PRIMARY KEY (collection_id, route_id)
 );
 
--- CREATE TABLE IF NOT EXISTS reviews (
---     review_id SERIAL PRIMARY KEY,
---     user_id INT REFERENCES users(user_id),
---     route_id INT REFERENCES routes(route_id),
---     rating FLOAT CHECK (rating >= 1 AND rating <= 5),
---     comment TEXT,
---     created_at BIGINT NOT NULL
--- );
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    route_id INT REFERENCES routes(route_id),
+    rating FLOAT CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at BIGINT NOT NULL,
+    images TEXT[]
+);
 
 CREATE TABLE IF NOT EXISTS review_comments (
     comment_id SERIAL PRIMARY KEY,
@@ -110,7 +112,8 @@ CREATE TABLE IF NOT EXISTS review_comments (
     user_id INT REFERENCES users(user_id),
     comment TEXT,
     created_at BIGINT NOT NULL,
-    reply_to INT REFERENCES review_comments(comment_id)
+    reply_to INT REFERENCES review_comments(comment_id),
+    images TEXT[]
 );
 
 -- CREATE TABLE IF NOT EXISTS review_likes (

@@ -3,5 +3,4 @@ wait
 .env
 collection_service
 file_storage_service
-devops
 data
