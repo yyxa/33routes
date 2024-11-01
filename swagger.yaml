@@ -265,15 +265,15 @@ paths:
                     example: ["url_to_image1", "url_to_image2"]
   /report:
     post:
-      summary: "Отправка отчёта об ошибке"
-      description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут."
+      summary: "Жалоба"
+      description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
       parameters:
         - in: header
-          name: Authorization
+          name: SessionToken
           required: true
           schema:
             type: string
-          example: "Bearer <JWT>"
+          example: "<token>"
       requestBody:
         required: true
         content:
@@ -281,47 +281,64 @@ paths:
             schema:
               type: object
               properties:
-                objectType:
+                object_type:
                   type: string
-                  enum: ["user", "post", "route", "comment"]
-                objectId:
-                  type: string
+                  enum: ["user", "rewiev", "route", "comment"]
+                object_id:
+                  type: integer
                 reason:
                   type: string
+                  enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
                 details:
                   type: string
+                created_at:
+                  type: long
               example:
-                objectType: "route"
-                objectId: "1"
-                reason: "Inappropriate content"
+                object_type: "route"
+                object_id: 1
+                reason: "inappropriate content"
                 details: "This route contains inappropriate language."
+                created_at: 1616179200
       responses:
         200:
-          description: "Отчёт успешно отправлен"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  reportId:
-                    type: string
-                example:
-                  message: "Report submitted successfully"
-                  reportId: "1"
+          description: "Жалоба успешно отправлена"
 
   /reports:
     get:
       summary: "Получение списка всех жалоб для модерации"
-      description: "Получение всех отправленных жалоб, которые нуждаются в модерации."
+      description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
       parameters:
         - in: header
-          name: Authorization
+          name: SessionToken
           required: true
           schema:
             type: string
-          example: "Bearer <JWT>"
+          example: "<token>"
+        - in: query
+          name: Pagination-Page-Number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: Pagination-Page-Size
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
+        - in: query
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: ["pending", "approved", "rejected"]
+          description: "Статус репорта"
+          example: "pending"
       responses:
         200:
           description: "Список жалоб"
@@ -335,37 +352,76 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
+                        report_id:
+                          type: integer
+                        object_type:
                           type: string
-                        objectType:
-                          type: string
-                        objectId:
-                          type: string
+                          enum: ["user", "rewiev", "route", "comment"]
+                        object_id:
+                          type: integer
                         reason:
                           type: string
+                          enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
                         details:
                           type: string
+                        created_at:
+                          type: integer
+                          format: int64
+                        closed_at:
+                          type: integer
+                          format: int64
                         status:
                           type: string
-                      example:
-                        id: "1"
-                        objectType: "route"
-                        objectId: "1"
-                        reason: "Inappropriate content"
-                        details: "This route contains inappropriate language."
-                        status: "pending"
+                          enum: ["pending", "approved", "rejected"]
+                  pagination:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        description: "Текущая страница"
+                      page_size:
+                        type: integer
+                        description: "Количество элементов на странице"
+                      total_items:
+                        type: integer
+                        description: "Общее количество жалоб"
+                      total_pages:
+                        type: integer
+                        description: "Общее количество страниц"
+                example:
+                  {
+                    "reports": [
+                      { 
+                        "report_id": 1, 
+                        "object_type": "route", 
+                        "object_id": 1, 
+                        "reason": "inappropriate content", 
+                        "details": "This route contains inappropriate language.", 
+                        "status": "pending", 
+                        "created_at": 1616179200,
+                        "closed_at": 1616179200
+                      }
+                    ],
+                    "pagination": {
+                      "current_page": 1,
+                      "page_size": 10,
+                      "total_items": 50,
+                      "total_pages": 5
+                    }
+                  }
+
 
   /report/resolve:
     post:
       summary: "Закрытие жалобы после рассмотрения"
-      description: "Отметка жалобы как решённой после рассмотрения модератором."
+      description: "Отметка жалобы как решённой после рассмотрения модератором"
       parameters:
         - in: header
-          name: Authorization
+          name: SessionToken
           required: true
           schema:
             type: string
-          example: "Bearer <JWT>"
+          example: "<token>"
       requestBody:
         required: true
         content:
@@ -373,25 +429,16 @@ paths:
             schema:
               type: object
               properties:
-                reportId:
-                  type: string
+                report_id:
+                  type: integer
                 resolution:
                   type: string
               example:
-                reportId: "1"
+                report_id: 1
                 resolution: "The issue has been resolved, and the content has been edited."
       responses:
         200:
           description: "Жалоба успешно закрыта"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-              example:
-                message: "Report resolved successfully"
 
   /bug/report:
     post:
@@ -657,8 +704,6 @@ paths:
             enum: [users, routes, collections]
           description: "Тип поиска (например, users, routes, collections)"
           example: "users"
-      requestBody:
-        required: false
       responses:
         200:
           description: "Результаты поиска"
@@ -689,21 +734,17 @@ paths:
                           type: string
                           description: "Описание маршрута (только для маршрутов)"
                           nullable: true
-                example:
-                  results: [ 
-                    { 
-                      type: "user", 
-                      id: "1", 
-                      name: "John Doe", 
-                      avatar: "url_to_avatar" 
-                    }, 
-                    { 
-                      type: "route", 
-                      id: "2", 
-                      name: "Mountain Trail", 
-                      description: "A trail in the mountains" 
-                    } 
-                  ]
+              example:
+                results: 
+                  - type: "user"
+                    id: "1"
+                    name: "John Doe"
+                    avatar: "url_to_avatar"
+                  - type: "route"
+                    id: "2"
+                    name: "Mountain Trail"
+                    description: "A trail in the mountains"
+
 
   /rewiev/{rewiev_id}/comments:
     get:

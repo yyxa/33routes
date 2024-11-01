@@ -48,20 +48,4 @@ clear-all: clear rm-pg-data
 clear:
 	@docker-compose kill  && \
 	docker-compose rm -f 
-
-
-
-
-# .PHONY: k8s-deploy
-# k8s-deploy:
-# 	kubectl apply -f kubernetes/api-gateway-deployment.yaml
-# 	kubectl apply -f kubernetes/auth-service-deployment.yaml
-# 	kubectl apply -f kubernetes/user-service-deployment.yaml
-# 	kubectl apply -f kubernetes/route-service-deployment.yaml
-
-# .PHONY: k8s-delete
-# k8s-delete:
-# 	kubectl delete -f kubernetes/api-gateway-deployment.yaml
-# 	kubectl delete -f kubernetes/auth-service-deployment.yaml
-# 	kubectl delete -f kubernetes/user-service-deployment.yaml
-# 	kubectl delete -f kubernetes/route-service-deployment.yaml
+	

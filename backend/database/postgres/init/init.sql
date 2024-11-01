@@ -142,15 +142,15 @@ CREATE TABLE IF NOT EXISTS completed_routes (
 );
 
 CREATE TYPE entity_type AS ENUM ('route', 'review', 'collection', 'user', 'comment');
--- CREATE TYPE report_type AS ENUM ('spam');
+CREATE TYPE report_type AS ENUM ('spam or advertising', 'inappropriate content', 'violation of community rules', 'offensive content');
 
--- мб добавить енамы для частых видов репортов по типу спам мат и тд
 CREATE TABLE IF NOT EXISTS reports (
     report_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
     reported_entity entity_type,
     entity_id INT,
-    reason TEXT,
+    reason report_type,
+    details TEXT,
     created_at BIGINT NOT NULL,
     closed_at  BIGINT
 );
