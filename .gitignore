@@ -4,3 +4,4 @@ wait
 collection_service
 file_storage_service
 data
+.DS_Store
