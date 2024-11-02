@@ -18,15 +18,26 @@ services:
       - samplenet
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
     container_name: cadvisor
     ports:
-      - '8082:8081'
+      - '8082:8082'
+    command:
+        - "--port=8082"
+    #   - "--housekeeping_interval=30s"
+    #   - "--docker_only=true"
+    #   - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,accelerator,hugetlb,referenced_memory,cpu_topology,resctrl"
     volumes:
-      - '/:/rootfs:ro'
-      - '/var/run:/var/run:rw'
-      - '/sys:/sys:ro'
       - '/var/lib/docker/:/var/lib/docker:ro'
+      - '/dev/disk/:/dev/disk:ro'
+      - '/sys:/sys:ro'
+      - '/var/run:/var/run:rw'
+      - '/:/rootfs:ro'
+      - '/sys/fs/cgroup:/cgroup:ro'
+      - '/etc/machine-id:/etc/machine-id:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+    devices:
+      - /dev/kmsg:/dev/kmsg
     networks:
       - samplenet
 
