@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     city VARCHAR(50),
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    avatar_url TEXT,
+    avatar_url TEXT UNIQUE,
     bio TEXT,
     phone VARCHAR(20),
     created_at BIGINT NOT NULL,
@@ -31,22 +31,21 @@ CREATE TABLE IF NOT EXISTS users (
     telegram VARCHAR(255),
     linkedin VARCHAR(255),
     youtube VARCHAR(255),
-    user_site VARCHAR(255),
-    email_for_communications VARCHAR(255)
+    user_site VARCHAR(255)
 );
 
 CREATE TYPE theme_type AS ENUM ('light', 'dark', 'system');
 
 CREATE TABLE IF NOT EXISTS user_settings (
     user_id INT PRIMARY KEY REFERENCES users(user_id),
-    theme theme_type DEFAULT 'system',
+    -- theme theme_type DEFAULT 'system',
     show_phone BOOLEAN DEFAULT FALSE,
     show_planned BOOLEAN DEFAULT TRUE,
-    show_visited BOOLEAN DEFAULT TRUE,
-    notification_settings JSONB
+    show_visited BOOLEAN DEFAULT TRUE
+    -- notification_settings JSONB
 );
 
-CREATE TYPE status_type AS ENUM ('pending', 'approved', 'rejected');
+CREATE TYPE route_status_type AS ENUM ('pending', 'approved', 'rejected');
 CREATE TYPE category_type AS ENUM ('walking');
 CREATE TYPE tag_type AS ENUM ('forest', 'park', 'near_water');
 
@@ -56,33 +55,38 @@ CREATE TABLE IF NOT EXISTS routes (
     name VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
-    -- start_point VARCHAR(255), -- точка старта но надо подумать
-    -- end_point VARCHAR(255), -- аналогично для конечной точки тоже надо подумать
     length INT NOT NULL,
     duration BIGINT NOT NULL,
     tags tag_type[],
     category category_type NOT NULL,
     created_at BIGINT NOT NULL,
-    status status_type DEFAULT 'pending',
+    status route_status_type DEFAULT 'pending',
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    rating FLOAT NOT NULL DEFAULT 0.0,
+    rating FLOAT NOT NULL DEFAULT 0.0 CHECK (rating >= 0 AND rating <= 5),
     images TEXT[]
 );
 
 CREATE TABLE IF NOT EXISTS route_points (
     point_id SERIAL PRIMARY KEY,
     route_id INT REFERENCES routes(route_id),
-    point_name VARCHAR(255),
-    coordinates GEOGRAPHY(Point, 4326),
+    coordinate GEOGRAPHY(Point, 4326),
     time_offset BIGINT,
     elevation INT,
     speed FLOAT
+);
+
+CREATE TABLE IF NOT EXISTS route_points_info (
+    point_id INT REFERENCES route_points(point_id),
+    route_id INT REFERENCES routes(route_id),
+    point_description TEXT,
+    images TEXT[]
 );
 
 CREATE TABLE IF NOT EXISTS collections (
     collection_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
     name VARCHAR(255) NOT NULL,
+    rating FLOAT CHECK (rating >= 0 AND rating <= 5),
     url VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     tags tag_type[],
@@ -100,9 +104,10 @@ CREATE TABLE IF NOT EXISTS reviews (
     review_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
     route_id INT REFERENCES routes(route_id),
-    rating FLOAT CHECK (rating >= 1 AND rating <= 5),
+    rating FLOAT CHECK (rating >= 0 AND rating <= 5),
     comment TEXT,
     created_at BIGINT NOT NULL,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     images TEXT[]
 );
 
@@ -113,6 +118,7 @@ CREATE TABLE IF NOT EXISTS review_comments (
     comment TEXT,
     created_at BIGINT NOT NULL,
     reply_to INT REFERENCES review_comments(comment_id),
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     images TEXT[]
 );
 
@@ -152,5 +158,13 @@ CREATE TABLE IF NOT EXISTS reports (
     reason report_type,
     details TEXT,
     created_at BIGINT NOT NULL,
-    closed_at  BIGINT
+    closed_at  BIGINT DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS bug_reports (
+    bug_report_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    details TEXT,
+    created_at BIGINT NOT NULL,
+    closed_at  BIGINT DEFAULT NULL
 );

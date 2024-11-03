@@ -5,580 +5,13 @@ info:
   version: "1.0.0"
 
 paths:
-  /auth/register:
-    post:
-      summary: "Регистрация нового пользователя"
-      description: "Регистрация нового пользователя с проверкой формата username и password."
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: "example@mail.com"
-                password:
-                  type: string
-                  format: password
-                  example: "strongPassword"
-                name:
-                  type: string
-                  example: "John"
-                surname:
-                  type: string
-                  example: "Doe"
-                username:
-                  type: string
-                  example: "johndoe"
-                phone:
-                  type: string
-                  example: "+79194986099"
-      responses:
-        "201":
-          description: "Успешная регистрация"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user_id:
-                    type: string
-                    example: "123"
-                  token:
-                    type: string
-                    example: "JWT_TOKEN_HERE"
-        "400":
-          description: "Неправильные данные запроса"
-        "409":
-          description: "Пользователь с таким email или username уже существует"
-
-  /auth/check/username:
-    post:
-      summary: "Проверка занят или нет юзернейм"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: "johndoe"
-      responses:
-        "200":
-          description: "Имя пользователя свободно"
-        "409":
-          description: "Имя пользователя уже занято"
-
-  /auth/check/token:
+  /routes:
     get:
-      summary: "Проверка правильности токена сессии"
-      parameters:
-        - name: SessionToken
-          in: header
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "Токен действителен"
-        "409":
-          description: "Токен недействителен"
-
-  /auth/login:
-    post:
-      summary: "Аутентификация пользователя"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: "example@mail.com"
-                password:
-                  type: string
-                  format: password
-                  example: "strongPassword"
-      responses:
-        "200":
-          description: "Успешная авторизация"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    example: "JWT_TOKEN_HERE"
-                  refresh_token:
-                    type: string
-                    example: "REFRESH_TOKEN_HERE"
-        "401":
-          description: "Неверный email или пароль"
-
-  /auth/refresh:
-    post:
-      summary: "Обновление JWT-токена"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token:
-                  type: string
-                  example: "REFRESH_TOKEN_HERE"
-      responses:
-        "200":
-          description: "Успешное обновление токена"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    example: "NEW_JWT_TOKEN"
-        "401":
-          description: "Refresh-токен недействителен или истек"
-
-  /auth/logout:
-    post:
-      summary: "Завершение сессии пользователя"
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: "Bearer <JWT>"
-      responses:
-        "200":
-          description: "Успешный выход из системы"
-        
-  /user/{username}:
-    get:
-      summary: "Получение информации о профиле пользователя"
-      parameters:
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-            example: "johndoe"
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: "Bearer <JWT>"
-      responses:
-        "200":
-          description: "Успешное получение профиля"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user_id:
-                    type: integer
-                    example: 123
-                  username:
-                    type: string
-                    example: "johndoe"
-                  name:
-                    type: string
-                    example: "Johnathan"
-                  surname:
-                    type: string
-                    example: "Doe"
-                  avatar_url:
-                    type: string
-                    example: "https://example.com/new_avatar.jpg"
-                  bio:
-                    type: string
-                    example: "Explorer and content creator."
-                  created_at:
-                    type: integer
-                    example: 1616179200
-
-  /settings:
-    get:
-      summary: "Получение настроек пользователя"
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-            example: "Bearer <JWT>"
-      responses:
-        "200":
-          description: "Текущие настройки пользователя"
-
-  /route/{id}:
-    get:
-      summary: "Просмотр информации о маршруте"
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: "123"
-      responses:
-        "200":
-          description: "Детали маршрута"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  route_id:
-                    type: integer
-                    example: 123
-                  name:
-                    type: string
-                    example: "Mountain Trail"
-                  description:
-                    type: string
-                    example: "A beautiful trail in the mountains"
-                  category:
-                    type: string
-                    example: "walking"
-                  rating:
-                    type: number
-                    example: 3.5
-                  images:
-                    type: array
-                    items:
-                      type: string
-                    example: ["url_to_image1", "url_to_image2"]
-  /report:
-    post:
-      summary: "Жалоба"
-      description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
-      parameters:
-        - in: header
-          name: SessionToken
-          required: true
-          schema:
-            type: string
-          example: "<token>"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                object_type:
-                  type: string
-                  enum: ["user", "rewiev", "route", "comment"]
-                object_id:
-                  type: integer
-                reason:
-                  type: string
-                  enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
-                details:
-                  type: string
-                created_at:
-                  type: long
-              example:
-                object_type: "route"
-                object_id: 1
-                reason: "inappropriate content"
-                details: "This route contains inappropriate language."
-                created_at: 1616179200
+      summary: "Получение списка маршрутов"
+      description: "Возвращает список id всех доступных маршрутов."
       responses:
         200:
-          description: "Жалоба успешно отправлена"
-
-  /reports:
-    get:
-      summary: "Получение списка всех жалоб для модерации"
-      description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
-      parameters:
-        - in: header
-          name: SessionToken
-          required: true
-          schema:
-            type: string
-          example: "<token>"
-        - in: query
-          name: Pagination-Page-Number
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
-          example: 1
-        - in: query
-          name: Pagination-Page-Size
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
-          example: 10
-        - in: query
-          name: status
-          required: true
-          schema:
-            type: string
-            enum: ["pending", "approved", "rejected"]
-          description: "Статус репорта"
-          example: "pending"
-      responses:
-        200:
-          description: "Список жалоб"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  reports:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        report_id:
-                          type: integer
-                        object_type:
-                          type: string
-                          enum: ["user", "rewiev", "route", "comment"]
-                        object_id:
-                          type: integer
-                        reason:
-                          type: string
-                          enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
-                        details:
-                          type: string
-                        created_at:
-                          type: integer
-                          format: int64
-                        closed_at:
-                          type: integer
-                          format: int64
-                        status:
-                          type: string
-                          enum: ["pending", "approved", "rejected"]
-                  pagination:
-                    type: object
-                    properties:
-                      current_page:
-                        type: integer
-                        description: "Текущая страница"
-                      page_size:
-                        type: integer
-                        description: "Количество элементов на странице"
-                      total_items:
-                        type: integer
-                        description: "Общее количество жалоб"
-                      total_pages:
-                        type: integer
-                        description: "Общее количество страниц"
-                example:
-                  {
-                    "reports": [
-                      { 
-                        "report_id": 1, 
-                        "object_type": "route", 
-                        "object_id": 1, 
-                        "reason": "inappropriate content", 
-                        "details": "This route contains inappropriate language.", 
-                        "status": "pending", 
-                        "created_at": 1616179200,
-                        "closed_at": 1616179200
-                      }
-                    ],
-                    "pagination": {
-                      "current_page": 1,
-                      "page_size": 10,
-                      "total_items": 50,
-                      "total_pages": 5
-                    }
-                  }
-
-
-  /report/resolve:
-    post:
-      summary: "Закрытие жалобы после рассмотрения"
-      description: "Отметка жалобы как решённой после рассмотрения модератором"
-      parameters:
-        - in: header
-          name: SessionToken
-          required: true
-          schema:
-            type: string
-          example: "<token>"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                report_id:
-                  type: integer
-                resolution:
-                  type: string
-              example:
-                report_id: 1
-                resolution: "The issue has been resolved, and the content has been edited."
-      responses:
-        200:
-          description: "Жалоба успешно закрыта"
-
-  /bug/report:
-    post:
-      summary: "Отправка отчёта об ошибке"
-      description: "Отправка отчёта о найденной ошибке для её дальнейшего рассмотрения."
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          example: "Bearer <JWT>"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                description:
-                  type: string
-                severity:
-                  type: string
-                  enum: ["low", "medium", "high", "critical"]
-                stepsToReproduce:
-                  type: string
-              example:
-                description: "The app crashes when trying to upload a large file."
-                severity: "high"
-                stepsToReproduce: "1. Open the app\n2. Click on upload\n3. Upload a 2GB file"
-      responses:
-        200:
-          description: "Отчёт об ошибке успешно отправлен"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  reportId:
-                    type: string
-                example:
-                  message: "Bug report submitted successfully"
-                  reportId: "1"
-
-  /bug/reports:
-    get:
-      summary: "Получение списка баг-репортов"
-      description: "Получение всех отправленных отчётов об ошибках для модераторов или разработчиков."
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          example: "Bearer <JWT>"
-      responses:
-        200:
-          description: "Список баг-репортов"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  bugReports:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        description:
-                          type: string
-                        severity:
-                          type: string
-                        status:
-                          type: string
-                        createdAt:
-                          type: string
-                          format: date-time
-                      example:
-                        id: "1"
-                        description: "The app crashes when trying to upload a large file."
-                        severity: "high"
-                        status: "open"
-                        createdAt: "2023-10-01T10:00:00Z"
-
-  /bug/resolve:
-    post:
-      summary: "Закрытие баг-репорта"
-      description: "Отметка баг-репорта как решённого после исправления."
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          example: "Bearer <JWT>"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                bugReportId:
-                  type: string
-                resolution:
-                  type: string
-              example:
-                bugReportId: "1"
-                resolution: "Fixed the file upload issue by optimizing memory handling."
-      responses:
-        200:
-          description: "Баг-репорт успешно закрыт"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-              example:
-                message: "Bug report resolved successfully"
-
-  /moderation/routes:
-    get:
-      summary: "Получение списка маршрутов, ожидающих модерации"
-      description: "Получение маршрутов, которые требуют одобрения перед публикацией."
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          example: "Bearer <JWT>"
-      responses:
-        200:
-          description: "Список маршрутов, ожидающих модерации"
+          description: "Список id маршрутов"
           content:
             application/json:
               schema:
@@ -587,337 +20,193 @@ paths:
                   routes:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        name:
-                          type: string
-                        description:
-                          type: string
-                        status:
-                          type: string
-                      example:
-                        id: "1"
-                        name: "Mountain Trail"
-                        description: "A trail in the mountains"
-                        status: "pending"
-
-  /moderation/route/approve:
-    post:
-      summary: "Одобрение маршрута"
-      description: "Позволяет модератору одобрить маршрут."
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          example: "Bearer <JWT>"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                objectType:
-                  type: string
-                  enum: ["route", "post", "comment", "collection"]
-                objectId:
-                  type: string
-              example:
-                objectType: "route"
-                objectId: "1"
-      responses:
-        200:
-          description: "Маршрут успешно одобрен"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-              example:
-                message: "Route approved successfully"
-
-  /moderation/route/reject:
-    post:
-      summary: "Отклонение маршрута"
-      description: "Позволяет модератору отклонить маршрут."
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          example: "Bearer <JWT>"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                objectType:
-                  type: string
-                  enum: ["route", "post", "comment", "collection"]
-                objectId:
-                  type: string
-                reason:
-                  type: string
-              example:
-                objectType: "route"
-                objectId: "1"
-                reason: "The route description is incomplete."
-      responses:
-        200:
-          description: "Маршрут отклонён"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-              example:
-                message: "Route rejected"
-
-  /search:
-    get:
-      summary: "Поиск пользователей, маршрутов и подборок"
-      description: "Позволяет выполнять поиск пользователей, маршрутов и подборок по заданному запросу."
-      parameters:
-        - in: query
-          name: query
-          required: true
-          schema:
-            type: string
-          description: "Поисковый запрос (например, имя пользователя, название маршрута)"
-          example: "John Doe"
-        - in: query
-          name: type
-          required: true
-          schema:
-            type: string
-            enum: [users, routes, collections]
-          description: "Тип поиска (например, users, routes, collections)"
-          example: "users"
-      responses:
-        200:
-          description: "Результаты поиска"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          description: "Тип объекта (например, user, route)"
-                        id:
-                          type: string
-                          description: "ID объекта"
-                        name:
-                          type: string
-                          description: "Имя или название объекта"
-                        avatar:
-                          type: string
-                          description: "URL к аватару (только для пользователей)"
-                          nullable: true
-                        description:
-                          type: string
-                          description: "Описание маршрута (только для маршрутов)"
-                          nullable: true
-              example:
-                results: 
-                  - type: "user"
-                    id: "1"
-                    name: "John Doe"
-                    avatar: "url_to_avatar"
-                  - type: "route"
-                    id: "2"
-                    name: "Mountain Trail"
-                    description: "A trail in the mountains"
-
-
-  /rewiev/{rewiev_id}/comments:
-    get:
-      summary: "Получить комментарии к маршруту"
-      description: "Возвращает список комментариев, связанных с указанной рецензией."
-      parameters:
-        - in: path
-          name: rewiev_id
-          required: true
-          schema:
-            type: string
-          description: "ID рецензии"
-      requestBody:
-        required: false
-      responses:
-        200:
-          description: "Список комментариев"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  comments:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          description: "ID комментария"
-                        userId:
-                          type: string
-                          description: "ID пользователя, оставившего комментарий"
-                        text:
-                          type: string
-                          description: "Текст комментария"
-                        createdAt:
-                          type: string
-                          format: date-time
-                          description: "Дата и время создания комментария"
+                      type: integer
+                    description: "ID маршрута"
                 example:
-                  comments: [ 
-                    { 
-                      id: "1", 
-                      userId: "123", 
-                      text: "Great route!", 
-                      createdAt: "2023-10-01T10:00:00Z" 
-                    } 
+                  routes: [ 
+                    1,
+                    2,
+                    3
                   ]
 
-  /rewiev/{rewiev_id}/comment:
-    post:
-      summary: "Добавление комментария"
-      description: "Позволяет пользователю добавить комментарий к рецензии."
+  /route/{route-id}:
+    get:
+      summary: "Просмотр информации о маршруте"
+      description: "Возвращает подробную информацию о выбранном маршруте."
       parameters:
-        - in: path
-          name: rewiev_id
+        - name: route-id
+          in: path
           required: true
           schema:
-            type: string
-          description: "ID рецензии"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                routeId:
-                  type: string
-                  description: "ID маршрута"
-                text:
-                  type: string
-                  description: "Текст комментария"
-              example:
-                routeId: "1"
-                text: "This is an amazing route!"
+            type: integer
+            example: 123
       responses:
         200:
-          description: "Комментарий успешно добавлен"
+          description: "Детали маршрута"
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
-                    type: string
+                  user:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                        description: "ID юзера"
+                        example: 1
+                      name:
+                        type: string
+                        description: "ID юзера"
+                        example: "Алла Иванова"
+                      image_url:
+                        type: string
+                        description: "url аватарки"
+                        example: "url"
+                  route:
+                    type: object
+                    properties:
+                      route_id:
+                        type: integer
+                        description: "ID маршрута"
+                        example: 123
+                      name:
+                        type: string
+                        description: "Название маршрута"
+                        example: "Mountain Trail"
+                      url:
+                        type: string
+                        description: "URL маршрута"
+                        example: "url"
+                      description:
+                        type: string
+                        description: "Описание маршрута"
+                        example: "A beautiful trail in the mountains"
+                      length:
+                        type: integer
+                        description: "Длина маршрута в метрах"
+                        example: 5000
+                      duration:
+                        type: integer
+                        description: "Продолжительность маршрута в секундах"
+                        example: 7200
+                      tags:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["forest", "park", "near_water"]
+                        description: "Теги маршрута"
+                        example: ["forest", "near_water"]
+                      category:
+                        type: string
+                        enum: ["walking"]
+                        description: "Категория маршрута"
+                        example: "walking"
+                      created_at:
+                        type: integer
+                        description: "Дата создания маршрута в формате Unix"
+                        example: 1616179200
+                      status:
+                        type: string
+                        enum: ["pending", "approved", "rejected"]
+                        description: "Статус маршрута"
+                        example: "approved"
+                      is_deleted:
+                        type: boolean
+                        description: "Флаг удаления маршрута"
+                        example: false
+                      rating:
+                        type: number
+                        format: float
+                        description: "Средний рейтинг маршрута"
+                        example: 3.5
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        description: "Ссылки на изображения маршрута"
+                        example: ["url_to_image1", "url_to_image2"]
+                  points:
+                    type: array
+                    description: "Точки маршрута с координатами и дополнительной информацией"
+                    items:
+                      type: object
+                      properties:
+                        point_id:
+                          type: integer
+                          description: "ID точки маршрута"
+                          example: 1
+                        coordinate:
+                          type: object
+                          properties:
+                            latitude:
+                              type: number
+                              format: float
+                              description: "Широта"
+                              example: 45.12345
+                            longitude:
+                              type: number
+                              format: float
+                              description: "Долгота"
+                              example: 12.12345
+                        time_offset:
+                          type: integer
+                          description: "Время в секундах с начала маршрута"
+                          example: 300
+                        elevation:
+                          type: integer
+                          description: "Высота точки над уровнем моря в метрах"
+                          example: 200
+                        speed:
+                          type: number
+                          format: float
+                          description: "Скорость на этой точке маршрута"
+                          example: 2.5
+                        point_description:
+                          type: string
+                          description: "Описание точки маршрута"
+                          example: "Поворот у дерева"
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          description: "Изображения, связанные с точкой маршрута"
+                          example: ["url_to_image1", "url_to_image2"]
                 example:
-                  message: "Comment added successfully"
-
-    put:
-      summary: "Редактирование комментария"
-      description: "Позволяет пользователю редактировать комментарий к рецензии."
-      parameters:
-        - in: path
-          name: rewiev_id
-          required: true
-          schema:
-            type: string
-          description: "ID рецензии"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                routeId:
-                  type: string
-                  description: "ID маршрута"
-                text:
-                  type: string
-                  description: "Текст комментария"
-              example:
-                routeId: "1"
-                text: "This is an amazing route!"
-      responses:
-        200:
-          description: "Комментарий успешно обновлён"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Comment updated successfully"
-
-    delete:
-      summary: "Удаление комментария"
-      description: "Позволяет пользователю удалить комментарий к рецензии."
-      parameters:
-        - in: path
-          name: rewiev_id
-          required: true
-          schema:
-            type: string
-          description: "ID рецензии"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                commentId:
-                  type: string
-                  description: "ID комментария"
-              example:
-                commentId: "1"
-      responses:
-        200:
-          description: "Комментарий успешно удалён"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Comment deleted successfully"
+                  user:
+                    user_id: 1
+                    name: "Алла Майонезова"
+                    image_url: "image"
+                  route:
+                    route_id: 123
+                    name: "Mountain Trail"
+                    url: "url"
+                    description: "A beautiful trail in the mountains"
+                    length: 5000
+                    duration: 7200
+                    tags: ["forest", "near_water"]
+                    category: "walking"
+                    created_at: 1616179200
+                    rating: 3.5
+                    images: ["url_to_image1", "url_to_image2"]
+                  points:
+                    - point_id: 1
+                      coordinate:
+                        latitude: 45.12345
+                        longitude: 12.12345
+                      time_offset: 300
+                      elevation: 200
+                      speed: 2.5
+                      point_description: "Поворот у дерева"
+                      images: ["url_to_image1", "url_to_image2"]
 
   /collections:
     get:
       summary: "Получение списка подборок"
-      description: "Возвращает список всех доступных подборок."
-      requestBody:
-        required: false
+      description: "Возвращает список id всех доступных подборок."
       responses:
         200:
-          description: "Список подборок"
+          description: "Список id подборок"
           content:
             application/json:
               schema:
@@ -926,50 +215,25 @@ paths:
                   collections:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          description: "ID подборки"
-                        name:
-                          type: string
-                          description: "Название подборки"
-                        about:
-                          type: string
-                          description: "Описание подборки"
-                        author:
-                          type: string
-                          description: "Автор подборки"
-                        image_url:
-                          type: string
-                          description: "URL изображения подборки"
-                        routes:
-                          type: array
-                          items:
-                            type: string
-                          description: "Список маршрутов в подборке"
+                      type: integer
+                    description: "ID подборки"
                 example:
                   collections: [ 
-                    { 
-                      id: "1", 
-                      name: "Best Mountain Trails", 
-                      about: "some text",
-                      author: "johndoe",
-                      image_url: "https://example.com/new_avatar.jpg",
-                      routes: ["routeid1", "routeid2"] 
-                    } 
+                    1,
+                    2,
+                    3
                   ]
 
-  /collection/{id}:
+  /collection/{collection-id}:
     get:
       summary: "Получение информации о подборке"
       description: "Возвращает подробную информацию о выбранной подборке."
       parameters:
         - in: path
-          name: id
+          name: collection-id
           required: true
           schema:
-            type: string
+            type: integer
           description: "ID подборки"
       responses:
         200:
@@ -988,14 +252,14 @@ paths:
                       name:
                         type: string
                         description: "Имя пользователя"
-                      url:
+                      image_url:
                         type: string
                         description: "URL аватара пользователя"
                   collection:
                     type: object
                     properties:
                       collection_id:
-                        type: string
+                        type: int
                         description: "ID подборки"
                       name:
                         type: string
@@ -1010,8 +274,9 @@ paths:
                         type: array
                         items:
                           type: string
+                          enum: ["forest", "park", "near_water"]
                         description: "Теги подборки"
-                      average_rating:
+                      rating:
                         type: number
                         format: float
                         description: "Средний рейтинг подборки"
@@ -1024,76 +289,39 @@ paths:
                           amount:
                             type: integer
                             description: "Количество маршрутов в подборке"
-                          data:
+                          ids:
                             type: array
                             items:
-                              type: string
-                            description: "Список маршрутов в подборке"
+                              type: integer
+                            description: "Список id маршрутов в подборке"
                 example:
                   user: 
                     user_id: 1
                     name: "Алла Майонезова"
-                    url: "image"
+                    image_url: "image"
                   collection: 
-                    collection_id: "1" 
+                    collection_id: 1 
                     name: "Best Mountain Trails" 
                     url: "url"
                     description: "adasasdassd"
                     tags: ["forest", "park"]
-                    average_rating: 4.5
+                    rating: 4.5
                     created_at: 1616179200
                     routes: 
                       amount: 2
-                      data: ["route_id1", "route_id2"]
+                      ids: [1, 2]
 
   /collection:
     post:
       summary: "Создание новой подборки"
       description: "Позволяет пользователю создать новую подборку."
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: "Название подборки"
-                routes:
-                  type: array
-                  items:
-                    type: string
-                  description: "Список маршрутов в подборке"
-              example:
-                name: "Favorite Trails"
-                routes: ["route1", "route2"]
-      responses:
-        201:
-          description: "Подборка успешно создана"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  collectionId:
-                    type: string
-                example:
-                  message: "Collection created successfully"
-                  collectionId: "1"
-
-    put:
-      summary: "Обновление подборки"
-      description: "Позволяет пользователю обновить существующую подборку."
       parameters:
-        - in: path
-          name: id
+        - in: header
+          name: session-token
           required: true
           schema:
             type: string
-          description: "ID подборки"
+          description: "Токен сессии"
       requestBody:
         required: true
         content:
@@ -1101,128 +329,140 @@ paths:
             schema:
               type: object
               properties:
-                id:
-                  type: string
-                  description: "ID подборки"
                 name:
                   type: string
                   description: "Название подборки"
                 description:
                   type: string
                   description: "Описание подборки"
-                images:
+                tags:
                   type: array
                   items:
                     type: string
-                  description: "Список URL изображений"
-                map:
-                  type: string
-                  description: "URL карты"
+                    enum: ["forest", "park", "near_water"]
+                  description: "Список тегов"
               example:
-                id: "1" 
-                name: "Mountain Trail" 
+                name: "Favorite Trails"
+                description: "Something about route"
+                tags: ["forest", "park"]
+      responses:
+        201:
+          description: "Подборка успешно создана"
+
+    put:
+      summary: "Обновление подборки"
+      description: "Позволяет пользователю обновить существующую подборку. (Добавлять только измененные, то есть если name изменен, то его и добавлять в тело, а остальные - нет)"
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+        - in: header
+          name: collection-id
+          required: true
+          schema:
+            type: integer
+          description: "ID подборки"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "Название подборки"
+                description:
+                  type: string
+                  description: "Описание подборки"
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    enum: ["forest", "park", "near_water"]
+                  description: "Список тегов"
+              example:
                 description: "A beautiful trail in the mountains" 
-                images: ["url_to_image1", "url_to_image2"] 
-                map: "url_to_map"
       responses:
         200:
           description: "Подборка успешно обновлена"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Route updated successfully"
 
     delete:
       summary: "Удаление подборки"
       description: "Позволяет пользователю удалить существующую подборку."
       parameters:
-        - in: path
-          name: id
+        - in: header
+          name: session-token
           required: true
           schema:
             type: string
+          description: "Токен сессии"
+        - in: header
+          name: collection-id
+          required: true
+          schema:
+            type: integer
           description: "ID подборки"
       responses:
         200:
           description: "Подборка успешно удалена"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Collection removed successfully"
 
   /collection/{collection-id}/add/{route-id}:
     put:
       summary: "Добавление маршрута в подборку"
       description: "Позволяет пользователю добавить маршрут в указанную подборку."
       parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
         - in: path
           name: collection-id
           required: true
           schema:
-            type: string
+            type: integer
           description: "ID подборки"
         - in: path
           name: route-id
           required: true
           schema:
-            type: string
+            type: integer
           description: "ID маршрута"
-      requestBody:
-        required: false
       responses:
         200:
           description: "Маршрут успешно добавлен в подборку"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Route added from collection successfully"
 
   /collection/{collection-id}/remove/{route-id}:
-    put:
+    delete:
       summary: "Удаление маршрута из подборки"
       description: "Позволяет пользователю удалить маршрут из указанной подборки."
       parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
         - in: path
           name: collection-id
           required: true
           schema:
-            type: string
+            type: integer
           description: "ID подборки"
         - in: path
           name: route-id
           required: true
           schema:
-            type: string
+            type: integer
           description: "ID маршрута"
-      requestBody:
-        required: false
       responses:
         200:
           description: "Маршрут успешно удален из подборки"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Route removed from collection successfully"
                                                              
 components:
   schemas:
