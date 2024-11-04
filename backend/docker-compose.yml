@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   33routes_postgres:
     container_name: 33routes_postgres

@@ -7,26 +7,26 @@ all: rebuild start
 
 .PHONY: build
 build:
-	@docker-compose build
+	@docker compose build
 
 .PHONY: rebuild
 rebuild:
-	@docker-compose build --force-rm
+	@docker compose build --force-rm
 
 .PHONY: start
 start:
-	@docker-compose up -d
+	@docker compose up -d
 
 .PHONY: down
 down:
-	@docker-compose down
+	@docker compose down
 
 .PHONY: restart
 restart: down start
 
 .PHONY: logs
 logs:
-	@docker-compose logs -f --tail 100
+	@docker compose logs -f --tail 100
 
 .PHONY: pg-cli
 pg-cli:
@@ -46,6 +46,6 @@ clear-all: clear rm-pg-data
 
 .PHONY: clear
 clear:
-	@docker-compose kill  && \
-	docker-compose rm -f 
+	@docker compose kill  && \
+	docker compose rm -f 
 	
