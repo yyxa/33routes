@@ -5,13 +5,54 @@ info:
   version: "1.0.0"
 
 paths:
+
+
   /routes:
     get:
       summary: "Получение списка маршрутов"
       description: "Возвращает список id всех доступных маршрутов."
+      parameters:
+        - in: query
+          name: pagination-page-number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: pagination-per-page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
       responses:
         200:
           description: "Список id маршрутов"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
           content:
             application/json:
               schema:
@@ -200,13 +241,374 @@ paths:
                       point_description: "Поворот у дерева"
                       images: ["url_to_image1", "url_to_image2"]
 
+  /route/{route-id}/reviews:
+    get:
+      summary: "Получение списка рецензий маршрута"
+      description: "Возвращает список рецензий, связанных с указанным маршрутом."
+      parameters:
+        - in: path
+          name: route-id
+          required: true
+          schema:
+            type: integer
+          description: "ID маршрута"
+        - in: query
+          name: pagination-page-number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: pagination-per-page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
+      responses:
+        200:
+          description: "Список рецензий маршрута"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        review_id:
+                          type: integer
+                          description: "ID рецензии"
+                        user_id:
+                          type: integer
+                          description: "ID пользователя, оставившего рецензию"
+                        rating:
+                          type: number
+                          format: float
+                          description: "Рейтинг, выставленный пользователем"
+                        comment:
+                          type: string
+                          description: "Текст рецензии"
+                        created_at:
+                          type: integer
+                          description: "Дата создания рецензии в формате Unix"
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          description: "Ссылки на изображения"
+                example:
+                  reviews:
+                    - review_id: 1
+                      user_id: 123
+                      rating: 4.5
+                      comment: "Отличный маршрут!"
+                      created_at: 1616179200
+                      images: ["url_to_image1", "url_to_image2"]
+
+  /route/{route-id}/review:
+    post:
+      summary: "Добавление рецензии"
+      description: "Позволяет пользователю добавить рецензию к указанному маршруту."
+      parameters:
+        - in: path
+          name: route-id
+          required: true
+          schema:
+            type: integer
+          description: "ID маршрута"
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: number
+                  format: float
+                  description: "Рейтинг маршрута от 0 до 5"
+                  example: 4.5
+                comment:
+                  type: string
+                  description: "Текст рецензии"
+                  example: "Amazing route, highly recommended!"
+                images:
+                  type: array
+                  items:
+                    type: string
+                  description: "Ссылки на изображения рецензии"
+                  example: ["url_to_image1", "url_to_image2"]
+      responses:
+        200:
+          description: "Рецензия успешно добавлена"
+
+    delete:
+      summary: "Удаление рецензии"
+      description: "Позволяет пользователю удалить свою рецензию для указанного маршрута."
+      parameters:
+        - in: path
+          name: route-id
+          required: true
+          schema:
+            type: integer
+          description: "ID маршрута"
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                review_id:
+                  type: integer
+                  description: "ID рецензии"
+                  example: 1
+      responses:
+        200:
+          description: "Рецензия успешно удалена"
+
+  /route/{route-id}/review/{review-id}/comments:
+    get:
+      summary: "Получить комментарии к маршруту"
+      description: "Возвращает список комментариев, связанных с указанной рецензией."
+      parameters:
+        - in: path
+          name: route-id
+          required: true
+          schema:
+            type: integer
+          description: "ID маршрута"
+        - in: path
+          name: review-id
+          required: true
+          schema:
+            type: string
+          description: "ID рецензии"
+      responses:
+        200:
+          description: "Список комментариев"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: "ID комментария"
+                        user_id:
+                          type: integer
+                          description: "ID пользователя, оставившего комментарий"
+                        text:
+                          type: string
+                          description: "Текст комментария"
+                        created_at:
+                          type: integer
+                          description: "Дата и время создания комментария"
+                        images:
+                          type: array
+                          items:
+                            type: string
+                            description: "url изображения"
+                example:
+                  comments: [ 
+                    { 
+                      id: 1, 
+                      user_id: 123, 
+                      text: "Great route!", 
+                      created_at: 1616179200, 
+                      images: ["url1", "url2"]
+                    } 
+                  ]
+
+  /route/{route-id}/review/{review-id}/comment:
+    post:
+      summary: "Добавление комментария"
+      description: "Позволяет пользователю добавить комментарий к рецензии."
+      parameters:
+        - in: path
+          name: route-id
+          required: true
+          schema:
+            type: string
+          description: "ID маршрута"
+        - in: path
+          name: review-id
+          required: true
+          schema:
+            type: string
+          description: "ID рецензии"
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: "Текст комментария"
+              example:
+                text: "This is an amazing route!"
+      responses:
+        200:
+          description: "Комментарий успешно добавлен"
+
+    delete:
+      summary: "Удаление комментария"
+      description: "Позволяет пользователю удалить комментарий к рецензии."
+      parameters:
+        - in: path
+          name: route-id
+          required: true
+          schema:
+            type: string
+          description: "ID маршрута"
+        - in: path
+          name: review-id
+          required: true
+          schema:
+            type: string
+          description: "ID рецензии"
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment_id:
+                  type: integer
+                  description: "ID комментария"
+              example:
+                comment_id: 1
+      responses:
+        200:
+          description: "Комментарий успешно удалён"
+
   /collections:
     get:
       summary: "Получение списка подборок"
       description: "Возвращает список id всех доступных подборок."
+      parameters:
+        - in: query
+          name: pagination-page-number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: pagination-per-page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
       responses:
         200:
           description: "Список id подборок"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
           content:
             application/json:
               schema:
@@ -463,15 +865,343 @@ paths:
       responses:
         200:
           description: "Маршрут успешно удален из подборки"
+  
+  /image/{image-url}:
+    get:
+      summary: "Получение изображения"
+      description: "Позволяет получить изображение."
+      parameters:
+        - in: path
+          name: image-url
+          required: true
+          schema:
+            type: string
+          description: "url изображения"
+      responses:
+        200:
+          description: "Успешно получено изображение"
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+  
+  /report:
+    post:
+      summary: "Жалоба"
+      description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                object_type:
+                  type: string
+                  enum: ["user", "review", "route", "comment"]
+                object_id:
+                  type: integer
+                reason:
+                  type: string
+                  enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
+                details:
+                  type: string
+                created_at:
+                  type: long
+              example:
+                object_type: "route"
+                object_id: 1
+                reason: "inappropriate content"
+                details: "This route contains inappropriate language."
+                created_at: 1616179200
+      responses:
+        200:
+          description: "Жалоба успешно отправлена"
+
+  /reports:
+    get:
+      summary: "Получение списка всех жалоб для модерации"
+      description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: pagination-page-number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: pagination-per-page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
+        - in: query
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: ["opened", "closed"]
+          description: "Статус репорта"
+          example: "opened"
+      responses:
+        200:
+          description: "Список жалоб"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        report_id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        object_type:
+                          type: string
+                          enum: ["user", "review", "route", "comment"]
+                        object_id:
+                          type: integer
+                        reason:
+                          type: string
+                          enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
+                        details:
+                          type: string
+                        created_at:
+                          type: integer
+                          format: int64
+                        closed_at:
+                          type: integer
+                          format: int64
+                        status:
+                          type: string
+                          enum: ["opened", "closed"]
+                example:
+                  {
+                    "reports": [
+                      { 
+                        "report_id": 1, 
+                        "user_id": 1,
+                        "object_type": "route", 
+                        "object_id": 1, 
+                        "reason": "inappropriate content", 
+                        "details": "This route contains inappropriate language.", 
+                        "status": "closed", 
+                        "created_at": 1616179200,
+                        "closed_at": 1616179200
+                      }
+                    ]
+                  }
+
+  /report/resolve:
+    post:
+      summary: "Закрытие жалобы после рассмотрения"
+      description: "Отметка жалобы как решённой после рассмотрения модератором"
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_id:
+                  type: integer
+                resolution:
+                  type: string
+              example:
+                report_id: 1
+                resolution: "The issue has been resolved, and the content has been edited."
+      responses:
+        200:
+          description: "Жалоба успешно закрыта"
+
+  /bug/report:
+    post:
+      summary: "Отправка отчёта об ошибке"
+      description: "Отправка отчёта о найденной ошибке для её дальнейшего рассмотрения."
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                description:
+                  type: string
+              example:
+                user_id: 1
+                description: "The app crashes when trying to upload a large file."
+      responses:
+        200:
+          description: "Отчёт об ошибке успешно отправлен"
+
+  /bug/reports:
+    get:
+      summary: "Получение списка баг-репортов"
+      description: "Получение всех отправленных отчётов об ошибках для модераторов или разработчиков."
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+        - in: query
+          name: pagination-page-number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: pagination-per-page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
+      responses:
+        200:
+          description: "Список баг-репортов"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bug_reports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        report_id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        description:
+                          type: string
+                        status:
+                          type: string
+                          enum: ["opened", "closed"]
+                        created_at:
+                          type: integer
+                        closed_at:
+                          type: integer
+                      example:
+                        report_id: 1
+                        user_id: 1
+                        description: "The app crashes when trying to upload a large file."
+                        status: "opened"
+                        created_at: 1616179200
+                        closed_at: 1616179200
+
+  /bug/resolve:
+    post:
+      summary: "Закрытие баг-репорта"
+      description: "Отметка баг-репорта как решённого после исправления."
+      parameters:
+        - in: header
+          name: session-token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_id:
+                  type: string
+                resolution:
+                  type: string
+              example:
+                report_id: 1
+                resolution: "Fixed the file upload issue by optimizing memory handling."
+      responses:
+        200:
+          description: "Баг-репорт успешно закрыт"
+
+
                                                              
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          example: 123
-        username:
-          type: string
-          example: "johndoe"

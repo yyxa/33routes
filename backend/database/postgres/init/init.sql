@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS users (
     x VARCHAR(255),
     vkontakte VARCHAR(255),
     telegram VARCHAR(255),
-    linkedin VARCHAR(255),
     youtube VARCHAR(255),
     user_site VARCHAR(255)
 );
@@ -149,6 +148,7 @@ CREATE TABLE IF NOT EXISTS completed_routes (
 
 CREATE TYPE entity_type AS ENUM ('route', 'review', 'collection', 'user', 'comment');
 CREATE TYPE report_type AS ENUM ('spam or advertising', 'inappropriate content', 'violation of community rules', 'offensive content');
+CREATE TYPE report_status AS ENUM ('opened', 'closed');
 
 CREATE TABLE IF NOT EXISTS reports (
     report_id SERIAL PRIMARY KEY,
@@ -158,7 +158,9 @@ CREATE TABLE IF NOT EXISTS reports (
     reason report_type,
     details TEXT,
     created_at BIGINT NOT NULL,
-    closed_at  BIGINT DEFAULT NULL
+    closed_at  BIGINT DEFAULT NULL,
+    status report_status DEFAULT 'opened',
+    resolution TEXT
 );
 
 CREATE TABLE IF NOT EXISTS bug_reports (
@@ -166,5 +168,7 @@ CREATE TABLE IF NOT EXISTS bug_reports (
     user_id INT REFERENCES users(user_id),
     details TEXT,
     created_at BIGINT NOT NULL,
-    closed_at  BIGINT DEFAULT NULL
+    closed_at  BIGINT DEFAULT NULL,
+    status report_status DEFAULT 'opened',
+    resolution TEXT
 );

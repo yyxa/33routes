@@ -60,15 +60,15 @@ INSERT INTO route_points_info (point_id, route_id, point_description, images)
 VALUES
     (1, 1, 'Start of the walk at Central Park', ARRAY['point_image1.jpg']),
     (2, 1, 'Beautiful view of the lake', ARRAY['point_image2.jpg']),
-    (1, 2, 'Entering the forest trail', ARRAY['point_image3.jpg']),
-    (1, 3, 'Relaxing view of the beach', ARRAY['point_image4.jpg']),
-    (1, 4, 'Reaching the mountain summit', ARRAY['point_image5.jpg']),
-    (1, 5, 'City skyline view', ARRAY['point_image6.jpg']),
-    (1, 6, 'Calm river view', ARRAY['point_image7.jpg']),
-    (1, 7, 'Desert landscape', ARRAY['point_image8.jpg']),
-    (1, 8, 'Historical monument', ARRAY['point_image9.jpg']),
-    (1, 9, 'Lakeside view', ARRAY['point_image10.jpg']),
-    (1, 10, 'Countryside scenery', ARRAY['point_image11.jpg']);
+    (3, 2, 'Entering the forest trail', ARRAY['point_image3.jpg']),
+    (4, 3, 'Relaxing view of the beach', ARRAY['point_image4.jpg']),
+    (5, 4, 'Reaching the mountain summit', ARRAY['point_image5.jpg']),
+    (6, 5, 'City skyline view', ARRAY['point_image6.jpg']),
+    (7, 6, 'Calm river view', ARRAY['point_image7.jpg']),
+    (8, 7, 'Desert landscape', ARRAY['point_image8.jpg']),
+    (9, 8, 'Historical monument', ARRAY['point_image9.jpg']),
+    (10, 9, 'Lakeside view', ARRAY['point_image10.jpg']),
+    (11, 10, 'Countryside scenery', ARRAY['point_image11.jpg']);
 
 -- Вставка тестовых данных в таблицу collections
 INSERT INTO collections (user_id, name, rating, url, description, tags, created_at, is_deleted)
@@ -117,14 +117,7 @@ INSERT INTO review_comments (review_id, user_id, comment, created_at, reply_to, 
 VALUES
     (1, 2, 'I agree! It was a fantastic experience.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image1.jpg']),
     (2, 1, 'Thanks for the review! I will check it out.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image2.jpg']),
-    (3, 4, 'I loved it too!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image3.jpg']),
-    (4, 5, 'The views were incredible!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image4.jpg']),
-    (5, 6, 'I can’t wait to try this route!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image5.jpg']),
-    (6, 7, 'This sounds amazing!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image6.jpg']),
-    (7, 8, 'I’ve been wanting to do this hike!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image7.jpg']),
-    (8, 9, 'Great review! I’ll add this to my list.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image8.jpg']),
-    (9, 10, 'Looks like a perfect weekend getaway!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image9.jpg']),
-    (10, 3, 'I love countryside walks!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image10.jpg']);
+    (3, 3, 'Sounds amazing, can’t wait to visit!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image3.jpg']);
 
 -- Вставка тестовых данных в таблицу saved_routes
 INSERT INTO saved_routes (user_id, route_id)
