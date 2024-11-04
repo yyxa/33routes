@@ -10,7 +10,7 @@ use std::{fs::File, io::Read, path::Path as StdPath};
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/image/:image_url", get(get_image));
+    let app = Router::new().route("/api/image/:image_url", get(get_image));
 
     Server::bind("0.0.0.0:8100".parse().unwrap())
         .serve(app.into_make_service())

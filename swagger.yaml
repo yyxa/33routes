@@ -4,11 +4,11 @@ info:
   description: "API for Auth, User, Route, Collection, Comment, Search, File Storage, Moderation, Bug and Report Services."
   version: "1.0.0"
 servers:
-  - url: http://0.0.0.0:8100
+  - url: http://127.0.0.1:8100/api/
 paths:
 
 
-  /routes:
+  /api/routes:
     get:
       summary: "Получение списка маршрутов"
       description: "Возвращает список id всех доступных маршрутов."
@@ -71,7 +71,7 @@ paths:
                     3
                   ]
 
-  /route/{route-id}:
+  /api/route/{route-id}:
     get:
       summary: "Просмотр информации о маршруте"
       description: "Возвращает подробную информацию о выбранном маршруте."
@@ -242,7 +242,7 @@ paths:
                       point_description: "Поворот у дерева"
                       images: ["url_to_image1", "url_to_image2"]
 
-  /route/{route-id}/reviews:
+  /api/route/{route-id}/reviews:
     get:
       summary: "Получение списка рецензий маршрута"
       description: "Возвращает список рецензий, связанных с указанным маршрутом."
@@ -334,7 +334,7 @@ paths:
                       created_at: 1616179200
                       images: ["url_to_image1", "url_to_image2"]
 
-  /route/{route-id}/review:
+  /api/route/{route-id}/review:
     post:
       summary: "Добавление рецензии"
       description: "Позволяет пользователю добавить рецензию к указанному маршруту."
@@ -408,7 +408,7 @@ paths:
         200:
           description: "Рецензия успешно удалена"
 
-  /route/{route-id}/review/{review-id}/comments:
+  /api/route/{route-id}/review/{review-id}/comments:
     get:
       summary: "Получить комментарии к маршруту"
       description: "Возвращает список комментариев, связанных с указанной рецензией."
@@ -487,7 +487,7 @@ paths:
                     } 
                   ]
 
-  /route/{route-id}/review/{review-id}/comment:
+  /api/route/{route-id}/review/{review-id}/comment:
     post:
       summary: "Добавление комментария"
       description: "Позволяет пользователю добавить комментарий к рецензии."
@@ -564,7 +564,7 @@ paths:
         200:
           description: "Комментарий успешно удалён"
 
-  /collections:
+  /api/collections:
     get:
       summary: "Получение списка подборок"
       description: "Возвращает список id всех доступных подборок."
@@ -627,7 +627,7 @@ paths:
                     3
                   ]
 
-  /collection/{collection-id}:
+  /api/collection/{collection-id}:
     get:
       summary: "Получение информации о подборке"
       description: "Возвращает подробную информацию о выбранной подборке."
@@ -714,7 +714,7 @@ paths:
                       amount: 2
                       ids: [1, 2]
 
-  /collection:
+  /api/collection:
     post:
       summary: "Создание новой подборки"
       description: "Позволяет пользователю создать новую подборку."
@@ -813,7 +813,7 @@ paths:
         200:
           description: "Подборка успешно удалена"
 
-  /collection/{collection-id}/add/{route-id}:
+  /api/collection/{collection-id}/add/{route-id}:
     put:
       summary: "Добавление маршрута в подборку"
       description: "Позволяет пользователю добавить маршрут в указанную подборку."
@@ -840,7 +840,7 @@ paths:
         200:
           description: "Маршрут успешно добавлен в подборку"
 
-  /collection/{collection-id}/remove/{route-id}:
+  /api/collection/{collection-id}/remove/{route-id}:
     delete:
       summary: "Удаление маршрута из подборки"
       description: "Позволяет пользователю удалить маршрут из указанной подборки."
@@ -867,7 +867,7 @@ paths:
         200:
           description: "Маршрут успешно удален из подборки"
   
-  /image/{image-url}:
+  /api/image/{image-url}:
     get:
       summary: "Получение изображения"
       description: "Позволяет получить изображение."
@@ -887,7 +887,7 @@ paths:
                 type: string
                 format: binary
   
-  /report:
+  /api/report:
     post:
       summary: "Жалоба"
       description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
@@ -926,7 +926,7 @@ paths:
         200:
           description: "Жалоба успешно отправлена"
 
-  /reports:
+  /api/reports:
     get:
       summary: "Получение списка всех жалоб для модерации"
       description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
@@ -1035,7 +1035,7 @@ paths:
                     ]
                   }
 
-  /report/resolve:
+  /api/report/resolve:
     post:
       summary: "Закрытие жалобы после рассмотрения"
       description: "Отметка жалобы как решённой после рассмотрения модератором"
@@ -1063,7 +1063,7 @@ paths:
         200:
           description: "Жалоба успешно закрыта"
 
-  /bug/report:
+  /api/bug/report:
     post:
       summary: "Отправка отчёта об ошибке"
       description: "Отправка отчёта о найденной ошибке для её дальнейшего рассмотрения."
@@ -1092,7 +1092,7 @@ paths:
         200:
           description: "Отчёт об ошибке успешно отправлен"
 
-  /bug/reports:
+  /api/bug/reports:
     get:
       summary: "Получение списка баг-репортов"
       description: "Получение всех отправленных отчётов об ошибках для модераторов или разработчиков."
@@ -1175,7 +1175,7 @@ paths:
                         created_at: 1616179200
                         closed_at: 1616179200
 
-  /bug/resolve:
+  /api/bug/resolve:
     post:
       summary: "Закрытие баг-репорта"
       description: "Отметка баг-репорта как решённого после исправления."

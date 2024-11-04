@@ -1,4 +1,3 @@
-# Стартовый образ Rust
 FROM rust:1.82.0 AS builder
 
 WORKDIR /usr/src/app
