@@ -4,14 +4,16 @@ WORKDIR /app
 
 COPY package*.json ./
 
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 RUN npm install 
 
 RUN npm install react-router-dom
 
-COPY . .
+RUN npm install react-scripts
 
-ENV NODE_OPTIONS=--openssl-legacy-provider
+COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["sh", "-c", "export NODE_OPTIONS=--openssl-legacy-provider && npm start"]
