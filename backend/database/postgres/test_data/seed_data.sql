@@ -29,16 +29,16 @@ VALUES
 -- Вставка тестовых данных в таблицу routes
 INSERT INTO routes (user_id, name, url, description, length, duration, tags, category, created_at, status, rating, images)
 VALUES
-    (1, 'Central Park Walk', 'central-park-walk', 'A beautiful walk through Central Park.', 5, 3600, ARRAY['park'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.5, ARRAY['image1.jpg']),
-    (2, 'Forest Trail', 'forest-trail', 'A scenic trail through the forest.', 10, 7200, ARRAY['forest'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'pending', 0.0, ARRAY['image2.jpg']),
-    (3, 'Beachside Stroll', 'beachside-stroll', 'A relaxing stroll along the beach.', 3, 1800, ARRAY['near_water'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.0, ARRAY['image3.jpg']),
-    (4, 'Mountain Hike', 'mountain-hike', 'A challenging hike up the mountain.', 15, 10800, ARRAY['forest'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.8, ARRAY['image4.jpg']),
-    (5, 'City Tour', 'city-tour', 'Explore the city on foot.', 8, 5400, ARRAY['park'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.2, ARRAY['image5.jpg']),
-    (6, 'River Walk', 'river-walk', 'A peaceful walk along the river.', 4, 2400, ARRAY['near_water'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.3, ARRAY['image6.jpg']),
-    (7, 'Desert Trek', 'desert-trek', 'An adventurous trek through the desert.', 20, 14400, ARRAY['forest'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'pending', 0.0, ARRAY['image7.jpg']),
-    (8, 'Historical Sites Tour', 'historical-sites-tour', 'Visit historical sites in the city.', 6, 3600, ARRAY['park'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.6, ARRAY['image8.jpg']),
-    (9, 'Lakeside Path', 'lakeside-path', 'A scenic path along the lake.', 7, 4200, ARRAY['near_water'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.7, ARRAY['image9.jpg']),
-    (10, 'Countryside Walk', 'countryside-walk', 'Enjoy the beauty of the countryside.', 12, 7200, ARRAY['forest'], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.4, ARRAY['image10.jpg']);
+    (1, 'Central Park Walk', 'central-park-walk', 'A beautiful walk through Central Park.', 5, 3600, ARRAY['park']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.5, ARRAY['image1.jpg']),
+    (2, 'Forest Trail', 'forest-trail', 'A scenic trail through the forest.', 10, 7200, ARRAY['forest']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'pending', 0.0, ARRAY['image2.jpg']),
+    (3, 'Beachside Stroll', 'beachside-stroll', 'A relaxing stroll along the beach.', 3, 1800, ARRAY['near_water']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.0, ARRAY['image3.jpg']),
+    (4, 'Mountain Hike', 'mountain-hike', 'A challenging hike up the mountain.', 15, 10800, ARRAY['forest']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.8, ARRAY['image4.jpg']),
+    (5, 'City Tour', 'city-tour', 'Explore the city on foot.', 8, 5400, ARRAY['park']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.2, ARRAY['image5.jpg']),
+    (6, 'River Walk', 'river-walk', 'A peaceful walk along the river.', 4, 2400, ARRAY['near_water']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.3, ARRAY['image6.jpg']),
+    (7, 'Desert Trek', 'desert-trek', 'An adventurous trek through the desert.', 20, 14400, ARRAY['forest']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'pending', 0.0, ARRAY['image7.jpg']),
+    (8, 'Historical Sites Tour', 'historical-sites-tour', 'Visit historical sites in the city.', 6, 3600, ARRAY['park']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.6, ARRAY['image8.jpg']),
+    (9, 'Lakeside Path', 'lakeside-path', 'A scenic path along the lake.', 7, 4200, ARRAY['near_water']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.7, ARRAY['image9.jpg']),
+    (10, 'Countryside Walk', 'countryside-walk', 'Enjoy the beauty of the countryside.', 12, 7200, ARRAY['forest']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.4, ARRAY['image10.jpg']);
 
 -- Вставка тестовых данных в таблицу route_points
 INSERT INTO route_points (route_id, coordinate, time_offset, elevation, speed)
@@ -73,16 +73,16 @@ VALUES
 -- Вставка тестовых данных в таблицу collections
 INSERT INTO collections (user_id, name, rating, url, description, tags, created_at, is_deleted)
 VALUES
-    (1, 'My Favorite Routes', 4.5, 'my-favorite-routes', 'A collection of my favorite walking routes.', ARRAY['park', 'forest'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (2, 'Scenic Trails', 5.0, 'scenic-trails', 'A collection of scenic trails.', ARRAY['forest'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (3, 'Beach Walks', 4.8, 'beach-walks', 'Best beach walks around the world.', ARRAY['near_water'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (4, 'Mountain Adventures', 4.9, 'mountain-adventures', 'Challenging hikes in the mountains.', ARRAY['forest'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (5, 'City Explorations', 4.6, 'city-explorations', 'Explore the best cities on foot.', ARRAY['park'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (6, 'Nature Trails', 4.7, 'nature-trails', 'Beautiful trails in nature.', ARRAY['forest'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (7, 'Historical Walks', 4.5, 'historical-walks', 'Walk through history.', ARRAY['park'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (8, 'Family Friendly Routes', 4.4, 'family-friendly-routes', 'Routes suitable for families.', ARRAY['park'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (9, 'Adventure Trails', 4.8, 'adventure-trails', 'For the adventurous spirit.', ARRAY['forest'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
-    (10, 'Relaxing Walks', 4.6, 'relaxing-walks', 'Calm and peaceful walks.', ARRAY['near_water'], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE);
+    (1, 'My Favorite Routes', 4.5, 'my-favorite-routes', 'A collection of my favorite walking routes.', ARRAY['park', 'forest']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (2, 'Scenic Trails', 5.0, 'scenic-trails', 'A collection of scenic trails.', ARRAY['forest']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (3, 'Beach Walks', 4.8, 'beach-walks', 'Best beach walks around the world.', ARRAY['near_water']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (4, 'Mountain Adventures', 4.9, 'mountain-adventures', 'Challenging hikes in the mountains.', ARRAY['forest']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (5, 'City Explorations', 4.6, 'city-explorations', 'Explore the best cities on foot.', ARRAY['park']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (6, 'Nature Trails', 4.7, 'nature-trails', 'Beautiful trails in nature.', ARRAY['forest']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (7, 'Historical Walks', 4.5, 'historical-walks', 'Walk through history.', ARRAY['park']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (8, 'Family Friendly Routes', 4.4, 'family-friendly-routes', 'Routes suitable for families.', ARRAY['park']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (9, 'Adventure Trails', 4.8, 'adventure-trails', 'For the adventurous spirit.', ARRAY['forest']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
+    (10, 'Relaxing Walks', 4.6, 'relaxing-walks', 'Calm and peaceful walks.', ARRAY['near_water']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE);
 
 -- Вставка тестовых данных в таблицу collection_routes
 INSERT INTO collection_routes (collection_id, route_id)

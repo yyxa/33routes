@@ -3,7 +3,7 @@ version: '3.8'
 services:
   33routes_postgres:
     container_name: 33routes_postgres
-    image: postgres:17-alpine
+    image: postgis/postgis:17-3.5-alpine
     env_file: 
       - .env
     volumes:
@@ -36,62 +36,18 @@ services:
     networks:
       - user_network
 
-# Templates (шаблоны)
-# YAML поддерживает создание шаблонов данных, что особенно полезно при работе с 
-# конфигурационными файлами для контейнеризации (например, в Docker) или при написании 
-# сценариев для таких инструментов, как Ansible и Kubernetes. Шаблоны позволяют повторно 
-# использовать часто встречающиеся структуры данных и упрощают управление конфигурацией.
-
-# Например, в Docker Compose файле YAML можно создать шаблон для конфигурации нескольких контейнеров:
-
-# services:
-#   webapp: &app
-#     image: myapp:latest
-#     environment:
-#       - DATABASE_URL=mysql://db:3306/mydb
-#   api:
-#     <<: *app
-#     ports:
-#       - "8000:8000"
-#   worker:
-#     <<: *app
-#     command: celery -A app worker
-
-  # 33routes_auth_service:
-  #   container_name: 33routes_auth_service
-  #   build:
-  #     context: ./auth_service
-  #     dockerfile: Dockerfile
-  #   env_file: 
-  #     - .env
-  #   depends_on:
-  #     33routes_postgres:
-  #       condition: service_healthy
-  #     33routes_redis:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8001:8001"
-  #   restart: always
-  #   networks:
-  #     - user_network
-
-  # 33routes_user_service:
-  #   container_name: 33routes_user_service
-  #   build:
-  #     context: ./user_service
-  #     dockerfile: Dockerfile
-  #   env_file: 
-  #     - .env
-  #   depends_on:
-  #     33routes_postgres:
-  #       condition: service_healthy
-  #     33routes_redis:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8001:8001"
-  #   restart: always
-  #   networks:
-  #     - user_network
+  33routes_image_service:
+    container_name: 33routes_image_service
+    build:
+      context: ./image_service
+      dockerfile: Dockerfile
+    volumes:
+      - ~/33routes_images/:/home/root/33routes_images
+    ports:
+      - "8100:8100"
+    restart: always
+    networks:
+      - user_network
 
 networks:
   user_network:

@@ -8,6 +8,17 @@ pipeline {
             }
         }
 
+        stage('Build and Run Backend') {
+            steps {
+                script {
+                    dir('backend') {
+                        sh 'make down'
+                        sh 'make all'
+                    }
+                }
+            }
+        }
+
         stage('Run Swagger Docker Container') {
             steps {
                 script {

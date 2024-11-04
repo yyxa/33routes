@@ -3,7 +3,8 @@ info:
   title: "33routes API Documentation"
   description: "API for Auth, User, Route, Collection, Comment, Search, File Storage, Moderation, Bug and Report Services."
   version: "1.0.0"
-
+servers:
+  - url: http://localhost:8100
 paths:
 
 
