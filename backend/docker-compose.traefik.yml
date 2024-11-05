@@ -1,0 +1,23 @@
+services:
+  33routes_traefik:
+    image: traefik:v3.2.0
+    container_name: 33routes_traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:8100"
+      - "--entrypoints.websecure.address=:8443"
+      - "--api.insecure=true"
+      - "--log.level=INFO"
+    ports:
+      - "8100:8100"
+      - "8443:8443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - 33routes_backend_network
+
+networks:
+  33routes_backend_network:
+    external: true

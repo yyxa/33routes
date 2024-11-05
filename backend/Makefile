@@ -2,31 +2,92 @@ SHELL := /bin/bash
 
 include .env
 
+TRAEFIK := docker-compose.traefik.yml
+DATABASES := docker-compose.databases.yml
+BACKEND := docker-compose.backend.yml
+
+COMPOSE_FILES := -f $(TRAEFIK) -f $(DATABASES) -f $(BACKEND)
+
 .PHONY: all
-all: rebuild start
+all: down-all network-all rebuild-all start-all
 
-.PHONY: build
-build:
-	@docker compose build
+.PHONY: network-all
+network-all: rm-network create-network
 
-.PHONY: rebuild
-rebuild:
-	@docker compose build --force-rm
+.PHONY: create-network
+create-network:
+	@docker network create 33routes_backend_network
 
-.PHONY: start
-start:
-	@docker compose up -d
+.PHONY: rm-network
+rm-network:
+	@docker network rm 33routes_backend_network || true
 
-.PHONY: down
-down:
-	@docker compose down
+.PHONY: build-all
+build-all: build-traefik build-databases build-backend
+
+.PHONY: build-traefik
+build-traefik:
+	@docker compose -f $(TRAEFIK) build
+
+.PHONY: build-databases
+build-databases:
+	@docker compose -f $(DATABASES) build
+
+.PHONY: build-backend
+build-backend:
+	@docker compose -f $(BACKEND) build
+
+.PHONY: rebuild-all
+rebuild-all: rebuild-traefik rebuild-databases rebuild-backend
+
+.PHONY: rebuild-traefik
+rebuild-traefik:
+	@docker compose -f $(TRAEFIK) build --no-cache --force-rm
+
+.PHONY: rebuild-databases
+rebuild-databases:
+	@docker compose -f $(DATABASES) build --no-cache --force-rm
+
+.PHONY: rebuild-backend
+rebuild-backend:
+	@docker compose -f $(BACKEND) build --no-cache --force-rm
+
+.PHONY: start-all
+start-all: start-traefik start-databases start-backend
+
+.PHONY: start-traefik
+start-traefik:
+	@docker compose -f $(TRAEFIK) up -d --build
+
+.PHONY: start-databases
+start-databases:
+	@docker compose -f $(DATABASES) up -d --build
+
+.PHONY: start-backend
+start-backend:
+	@docker compose -f $(BACKEND) up -d --build
+
+.PHONY: down-all
+down-all: down-traefik down-databases down-backend
+
+.PHONY: down-traefik
+down-traefik:
+	@docker compose -f $(TRAEFIK) down || true
+
+.PHONY: down-databases
+down-databases:
+	@docker compose -f $(DATABASES) down || true
+
+.PHONY: down-backend
+down-backend:
+	@docker compose -f $(BACKEND) down || true
 
 .PHONY: restart
-restart: down start
+restart: down-all start-all
 
 .PHONY: logs
 logs:
-	@docker compose logs -f --tail 100
+	@docker compose $(COMPOSE_FILES) logs -f --tail 100
 
 .PHONY: pg-cli
 pg-cli:
@@ -46,6 +107,5 @@ clear-all: clear rm-pg-data
 
 .PHONY: clear
 clear:
-	@docker compose kill  && \
-	docker compose rm -f 
+	@docker compose $(COMPOSE_FILES) down --remove-orphans || true
 	

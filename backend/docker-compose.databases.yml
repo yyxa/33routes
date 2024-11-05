@@ -16,7 +16,7 @@ services:
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     networks:
-      - user_network
+      - 33routes_backend_network
         
   33routes_redis:
     container_name: 33routes_redis
@@ -32,23 +32,8 @@ services:
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
     networks:
-      - user_network
-
-  33routes_image_service:
-    container_name: 33routes_image_service
-    build:
-      context: ./image_service
-      dockerfile: Dockerfile
-    volumes:
-      - ~/33routes_images/:/home/root/33routes_images
-    ports:
-      - "8100:8100"
-    restart: always
-    networks:
-      - user_network
+      - 33routes_backend_network
 
 networks:
-  user_network:
-    driver: bridge
-  # admin_network:
-  #   driver: bridge
+  33routes_backend_network:
+    external: true

@@ -17,6 +17,4 @@ COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/image_
 
 WORKDIR /usr/local/bin/
 
-EXPOSE 8100
-
 CMD ["./image_service"]
