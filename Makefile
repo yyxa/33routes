@@ -19,13 +19,3 @@ swagger:
 	-e SWAGGER_JSON=/api/swagger.yaml \
 	-v ./swagger.yaml:/api/swagger.yaml \
 	swaggerapi/swagger-ui
-
-.PHONY: monitoring-up
-monitoring-up:
-	@cd devops && \
-	docker compose -f docker-compose.monitoring.yml up -d
-
-.PHONY: monitoring-down
-monitoring-down:
-	@cd devops && \
-	docker compose -f docker-compose.monitoring.yml down
