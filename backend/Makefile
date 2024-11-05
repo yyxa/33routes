@@ -68,7 +68,7 @@ start-backend:
 	@docker compose -f $(BACKEND) up -d --build
 
 .PHONY: down-all
-down-all: down-traefik down-databases down-backend
+down-all: down-backend down-traefik down-databases
 
 .PHONY: down-traefik
 down-traefik:
