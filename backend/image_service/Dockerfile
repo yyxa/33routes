@@ -2,8 +2,6 @@ FROM rust:1.82.0 AS builder
 
 WORKDIR /usr/src/app
 
-ENV RUSTUP_DIST_SERVER=http://static.rust-lang.org
-
 RUN rustup target add x86_64-unknown-linux-musl
 
 COPY Cargo.toml Cargo.lock ./
