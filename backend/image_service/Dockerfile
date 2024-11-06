@@ -2,16 +2,13 @@ FROM rust:1.82.0 AS builder
 
 WORKDIR /usr/src/app
 
-# RUN rustup target add x86_64-unknown-linux-musl
+RUN rustup target add x86_64-unknown-linux-musl
 
 COPY Cargo.toml Cargo.lock ./
 
 COPY src src
 
-RUN rustup target add x86_64-unknown-linux-musl && \
-    cargo build --release --target x86_64-unknown-linux-musl
-
-# RUN cargo build --release --target x86_64-unknown-linux-musl
+RUN cargo build --release --target x86_64-unknown-linux-musl
 
 FROM scratch
 
