@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use dotenv::dotenv;
 use std::sync::Arc;
 use tokio_postgres::NoTls;
@@ -37,12 +37,18 @@ async fn main() {
         .allow_headers(Any);
 
     let app = Router::new()
-        .route("/api/route/routes", get(handlers::get_routes))
-        .route("/api/route/route/:route_id", get(handlers::get_route_by_id))
+        .route(
+            "/api/review/route/:route_id/reviews",
+            get(handlers::get_route_reviews),
+        )
+        .route(
+            "/api/review/route/:route_id/review",
+            post(handlers::add_review).delete(handlers::delete_review),
+        )
         .with_state(app_state)
         .layer(cors);
 
-    Server::bind("0.0.0.0:8100".parse().unwrap())
+        Server::bind("0.0.0.0:8100".parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();

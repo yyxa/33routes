@@ -11,7 +11,7 @@ services:
       - 33routes_backend_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.image_service.rule=PathPrefix(`/api/image`)"
+      - "traefik.http.routers.image_service.rule=PathPrefix(`/api/media/`)"
       - "traefik.http.services.image_service.loadbalancer.server.port=8100"
 
   33routes_route_service:
@@ -24,8 +24,21 @@ services:
       - 33routes_backend_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.route_service.rule=PathPrefix(`/api/route`)"
+      - "traefik.http.routers.route_service.rule=PathPrefix(`/api/route/`)"
       - "traefik.http.services.route_service.loadbalancer.server.port=8100"
+
+  33routes_review_service:
+    container_name: 33routes_review_service
+    build:
+      context: ./route_service
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.review_service.rule=PathPrefix(`/api/review/`)"
+      - "traefik.http.services.review_service.loadbalancer.server.port=8100"
 
 networks:
   33routes_backend_network:

@@ -4,11 +4,11 @@ info:
   description: "API for Auth, User, Route, Collection, Comment, Search, File Storage, Moderation, Bug and Report Services."
   version: "1.0.0"
 servers:
-  - url: http://127.0.0.1:8100/api/
+  - url: http://localhost:8100
 paths:
 
 
-  /api/routes:
+  /api/route/routes:
     get:
       summary: "Получение списка маршрутов"
       description: "Возвращает список id всех доступных маршрутов."
@@ -71,7 +71,7 @@ paths:
                     3
                   ]
 
-  /api/route/{route-id}:
+  /api/route/route/{route-id}:
     get:
       summary: "Просмотр информации о маршруте"
       description: "Возвращает подробную информацию о выбранном маршруте."
@@ -242,7 +242,7 @@ paths:
                       point_description: "Поворот у дерева"
                       images: ["url_to_image1", "url_to_image2"]
 
-  /api/route/{route-id}/reviews:
+  /api/review/route/{route-id}/reviews:
     get:
       summary: "Получение списка рецензий маршрута"
       description: "Возвращает список рецензий, связанных с указанным маршрутом."
@@ -334,7 +334,7 @@ paths:
                       created_at: 1616179200
                       images: ["url_to_image1", "url_to_image2"]
 
-  /api/route/{route-id}/review:
+  /api/review/route/{route-id}/review:
     post:
       summary: "Добавление рецензии"
       description: "Позволяет пользователю добавить рецензию к указанному маршруту."
@@ -358,6 +358,10 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
                 rating:
                   type: number
                   format: float
@@ -400,6 +404,10 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
                 review_id:
                   type: integer
                   description: "ID рецензии"
@@ -408,7 +416,7 @@ paths:
         200:
           description: "Рецензия успешно удалена"
 
-  /api/route/{route-id}/review/{review-id}/comments:
+  /api/comment/route/{route-id}/review/{review-id}/comments:
     get:
       summary: "Получить комментарии к маршруту"
       description: "Возвращает список комментариев, связанных с указанной рецензией."
@@ -487,7 +495,7 @@ paths:
                     } 
                   ]
 
-  /api/route/{route-id}/review/{review-id}/comment:
+  /api/comment/route/{route-id}/review/{review-id}/comment:
     post:
       summary: "Добавление комментария"
       description: "Позволяет пользователю добавить комментарий к рецензии."
@@ -517,11 +525,14 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
                 text:
                   type: string
                   description: "Текст комментария"
-              example:
-                text: "This is an amazing route!"
+                  example: "This is an amazing route!"
       responses:
         200:
           description: "Комментарий успешно добавлен"
@@ -555,16 +566,19 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
                 comment_id:
                   type: integer
                   description: "ID комментария"
-              example:
-                comment_id: 1
+                  example: 1
       responses:
         200:
           description: "Комментарий успешно удалён"
 
-  /api/collections:
+  /api/collection/collections:
     get:
       summary: "Получение списка подборок"
       description: "Возвращает список id всех доступных подборок."
@@ -627,7 +641,7 @@ paths:
                     3
                   ]
 
-  /api/collection/{collection-id}:
+  /api/collection/collection/{collection-id}:
     get:
       summary: "Получение информации о подборке"
       description: "Возвращает подробную информацию о выбранной подборке."
@@ -714,7 +728,7 @@ paths:
                       amount: 2
                       ids: [1, 2]
 
-  /api/collection:
+  /api/collection/collection:
     post:
       summary: "Создание новой подборки"
       description: "Позволяет пользователю создать новую подборку."
@@ -732,6 +746,9 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
                 name:
                   type: string
                   description: "Название подборки"
@@ -745,6 +762,7 @@ paths:
                     enum: ["forest", "park", "near_water"]
                   description: "Список тегов"
               example:
+                user_id: 1
                 name: "Favorite Trails"
                 description: "Something about route"
                 tags: ["forest", "park"]
@@ -775,6 +793,9 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
                 name:
                   type: string
                   description: "Название подборки"
@@ -788,6 +809,7 @@ paths:
                     enum: ["forest", "park", "near_water"]
                   description: "Список тегов"
               example:
+                user_id: 1
                 description: "A beautiful trail in the mountains" 
       responses:
         200:
@@ -809,11 +831,23 @@ paths:
           schema:
             type: integer
           description: "ID подборки"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
+
       responses:
         200:
           description: "Подборка успешно удалена"
 
-  /api/collection/{collection-id}/add/{route-id}:
+  /api/collection/collection/{collection-id}/add/{route-id}:
     put:
       summary: "Добавление маршрута в подборку"
       description: "Позволяет пользователю добавить маршрут в указанную подборку."
@@ -836,11 +870,22 @@ paths:
           schema:
             type: integer
           description: "ID маршрута"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
       responses:
         200:
           description: "Маршрут успешно добавлен в подборку"
 
-  /api/collection/{collection-id}/remove/{route-id}:
+  /api/collection/collection/{collection-id}/remove/{route-id}:
     delete:
       summary: "Удаление маршрута из подборки"
       description: "Позволяет пользователю удалить маршрут из указанной подборки."
@@ -863,11 +908,22 @@ paths:
           schema:
             type: integer
           description: "ID маршрута"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                  example: 1
       responses:
         200:
           description: "Маршрут успешно удален из подборки"
   
-  /api/image/{image-url}:
+  /api/media/image/{image-url}:
     get:
       summary: "Получение изображения"
       description: "Позволяет получить изображение."
@@ -887,7 +943,7 @@ paths:
                 type: string
                 format: binary
   
-  /api/report:
+  /api/moderation/entity/report:
     post:
       summary: "Жалоба"
       description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
@@ -904,6 +960,9 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
                 object_type:
                   type: string
                   enum: ["user", "review", "route", "comment"]
@@ -917,6 +976,7 @@ paths:
                 created_at:
                   type: long
               example:
+                user_id: 1
                 object_type: "route"
                 object_id: 1
                 reason: "inappropriate content"
@@ -926,7 +986,7 @@ paths:
         200:
           description: "Жалоба успешно отправлена"
 
-  /api/reports:
+  /api/moderation/entity/reports:
     get:
       summary: "Получение списка всех жалоб для модерации"
       description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
@@ -1035,7 +1095,7 @@ paths:
                     ]
                   }
 
-  /api/report/resolve:
+  /api/moderation/entity/report/resolve:
     post:
       summary: "Закрытие жалобы после рассмотрения"
       description: "Отметка жалобы как решённой после рассмотрения модератором"
@@ -1052,18 +1112,22 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
                 report_id:
                   type: integer
                 resolution:
                   type: string
               example:
+                user_id: 1
                 report_id: 1
                 resolution: "The issue has been resolved, and the content has been edited."
       responses:
         200:
           description: "Жалоба успешно закрыта"
 
-  /api/bug/report:
+  /api/moderation/bug/report:
     post:
       summary: "Отправка отчёта об ошибке"
       description: "Отправка отчёта о найденной ошибке для её дальнейшего рассмотрения."
@@ -1092,7 +1156,7 @@ paths:
         200:
           description: "Отчёт об ошибке успешно отправлен"
 
-  /api/bug/reports:
+  /api/moderation/bug/reports:
     get:
       summary: "Получение списка баг-репортов"
       description: "Получение всех отправленных отчётов об ошибках для модераторов или разработчиков."
@@ -1175,7 +1239,7 @@ paths:
                         created_at: 1616179200
                         closed_at: 1616179200
 
-  /api/bug/resolve:
+  /api/moderation/bug/report/resolve:
     post:
       summary: "Закрытие баг-репорта"
       description: "Отметка баг-репорта как решённого после исправления."
@@ -1193,16 +1257,127 @@ paths:
             schema:
               type: object
               properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
                 report_id:
                   type: string
                 resolution:
                   type: string
               example:
+                user_id: 1
                 report_id: 1
                 resolution: "Fixed the file upload issue by optimizing memory handling."
       responses:
         200:
           description: "Баг-репорт успешно закрыт"
 
+  /api/moderation/routes:
+    get:
+      summary: "Получение списка маршрутов, ожидающих модерации"
+      description: "Получение маршрутов, которые требуют одобрения перед публикацией."
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          example: "Bearer <JWT>"
+      responses:
+        200:
+          description: "Список маршрутов, ожидающих модерации"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        status:
+                          type: string
+                      example:
+                        id: "1"
+                        name: "Mountain Trail"
+                        description: "A trail in the mountains"
+                        status: "pending"
 
+  /api/moderation/route/approve:
+    post:
+      summary: "Одобрение маршрута"
+      description: "Позволяет модератору одобрить маршрут."
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          example: "Bearer <JWT>"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                objectType:
+                  type: string
+                  enum: ["route", "post", "comment", "collection"]
+                objectId:
+                  type: string
+              example:
+                user_id: 1
+                objectType: "route"
+                objectId: "1"
+      responses:
+        200:
+          description: "Маршрут успешно одобрен"
+
+  /api/moderation/route/reject:
+    post:
+      summary: "Отклонение маршрута"
+      description: "Позволяет модератору отклонить маршрут."
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          example: "Bearer <JWT>"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                objectType:
+                  type: string
+                  enum: ["route", "post", "comment", "collection"]
+                objectId:
+                  type: string
+                reason:
+                  type: string
+              example:
+                user_id: 1
+                objectType: "route"
+                objectId: "1"
+                reason: "The route description is incomplete."
+      responses:
+        200:
+          description: "Маршрут отклонён"
                                                              

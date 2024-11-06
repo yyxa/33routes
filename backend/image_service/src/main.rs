@@ -7,10 +7,16 @@ use axum::{
 };
 use axum_server::Server;
 use std::{fs::File, io::Read, path::Path as StdPath};
+use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/api/image/:image_url", get(get_image));
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
+    let app = Router::new().route("/api.media/image/:image_url", get(get_image)).layer(cors);
 
     Server::bind("0.0.0.0:8100".parse().unwrap())
         .serve(app.into_make_service())

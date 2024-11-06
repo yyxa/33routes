@@ -3,7 +3,7 @@ use axum::{
     extract::{Path, Query, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
+    Json
 };
 use serde::Deserialize;
 use tokio_postgres::{error::SqlState, Client};
@@ -20,13 +20,18 @@ pub async fn get_routes(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
-    let page_number = params.page_number.unwrap_or(1);
-    let per_page = params.per_page.unwrap_or(10);
 
-    if page_number < 1 || per_page < 1 || per_page > 100 {
-        return (StatusCode::BAD_REQUEST, "Invalid pagination parameters").into_response();
-    }
-
+    let page_number = match params.page_number.unwrap_or(1) {
+        n if n < 1 => 1,
+        n => n,
+    };
+    
+    let per_page = match params.per_page.unwrap_or(10) {
+        n if n < 1 => 1,
+        n if n > 100 => 100,
+        n => n,
+    };
+    
     let (routes, total_elements) =
         match get_routes_list(&state.db_client, page_number, per_page).await {
             Ok(data) => data,
@@ -62,10 +67,7 @@ pub async fn get_routes(
 
     let response_body = RoutesResponse { routes };
 
-    let mut response = Json(response_body).into_response();
-    response.headers_mut().extend(headers);
-
-    response
+    (headers, Json(response_body)).into_response()
 }
 
 pub async fn get_route_by_id(
