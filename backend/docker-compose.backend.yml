@@ -4,9 +4,6 @@ services:
     build:
       context: ./image_service
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     volumes:
       - ~/33routes_images/:/home/root/33routes_images
     restart: always
@@ -22,9 +19,6 @@ services:
     build:
       context: ./route_service
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     env_file:
       - .env
     restart: always
@@ -40,9 +34,6 @@ services:
     build:
       context: ./route_service
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     env_file:
       - .env
     restart: always
@@ -58,9 +49,6 @@ services:
     build:
       context: ./route_service
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     env_file:
       - .env
     restart: always
@@ -76,9 +64,6 @@ services:
     build:
       context: ./route_service
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     env_file:
       - .env
     restart: always
