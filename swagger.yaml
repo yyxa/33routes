@@ -416,17 +416,11 @@ paths:
         200:
           description: "Рецензия успешно удалена"
 
-  /api/comment/route/{route-id}/review/{review-id}/comments:
+  /api/comment/review/{review-id}/comments:
     get:
       summary: "Получить комментарии к маршруту"
       description: "Возвращает список комментариев, связанных с указанной рецензией."
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          schema:
-            type: integer
-          description: "ID маршрута"
         - in: path
           name: review-id
           required: true
@@ -495,17 +489,11 @@ paths:
                     } 
                   ]
 
-  /api/comment/route/{route-id}/review/{review-id}/comment:
+  /api/comment/review/{review-id}/comment:
     post:
       summary: "Добавление комментария"
       description: "Позволяет пользователю добавить комментарий к рецензии."
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          schema:
-            type: string
-          description: "ID маршрута"
         - in: path
           name: review-id
           required: true
@@ -541,12 +529,6 @@ paths:
       summary: "Удаление комментария"
       description: "Позволяет пользователю удалить комментарий к рецензии."
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          schema:
-            type: string
-          description: "ID маршрута"
         - in: path
           name: review-id
           required: true

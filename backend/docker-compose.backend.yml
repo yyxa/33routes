@@ -40,6 +40,19 @@ services:
       - "traefik.http.routers.review_service.rule=PathPrefix(`/api/review/`)"
       - "traefik.http.services.review_service.loadbalancer.server.port=8100"
 
+  33routes_comment_service:
+    container_name: 33routes_comment_service
+    build:
+      context: ./route_service
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comment_service.rule=PathPrefix(`/api/comment/`)"
+      - "traefik.http.services.comment_service.loadbalancer.server.port=8100"
+
 networks:
   33routes_backend_network:
     external: true

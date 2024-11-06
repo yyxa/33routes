@@ -1,6 +1,3 @@
 env.sh
 .env
 wait
-search_service
-moderation_service
-comment_service
