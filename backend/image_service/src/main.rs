@@ -16,7 +16,7 @@ async fn main() {
         .allow_methods(Any)
         .allow_headers(Any);
 
-    let app = Router::new().route("/api.media/image/:image_url", get(get_image)).layer(cors);
+    let app = Router::new().route("/api/media/image/:image_url", get(get_image)).layer(cors);
 
     Server::bind("0.0.0.0:8100".parse().unwrap())
         .serve(app.into_make_service())
