@@ -35,7 +35,7 @@ build-databases:
 
 .PHONY: build-backend
 build-backend:
-	@docker compose -f $(BACKEND) build
+	@docker compose -f $(BACKEND) build --network host
 
 .PHONY: rebuild-all
 rebuild-all: rebuild-traefik rebuild-databases rebuild-backend
