@@ -9,7 +9,7 @@ BACKEND := docker-compose.backend.yml
 COMPOSE_FILES := -f $(TRAEFIK) -f $(DATABASES) -f $(BACKEND)
 
 .PHONY: all
-all: down-all network-all rebuild-all start-all
+all: down-all network-all rebuild-all start-all clear-prune
 
 .PHONY: network-all
 network-all: rm-network create-network
@@ -109,3 +109,6 @@ clear-all: clear rm-pg-data
 clear:
 	@docker compose $(COMPOSE_FILES) down --remove-orphans || true
 	
+.PHONY: clear-prune
+clear-prune:
+	@docker system prune -f
