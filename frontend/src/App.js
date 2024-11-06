@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import MainPage from './pages/MainPage';
+import MainPage from './pages/main_page/MainPage';
 import CollectionPage from './pages/CollectionPage';
 import RoutePage from './pages/RoutePage';
 import CollectionListPage from './pages/CollectionListPage';
@@ -9,7 +9,6 @@ import Header from './components/header/header';
 const App = () => {
   return (
     <Router>
-      <Header />
       <div className="content">
         <Routes>
           <Route path="/" element={<MainPage />} />
