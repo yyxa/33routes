@@ -32,7 +32,7 @@ services:
   33routes_review_service:
     container_name: 33routes_review_service
     build:
-      context: ./route_service
+      context: ./review_service
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -47,7 +47,7 @@ services:
   33routes_comment_service:
     container_name: 33routes_comment_service
     build:
-      context: ./route_service
+      context: ./comment_service
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -62,7 +62,7 @@ services:
   33routes_collection_service:
     container_name: 33routes_collection_service
     build:
-      context: ./route_service
+      context: ./collection_service
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -73,6 +73,21 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.collection_service.rule=PathPrefix(`/api/collection/`)"
       - "traefik.http.services.collection_service.loadbalancer.server.port=8100"
+
+  33routes_moderation_service:
+    container_name: 33routes_moderation_service
+    build:
+      context: ./moderation_service
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.moderation_service.rule=PathPrefix(`/api/moderation/`)"
+      - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
 
 networks:
   33routes_backend_network:

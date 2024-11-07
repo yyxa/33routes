@@ -1,0 +1,16 @@
+[package]
+name = "moderation_service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7.7"
+axum-server = "0.7.1"
+tokio = { version = "1.41.0", features = ["full"] }
+tokio-postgres = "0.7.12"
+dotenv = "0.15.0"
+serde = { version = "1.0.214", features = ["derive"] }
+serde_json = "1.0.132"
+chrono = "0.4.38"
+tower-http = { version = "0.6.1", features = ["cors"] }
+postgres-types = { version = "0.2.8", features = ["derive"] }

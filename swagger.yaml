@@ -955,15 +955,12 @@ paths:
                   enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
                 details:
                   type: string
-                created_at:
-                  type: long
               example:
                 user_id: 1
                 object_type: "route"
                 object_id: 1
                 reason: "inappropriate content"
                 details: "This route contains inappropriate language."
-                created_at: 1616179200
       responses:
         200:
           description: "Жалоба успешно отправлена"
@@ -1260,14 +1257,59 @@ paths:
       description: "Получение маршрутов, которые требуют одобрения перед публикацией."
       parameters:
         - in: header
-          name: Authorization
+          name: session-token
           required: true
           schema:
             type: string
-          example: "Bearer <JWT>"
+        - in: query
+          name: pagination-page-number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: "Номер страницы для отображения (по умолчанию 1)"
+          example: 1
+        - in: query
+          name: pagination-per-page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: "Количество элементов на странице (по умолчанию 10)"
+          example: 10
+        - in: query
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: ["pending", "approved", "rejected"]
+          description: "Статус репорта"
+          example: "approved"
       responses:
         200:
           description: "Список маршрутов, ожидающих модерации"
+          headers:
+            pagination-current-page:
+              description: "Текущая страница пагинации"
+              schema:
+                type: integer
+                example: 1
+            pagination-total-elements:
+              description: "Общее количество страниц"
+              schema:
+                type: integer
+                example: 5
+            pagination-per-page:
+              description: "Количество элементов на странице"
+              schema:
+                type: integer
+                example: 3
+            pagination-total-pages:
+              description: "Количество страниц"
+              schema:
+                type: integer
+                example: 1
           content:
             application/json:
               schema:
@@ -1278,19 +1320,157 @@ paths:
                     items:
                       type: object
                       properties:
-                        id:
-                          type: string
-                        name:
-                          type: string
-                        description:
-                          type: string
-                        status:
-                          type: string
+                        user:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                              description: "ID юзера"
+                              example: 1
+                            name:
+                              type: string
+                              description: "ID юзера"
+                              example: "Алла Иванова"
+                            image_url:
+                              type: string
+                              description: "url аватарки"
+                              example: "url"
+                        route:
+                          type: object
+                          properties:
+                            route_id:
+                              type: integer
+                              description: "ID маршрута"
+                              example: 123
+                            name:
+                              type: string
+                              description: "Название маршрута"
+                              example: "Mountain Trail"
+                            url:
+                              type: string
+                              description: "URL маршрута"
+                              example: "url"
+                            description:
+                              type: string
+                              description: "Описание маршрута"
+                              example: "A beautiful trail in the mountains"
+                            length:
+                              type: integer
+                              description: "Длина маршрута в метрах"
+                              example: 5000
+                            duration:
+                              type: integer
+                              description: "Продолжительность маршрута в секундах"
+                              example: 7200
+                            tags:
+                              type: array
+                              items:
+                                type: string
+                                enum: ["forest", "park", "near_water"]
+                              description: "Теги маршрута"
+                              example: ["forest", "near_water"]
+                            category:
+                              type: string
+                              enum: ["walking"]
+                              description: "Категория маршрута"
+                              example: "walking"
+                            created_at:
+                              type: integer
+                              description: "Дата создания маршрута в формате Unix"
+                              example: 1616179200
+                            status:
+                              type: string
+                              enum: ["pending", "approved", "rejected"]
+                              description: "Статус маршрута"
+                              example: "approved"
+                            is_deleted:
+                              type: boolean
+                              description: "Флаг удаления маршрута"
+                              example: false
+                            rating:
+                              type: number
+                              format: float
+                              description: "Средний рейтинг маршрута"
+                              example: 3.5
+                            images:
+                              type: array
+                              items:
+                                type: string
+                              description: "Ссылки на изображения маршрута"
+                              example: ["url_to_image1", "url_to_image2"]
+                        points:
+                          type: array
+                          description: "Точки маршрута с координатами и дополнительной информацией"
+                          items:
+                            type: object
+                            properties:
+                              point_id:
+                                type: integer
+                                description: "ID точки маршрута"
+                                example: 1
+                              coordinate:
+                                type: object
+                                properties:
+                                  latitude:
+                                    type: number
+                                    format: float
+                                    description: "Широта"
+                                    example: 45.12345
+                                  longitude:
+                                    type: number
+                                    format: float
+                                    description: "Долгота"
+                                    example: 12.12345
+                              time_offset:
+                                type: integer
+                                description: "Время в секундах с начала маршрута"
+                                example: 300
+                              elevation:
+                                type: integer
+                                description: "Высота точки над уровнем моря в метрах"
+                                example: 200
+                              speed:
+                                type: number
+                                format: float
+                                description: "Скорость на этой точке маршрута"
+                                example: 2.5
+                              point_description:
+                                type: string
+                                description: "Описание точки маршрута"
+                                example: "Поворот у дерева"
+                              images:
+                                type: array
+                                items:
+                                  type: string
+                                description: "Изображения, связанные с точкой маршрута"
+                                example: ["url_to_image1", "url_to_image2"]
                       example:
-                        id: "1"
-                        name: "Mountain Trail"
-                        description: "A trail in the mountains"
-                        status: "pending"
+                        user:
+                          user_id: 1
+                          name: "Алла Майонезова"
+                          image_url: "image"
+                        route:
+                          route_id: 123
+                          name: "Mountain Trail"
+                          url: "url"
+                          description: "A beautiful trail in the mountains"
+                          length: 5000
+                          duration: 7200
+                          tags: ["forest", "near_water"]
+                          category: "walking"
+                          created_at: 1616179200
+                          rating: 3.5
+                          images: ["url_to_image1", "url_to_image2"]
+                        points:
+                          - point_id: 1
+                            coordinate:
+                              latitude: 45.12345
+                              longitude: 12.12345
+                            time_offset: 300
+                            elevation: 200
+                            speed: 2.5
+                            point_description: "Поворот у дерева"
+                            images: ["url_to_image1", "url_to_image2"]
 
   /api/moderation/route/approve:
     post:
@@ -1298,11 +1478,10 @@ paths:
       description: "Позволяет модератору одобрить маршрут."
       parameters:
         - in: header
-          name: Authorization
+          name: session-token
           required: true
           schema:
             type: string
-          example: "Bearer <JWT>"
       requestBody:
         required: true
         content:
@@ -1313,15 +1492,15 @@ paths:
                 user_id:
                   type: integer
                   description: "ID пользователя"
-                objectType:
+                object_type:
                   type: string
                   enum: ["route", "post", "comment", "collection"]
-                objectId:
-                  type: string
+                object_id:
+                  type: integer
               example:
                 user_id: 1
-                objectType: "route"
-                objectId: "1"
+                object_type: "route"
+                object_id: 1
       responses:
         200:
           description: "Маршрут успешно одобрен"
@@ -1332,11 +1511,10 @@ paths:
       description: "Позволяет модератору отклонить маршрут."
       parameters:
         - in: header
-          name: Authorization
+          name: session-token
           required: true
           schema:
             type: string
-          example: "Bearer <JWT>"
       requestBody:
         required: true
         content:
@@ -1347,17 +1525,17 @@ paths:
                 user_id:
                   type: integer
                   description: "ID пользователя"
-                objectType:
+                object_type:
                   type: string
                   enum: ["route", "post", "comment", "collection"]
-                objectId:
-                  type: string
+                object_id:
+                  type: integer
                 reason:
                   type: string
               example:
                 user_id: 1
-                objectType: "route"
-                objectId: "1"
+                object_type: "route"
+                object_id: 1
                 reason: "The route description is incomplete."
       responses:
         200:

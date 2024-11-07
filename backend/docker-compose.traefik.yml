@@ -9,6 +9,9 @@ services:
       - "--entrypoints.websecure.address=:8443"
       - "--api.insecure=true"
       - "--log.level=INFO"
+      # - "--api.dashboard=true"
+      # - "--api.insecure=true"
+      # - "--api.dashboard.pathprefix=/admin/traefik"
     ports:
       - "8100:8100"
       - "8443:8443"
