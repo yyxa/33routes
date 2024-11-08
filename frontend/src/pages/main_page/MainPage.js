@@ -1,9 +1,13 @@
 import React from 'react';
 import './mainPage.css'; // Файл для стилей страницы
+import { Helmet } from 'react-helmet-async';
 
 const MainPage = () => {
   return (
     <div className="main-container">
+      <Helmet>
+        <title>33routes - Главная страница</title>
+      </Helmet>
       {/* Шапка */}
       <header className="header">
         <div className="logo">33routes</div>

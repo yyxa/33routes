@@ -8,9 +8,9 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 
 RUN npm install 
 
-RUN npm install react-router-dom
+RUN npm install react-router-dom react-scripts react-helmet-async
 
-RUN npm install react-scripts
+RUN npm audit fix --force
 
 COPY . .
 
