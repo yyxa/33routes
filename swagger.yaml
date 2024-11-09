@@ -5,6 +5,7 @@ info:
   version: "1.0.0"
 servers:
   - url: http://localhost:8100
+  - url: https://33routes.ru
 paths:
 
 
