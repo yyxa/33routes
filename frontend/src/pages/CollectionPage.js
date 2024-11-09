@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../components/button/button';
+import Button from '../components/buttons/button';
 import ToggleSwitch from '../components/toggle_switch/toggleSwitch';
 
 const CollectionPage = () => {

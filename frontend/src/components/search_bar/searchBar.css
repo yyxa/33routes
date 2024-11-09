@@ -1,37 +1,38 @@
-/* components/Search_Bar/SearchBar.css */
 .search-bar {
   position: relative;
-  width: 100%;
-  max-width: 600px;
+  width: 100%; 
+  height: 40px;
+  box-sizing: border-box;
 }
 
 .search-input {
   width: 100%;
-  padding: 10px 15px 10px 40px; /* Отступ справа и слева для иконки */
-  font-size: 16px;
-  border: 1px solid #000000;
-  border-radius: 5px;
+  height: 100%;
+  padding: 10px 40px;
+  font-size: 18px;
+  font-family: system-ui;
+  border: 1px solid #dfdfdf;
   outline: none;
-  transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .search-input:focus {
-  border-color: #000000; /* Цвет границы при фокусе */
+  border-color: #000000;
 }
 
 .search-icon {
   position: absolute;
-  left: 10px; /* Иконка слева */
+  left: 10px;
   top: 50%;
-  transform: translateY(-50%); /* Центрирование по вертикали */
-  width: 18px; /* Размер иконки */
+  transform: translateY(-50%);
+  width: 18px;
   height: 18px;
   background-size: contain; 
   background-repeat: no-repeat;
-  background-image: url('../../images/loupe.svg'); /* Путь к иконке */
+  background-image: url('../../images/loupe.svg');
   cursor: pointer;
 }
 
 .search-bar:hover .search-input {
-  border-color: #000000; /* Цвет при наведении */
+  border-color: #000000;
 }
