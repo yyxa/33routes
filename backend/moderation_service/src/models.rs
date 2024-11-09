@@ -12,10 +12,15 @@ pub struct AppState {
 #[postgres(name = "entity_type")]
 #[serde(rename_all = "lowercase")]
 pub enum EntityType {
+    #[postgres(name = "route")]
     Route,
+    #[postgres(name = "review")]
     Review,
+    #[postgres(name = "collection")]
     Collection,
+    #[postgres(name = "user")]
     User,
+    #[postgres(name = "comment")]
     Comment,
 }
 
@@ -41,8 +46,22 @@ pub enum ReportType {
 #[postgres(name = "report_status")]
 #[serde(rename_all = "lowercase")]
 pub enum ReportStatus {
+    #[postgres(name = "opened")]
     Opened,
+    #[postgres(name = "closed")]
     Closed,
+}
+
+#[derive(Debug, PartialEq, ToSql, FromSql, Serialize, Deserialize)]
+#[postgres(name = "tag_type")]
+#[serde(rename_all = "snake_case")]
+pub enum TagType {
+    #[postgres(name = "forest")]
+    Forest,
+    #[postgres(name = "park")]
+    Park,
+    #[postgres(name = "near_water")]
+    NearWater,
 }
 
 #[derive(Debug, Deserialize)]
@@ -126,8 +145,11 @@ pub struct GetReportsParams {
 #[postgres(name = "route_status_type")]
 #[serde(rename_all = "lowercase")]
 pub enum RouteStatusType {
+    #[postgres(name = "pending")]
     Pending,
+    #[postgres(name = "approved")]
     Approved,
+    #[postgres(name = "rejected")]
     Rejected,
 }
 
@@ -159,7 +181,7 @@ pub struct Route {
     pub tags: Option<Vec<String>>,
     pub category: String,
     pub created_at: i64,
-    pub status: RouteStatusType,
+    pub status: String,
     pub is_deleted: bool,
     pub rating: f64,
     pub images: Option<Vec<String>>,

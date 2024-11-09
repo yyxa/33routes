@@ -360,10 +360,11 @@ pub async fn get_routes_for_moderation(
     let per_page = params.per_page.unwrap_or(10).clamp(1, 100);
     let offset = (page_number - 1) * per_page;
 
-    let status = match params.status.as_deref() {
-        Some("pending") => RouteStatusType::Pending,
-        Some("approved") => RouteStatusType::Approved,
-        Some("rejected") => RouteStatusType::Rejected,
+    // Изменяем сопоставление статуса на строку
+    let status_str = match params.status.as_deref() {
+        Some("pending") => "pending",
+        Some("approved") => "approved",
+        Some("rejected") => "rejected",
         _ => {
             return (
                 StatusCode::BAD_REQUEST,
@@ -376,8 +377,8 @@ pub async fn get_routes_for_moderation(
     let total_routes_row = state
         .db_client
         .query_one(
-            "SELECT COUNT(*) FROM routes WHERE status = $1",
-            &[&status],
+            "SELECT COUNT(*) FROM routes WHERE status::text = $1",
+            &[&status_str],
         )
         .await;
 
@@ -397,8 +398,12 @@ pub async fn get_routes_for_moderation(
     let routes_rows = state
         .db_client
         .query(
-            "SELECT * FROM routes WHERE status = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
-            &[&status, &per_page, &offset],
+            "SELECT route_id, user_id, name, url, description, length, duration, tags::text[] AS tags, category::text AS category, created_at, status::text AS status, is_deleted, rating, images 
+             FROM routes 
+             WHERE status::text = $1 
+             ORDER BY created_at DESC 
+             LIMIT $2 OFFSET $3",
+            &[&status_str, &per_page, &offset],
         )
         .await;
 
@@ -415,10 +420,10 @@ pub async fn get_routes_for_moderation(
                     description: route_row.get("description"),
                     length: route_row.get("length"),
                     duration: route_row.get("duration"),
-                    tags: route_row.get("tags"),
-                    category: route_row.get("category"),
+                    tags: route_row.get("tags"), // Option<Vec<String>>
+                    category: route_row.get("category"), // String
                     created_at: route_row.get("created_at"),
-                    status: route_row.get("status"),
+                    status: route_row.get("status"), // String
                     is_deleted: route_row.get("is_deleted"),
                     rating: route_row.get("rating"),
                     images: route_row.get("images"),
@@ -523,6 +528,7 @@ pub async fn get_routes_for_moderation(
 
     (response_headers, Json(response_body)).into_response()
 }
+
 
 pub async fn approve_route(
     State(state): State<AppState>,
