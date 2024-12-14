@@ -11,7 +11,7 @@ const AuthPage = () => {
 
       VKID.Config.init({
         app: parseInt(process.env.REACT_APP_VK_APP_ID, 10),
-        redirectUrl: 'https://localhost',
+        redirectUrl: 'https://33routes.ru',
         responseMode: VKID.ConfigResponseMode.PostMessage,
         source: VKID.ConfigSource.LOWCODE,
         scope: '',
