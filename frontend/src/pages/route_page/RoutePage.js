@@ -1,6 +1,6 @@
 import React from 'react';
-import SearchBar from '../components/search_bar/searchBar';
-import Button from '../components/buttons/button';
+import SearchBar from '../../components/search_bar/searchBar';
+import Button from '../../components/buttons/button';
 
 const RoutePage = () => {
   return (

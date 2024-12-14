@@ -4,7 +4,9 @@ import { Helmet } from 'react-helmet-async';
 
 import SearchBar from "../../components/search_bar/searchBar";
 import Button from '../../components/buttons/button';
-import RouteCard from '../../components/route_card/routeCard'
+import RouteCard from '../../components/route_card/routeCard';
+import CommentCard from '../../components/comment_card/commentCard';
+import Header from '../../components/header/header'
 
 const routeData = [
   {
@@ -106,15 +108,7 @@ const MainPage = () => {
       <Helmet>
         <title>33routes - Главная страница</title>
       </Helmet>
-      <header className="header">
-        <div className="logo">33routes</div>
-        <div className="header-actions">
-          <div className="avatar-placeholder">
-            <img src={require('./53.jpg')} alt="Аватар" />
-          </div>
-          <button className="menu-button">...</button>
-        </div>
-      </header>
+      <Header />
 
       <div className="divider"></div>
 
@@ -179,7 +173,11 @@ const MainPage = () => {
           </div>
         </div>
 
-        <div className="right-panel"></div>
+        <div className="right-panel">
+          {/* <CommentCard
+            commentData="чтото"
+          /> */}
+        </div>
       </div>
     </div>
   );

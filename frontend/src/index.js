@@ -1,11 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import './index.css';
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import "./index.css";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const Root = () => {
+  const [user, setUser] = useState(null);
+
+  return <App user={user} setUser={setUser} />;
+};
+
+ReactDOM.render(<Root />, document.getElementById("root"));

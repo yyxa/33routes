@@ -1,19 +1,33 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './header.css';
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleAvatarClick = () => {
+    navigate('/auth');
+  };
+
+  const handleMenuClick = () => {
+    console.log("Menu clicked!");
+  };
+
   return (
-    <header className="header">
-      <div className="logo">
-        <h1>33routes</h1>
-      </div>
-      <nav className="nav">
-        <Link to="/">Главная</Link>
-        <Link to="/collections">Коллекции</Link>
-        <Link to="/route/1">Маршрут</Link>
-      </nav>
-    </header>
+    <div className="header-container">
+      <header className="header">
+        <div className="logo">33routes</div>
+        <div className="header-actions">
+          <div className="avatar-placeholder" onClick={handleAvatarClick}>
+            <span>Login</span>
+          </div>
+          <button className="menu-button" onClick={handleMenuClick}>
+            ...
+          </button>
+        </div>
+      </header>
+      <div className="divider"></div>
+    </div>
   );
 };
 

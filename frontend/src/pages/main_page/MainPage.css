@@ -6,16 +6,6 @@
   background-color: #b6b6b6;
 }
 
-.header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  height: 85px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ccc;
-}
 
 .logo {
   font-size: calc(85px * 0.5);

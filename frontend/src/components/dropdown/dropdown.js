@@ -4,7 +4,7 @@ import './dropdown.css';
 const Dropdown = ({ options, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-  const dropdownRef = useRef(null); // Используем ref для доступа к элементу выпадающего списка
+  const dropdownRef = useRef(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -14,14 +14,12 @@ const Dropdown = ({ options, onSelect }) => {
     if (onSelect) onSelect(option);
   };
 
-  // Закрыть список при клике вне области
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsOpen(false);
     }
   };
 
-  // Добавляем/удаляем обработчик событий для кликов вне области компонента
   useEffect(() => {
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
@@ -29,7 +27,6 @@ const Dropdown = ({ options, onSelect }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     }
     
-    // Убираем слушатель при размонтировании компонента
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
