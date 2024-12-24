@@ -6,7 +6,7 @@ import SearchBar from "../../components/search_bar/searchBar";
 import Button from '../../components/buttons/button';
 import RouteCard from '../../components/route_card/routeCard';
 import CommentCard from '../../components/comment_card/commentCard';
-import Header from '../../components/header/header'
+import PageLayout from '../page_layout/PageLayout'
 
 const routeData = [
   {
@@ -104,82 +104,73 @@ const MainPage = () => {
   };
 
   return (
-    <div className="main-container">
-      <Helmet>
-        <title>33routes - Главная страница</title>
-      </Helmet>
-      <Header />
+    <PageLayout>
+      <div className="left-panel">
+        <SearchBar />
 
-      <div className="divider"></div>
-
-      <div className="content">
-        <div className="left-panel">
-          <SearchBar />
-
-          <div className="button-groups">
-            <div className="type-button-container">
-              <Button
-                label="МАРШРУТЫ"
-                variant={activeRouteButton === 'МАРШРУТЫ' ? 'dark' : 'white'}
-                onClick={() => handleRouteButtonClick('МАРШРУТЫ')}
-              />
-              <Button
-                label="ПОДБОРКИ"
-                variant={activeRouteButton === 'ПОДБОРКИ' ? 'dark' : 'white'}
-                onClick={() => handleRouteButtonClick('ПОДБОРКИ')}
-              />
-            </div>
-
-            <div className="sort-filter-container">
-              <Button
-                label="СОРТИРОВАТЬ"
-                variant={activeSortButton === 'СОРТИРОВАТЬ' ? 'dark' : 'white'}
-                onClick={() => handleSortButtonClick('СОРТИРОВАТЬ')}
-              />
-              <Button
-                label="ФИЛЬТРЫ"
-                variant={activeSortButton === 'ФИЛЬТРЫ' ? 'dark' : 'white'}
-                onClick={() => handleSortButtonClick('ФИЛЬТРЫ')}
-              />
-            </div>
+        <div className="button-groups">
+          <div className="type-button-container">
+            <Button
+              label="МАРШРУТЫ"
+              variant={activeRouteButton === 'МАРШРУТЫ' ? 'dark' : 'white'}
+              onClick={() => handleRouteButtonClick('МАРШРУТЫ')}
+            />
+            <Button
+              label="ПОДБОРКИ"
+              variant={activeRouteButton === 'ПОДБОРКИ' ? 'dark' : 'white'}
+              onClick={() => handleRouteButtonClick('ПОДБОРКИ')}
+            />
           </div>
 
-          <div className="route-list">
-            {activeRouteButton === 'МАРШРУТЫ' &&
-              routeData.map((route) => (
-                <RouteCard
-                  key={route.id}
-                  name={route.name}
-                  description={route.description}
-                  distance={route.distance}
-                  duration={route.duration}
-                  rating={route.rating}
-                  images={route.images}
-                />
-              ))
-            }
-
-            {/* {activeRouteButton === 'ПОДБОРКИ' &&
-              collectionData.map((collection) => (
-                <CollectionCard
-                  key={collection.id}
-                  name={collection.name}
-                  description={collection.description}
-                  items={collection.items}
-                  images={collection.images}
-                />
-              ))
-            } */}
+          <div className="sort-filter-container">
+            <Button
+              label="СОРТИРОВАТЬ"
+              variant={activeSortButton === 'СОРТИРОВАТЬ' ? 'dark' : 'white'}
+              onClick={() => handleSortButtonClick('СОРТИРОВАТЬ')}
+            />
+            <Button
+              label="ФИЛЬТРЫ"
+              variant={activeSortButton === 'ФИЛЬТРЫ' ? 'dark' : 'white'}
+              onClick={() => handleSortButtonClick('ФИЛЬТРЫ')}
+            />
           </div>
         </div>
 
-        <div className="right-panel">
-          {/* <CommentCard
-            commentData="чтото"
-          /> */}
+        <div className="route-list">
+          {activeRouteButton === 'МАРШРУТЫ' &&
+            routeData.map((route) => (
+              <RouteCard
+                key={route.id}
+                name={route.name}
+                description={route.description}
+                distance={route.distance}
+                duration={route.duration}
+                rating={route.rating}
+                images={route.images}
+              />
+            ))
+          }
+
+          {/* {activeRouteButton === 'ПОДБОРКИ' &&
+            collectionData.map((collection) => (
+              <CollectionCard
+                key={collection.id}
+                name={collection.name}
+                description={collection.description}
+                items={collection.items}
+                images={collection.images}
+              />
+            ))
+          } */}
         </div>
       </div>
-    </div>
+
+      <div className="right-panel">
+        {/* <CommentCard
+          commentData="чтото"
+        /> */}
+      </div>
+    </PageLayout>
   );
 };
 
