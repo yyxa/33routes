@@ -16,13 +16,21 @@
 
 .divider {
   width: 100%;
-  height: 7px;
+  height: 3px;
   background-color: #b22222;
 }
 
 .logo {
-  font-size: 42px;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.logo-icon {
+  width: 500px;
+  height: 60px; 
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url('../../images/33routes_logo.svg'); 
 }
 
 .header-actions {

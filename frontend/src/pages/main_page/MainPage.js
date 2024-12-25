@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
-import './MainPage.css';
+import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import 'ol/ol.css'; // Стили для OpenLayers
+import { Map, View } from 'ol';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import { fromLonLat } from 'ol/proj';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import { Style, Icon } from 'ol/style';
 
+import './MainPage.css';
 import SearchBar from "../../components/search_bar/searchBar";
 import Button from '../../components/buttons/button';
 import RouteCard from '../../components/route_card/routeCard';
-import CommentCard from '../../components/comment_card/commentCard';
-import PageLayout from '../page_layout/PageLayout'
+import Header from '../../components/header/header';
 
 const routeData = [
   {
@@ -16,61 +25,9 @@ const routeData = [
     distance: "2 км",
     duration: "1 час",
     rating: 4.9,
+    latitude: 55.7558,
+    longitude: 37.6173,
     images: ["./image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg"],
-  },
-  {
-    id: 2,
-    name: "Все сувениры",
-    description: "Маршрут по магазинам города, где можно приобрести уникальные сувениры и подарки.",
-    distance: "4 км",
-    duration: "38 минут",
-    rating: 4.7,
-    images: ["image5.jpg", "image6.jpg", "image7.jpg", "image8.jpg"],
-  },
-  {
-    id: 3,
-    name: "По следам историков",
-    description: "Экскурсия по старым зданиям и памятникам города, где вы узнаете удивительные истории.",
-    distance: "5 км",
-    duration: "2 часа",
-    rating: 4.8,
-    images: ["image9.jpg", "image10.jpg", "image11.jpg"],
-  },
-  {
-    id: 4,
-    name: "Парки и прудики",
-    description: "Маршрут по самым живописным паркам города с великолепными прудами и аллеями.",
-    distance: "3 км",
-    duration: "1.5 часа",
-    rating: 4.5,
-    images: ["image12.jpg", "image13.jpg"],
-  },
-  {
-    id: 5,
-    name: "Река и мосты",
-    description: "Прогулка вдоль реки, через старинные мосты, с остановками на смотровых площадках.",
-    distance: "6 км",
-    duration: "2.5 часа",
-    rating: 4.6,
-    images: ["image14.jpg", "image15.jpg", "image16.jpg", "image17.jpg"],
-  },
-  {
-    id: 6,
-    name: "Театральная площадь",
-    description: "Маршрут через театральную площадь города, знакомство с историей театров и культурных заведений.",
-    distance: "1.5 км",
-    duration: "45 минут",
-    rating: 4.2,
-    images: ["image18.jpg", "image19.jpg"],
-  },
-  {
-    id: 7,
-    name: "Морской бриз",
-    description: "Прогулка по набережной с видом на море и старые морские башни.",
-    distance: "7 км",
-    duration: "3 часа",
-    rating: 4.9,
-    images: ["image20.jpg", "image21.jpg", "image22.jpg"],
   },
 ];
 
@@ -94,6 +51,48 @@ const collectionData = [
 const MainPage = () => {
   const [activeRouteButton, setActiveRouteButton] = useState('МАРШРУТЫ');
   const [activeSortButton, setActiveSortButton] = useState('');
+  
+  const mapContainerRef = useRef(null);
+
+useEffect(() => {
+  if (mapContainerRef.current) {
+    console.log('Container size:', mapContainerRef.current.offsetWidth, mapContainerRef.current.offsetHeight);
+
+    const map = new Map({
+      target: mapContainerRef.current,
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+      ],
+      view: new View({
+        center: fromLonLat([37.6173, 55.7558]),
+        zoom: 12,
+      }),
+    });
+
+    const marker = new Feature({
+      geometry: new Point(fromLonLat([37.6173, 55.7558])),
+    });
+    marker.setStyle(new Style({
+      image: new Icon({
+        src: 'https://openlayers.org/en/v4.6.5/examples/data/icon.png',
+        scale: 0.05,
+      }),
+    }));
+
+    const vectorSource = new VectorSource({
+      features: [marker],
+    });
+
+    const vectorLayer = new VectorLayer({
+      source: vectorSource,
+    });
+
+    map.addLayer(vectorLayer);
+  }
+}, []);
+
 
   const handleRouteButtonClick = (buttonType) => {
     setActiveRouteButton(buttonType);
@@ -104,73 +103,69 @@ const MainPage = () => {
   };
 
   return (
-    <PageLayout>
-      <div className="left-panel">
-        <SearchBar />
+    <div className="main-container">
+      <Helmet>
+        <title>33routes - Главная страница</title>
+      </Helmet>
+      <Header />
 
-        <div className="button-groups">
-          <div className="type-button-container">
-            <Button
-              label="МАРШРУТЫ"
-              variant={activeRouteButton === 'МАРШРУТЫ' ? 'dark' : 'white'}
-              onClick={() => handleRouteButtonClick('МАРШРУТЫ')}
-            />
-            <Button
-              label="ПОДБОРКИ"
-              variant={activeRouteButton === 'ПОДБОРКИ' ? 'dark' : 'white'}
-              onClick={() => handleRouteButtonClick('ПОДБОРКИ')}
-            />
+      <div className="divider"></div>
+
+      <div className="content">
+        <div className="left-panel">
+          <SearchBar />
+
+          <div className="button-groups">
+            <div className="type-button-container">
+              <Button
+                label="МАРШРУТЫ"
+                variant={activeRouteButton === 'МАРШРУТЫ' ? 'dark' : 'white'}
+                onClick={() => handleRouteButtonClick('МАРШРУТЫ')}
+              />
+              <Button
+                label="ПОДБОРКИ"
+                variant={activeRouteButton === 'ПОДБОРКИ' ? 'dark' : 'white'}
+                onClick={() => handleRouteButtonClick('ПОДБОРКИ')}
+              />
+            </div>
+
+            <div className="sort-filter-container">
+              <Button
+                label="СОРТИРОВАТЬ"
+                variant={activeSortButton === 'СОРТИРОВАТЬ' ? 'dark' : 'white'}
+                onClick={() => handleSortButtonClick('СОРТИРОВАТЬ')}
+              />
+              <Button
+                label="ФИЛЬТРЫ"
+                variant={activeSortButton === 'ФИЛЬТРЫ' ? 'dark' : 'white'}
+                onClick={() => handleSortButtonClick('ФИЛЬТРЫ')}
+              />
+            </div>
           </div>
 
-          <div className="sort-filter-container">
-            <Button
-              label="СОРТИРОВАТЬ"
-              variant={activeSortButton === 'СОРТИРОВАТЬ' ? 'dark' : 'white'}
-              onClick={() => handleSortButtonClick('СОРТИРОВАТЬ')}
-            />
-            <Button
-              label="ФИЛЬТРЫ"
-              variant={activeSortButton === 'ФИЛЬТРЫ' ? 'dark' : 'white'}
-              onClick={() => handleSortButtonClick('ФИЛЬТРЫ')}
-            />
+          <div className="route-list">
+            {activeRouteButton === 'МАРШРУТЫ' &&
+              routeData.map((route) => (
+                <RouteCard
+                  key={route.id}
+                  name={route.name}
+                  description={route.description}
+                  distance={route.distance}
+                  duration={route.duration}
+                  rating={route.rating}
+                  images={route.images}
+                />
+              ))
+            }
           </div>
         </div>
 
-        <div className="route-list">
-          {activeRouteButton === 'МАРШРУТЫ' &&
-            routeData.map((route) => (
-              <RouteCard
-                key={route.id}
-                name={route.name}
-                description={route.description}
-                distance={route.distance}
-                duration={route.duration}
-                rating={route.rating}
-                images={route.images}
-              />
-            ))
-          }
-
-          {/* {activeRouteButton === 'ПОДБОРКИ' &&
-            collectionData.map((collection) => (
-              <CollectionCard
-                key={collection.id}
-                name={collection.name}
-                description={collection.description}
-                items={collection.items}
-                images={collection.images}
-              />
-            ))
-          } */}
+        <div className="right-panel">
+          {/* Контейнер для карты */}
+          <div ref={mapContainerRef} className="leaflet-container"></div>
         </div>
       </div>
-
-      <div className="right-panel">
-        {/* <CommentCard
-          commentData="чтото"
-        /> */}
-      </div>
-    </PageLayout>
+    </div>
   );
 };
 

@@ -1,11 +1,46 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh; 
+  overflow: hidden; 
+}
 
+.content {
+  display: flex;
+  width: 100%;
+  height: 100vh; 
+}
+
+.left-panel, .right-panel {
+  width: 50%;
+  overflow-y: auto;
+}
+
+.left-panel {
+  background-color: #f8f8f8;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.right-panel {
+  background-color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.leaflet-container {
+  width: 100%; 
+  height: 100%;
+  border-radius: 10px;
+}
 
 .button-groups {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 100%;
   margin-top: 0px;
 }
 
@@ -22,17 +57,11 @@
   justify-content: flex-end;
 }
 
-.right-panel {
-  flex: 1;
-  background-color: #e0e0e0;
-  height: 100%;
-}
-
 .route-list {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px; 
+  gap: 15px;
 }
 
 @media (max-width: 768px) {
@@ -41,13 +70,7 @@
   }
 
   .left-panel {
-    flex: 1;
-    overflow-y: auto;
-    height: 100%;
-    background-color: #f0f0f0;
+    width: 100%; 
     padding: 20px 35px 0px 45px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
 }

@@ -16,7 +16,9 @@ const Header = () => {
   return (
     <div className="header-container">
       <header className="header">
-        <div className="logo">33routes</div>
+        <div class="logo">
+          <div class="logo-icon"></div>
+        </div>
         <div className="header-actions">
           <div className="avatar-placeholder" onClick={handleAvatarClick}>
             <span>Login</span>
