@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchBar from '../../components/search_bar/searchBar';
 import Button from '../../components/buttons/button';
 import RouteCard from '../../components/route_card/routeCard';
+import CollectionCard from '../../components/collection_card/collectionCard';
 
 import './SearchPage.css'; // Стили, если нужно
 
@@ -148,6 +149,10 @@ const SearchPage = () => {
                 id={r.id}
                 name={r.name}
                 description={r.description}
+                distance={r.distance}
+                duration={r.duration}
+                rating={r.rating}
+                images={r.images}
                 // при клике – переходим на /route/ID
                 onOpenRouteDetail={handleOpenRouteDetail}
               />
@@ -157,15 +162,15 @@ const SearchPage = () => {
 
         {activeRouteButton === 'ПОДБОРКИ' && (
           <div className="collection-list">
-            {collections.map((c) => (
-              <div
-                key={c.id}
-                className="collection-item"
-                onClick={() => handleOpenCollectionDetail(c.id)}
-              >
-                <h3>{c.name}</h3>
-                <p>{c.description}</p>
-              </div>
+            {collections.map((collection, index) => (
+              <CollectionCard
+                key={index}
+                title={collection.title}
+                description={collection.description}
+                routesCount={collection.routesCount}
+                averageRating={collection.averageRating}
+                routes={collection.routes}
+              />
             ))}
           </div>
         )}
