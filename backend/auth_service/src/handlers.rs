@@ -76,7 +76,7 @@ pub async fn register_user(
             &body.username,
             &body.email,
             &hashed_password,
-            &body.name,
+            &body.username,
             &created_at,
         ],
     ).await {

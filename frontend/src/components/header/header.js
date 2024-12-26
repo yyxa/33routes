@@ -1,12 +1,16 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import './header.css';
 
-const Header = () => {
-  const navigate = useNavigate();
-
+const Header = ({ onLoginClick, user }) => {
   const handleAvatarClick = () => {
-    navigate('/auth');
+    if (!user) { // Проверяем, авторизован ли пользователь
+      console.log("Opening AuthModal..."); // Отладочное сообщение
+      if (onLoginClick) {
+        onLoginClick(); // Вызываем функцию для открытия модального окна
+      }
+    } else {
+      console.log("User is already logged in."); // Здесь можно добавить логику для авторизованного пользователя
+    }
   };
 
   const handleMenuClick = () => {
@@ -16,12 +20,12 @@ const Header = () => {
   return (
     <div className="header-container">
       <header className="header">
-        <div class="logo">
-          <div class="logo-icon"></div>
+        <div className="logo">
+          <div className="logo-icon"></div>
         </div>
         <div className="header-actions">
           <div className="avatar-placeholder" onClick={handleAvatarClick}>
-            <span>Login</span>
+            <span>{user ? user.name : 'Login'}</span> {/* Показываем имя пользователя, если он авторизован */}
           </div>
           <button className="menu-button" onClick={handleMenuClick}>
             ...

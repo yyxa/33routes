@@ -47,10 +47,10 @@ async fn main() {
         .allow_headers(Any);
 
     let app = Router::new()
-        .route("/auth/register", post(handlers::register_user))
-        .route("/auth/login", post(handlers::login_user))
-        .route("/auth/check_token", get(handlers::check_token))
-        .route("/auth/vk", post(handlers::login_via_vk))
+        .route("/api/auth/register", post(handlers::register_user))
+        .route("/api/auth/login", post(handlers::login_user))
+        .route("/api/auth/check_token", get(handlers::check_token))
+        .route("/api/auth/vk", post(handlers::login_via_vk))
         .with_state(app_state)
         .layer(cors);
 
