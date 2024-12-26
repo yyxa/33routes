@@ -1,0 +1,73 @@
+/* AuthModal.css */
+.auth-modal-overlay {
+  position: fixed; /* Используем фиксированное позиционирование */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Убедитесь, что модальное окно выше других элементов */
+}
+
+.auth-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 350px; /* Ширина модального окна */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative; /* Для позиционирования кнопки закрытия */
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 16px; /* Размер кнопки закрытия */
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #888; /* Цвет кнопки закрытия */
+  padding: 0; /* Убираем отступы */
+  line-height: 1; /* Убираем лишние отступы */
+}
+
+.auth-modal h2 {
+  margin: 0 0 20px;
+  font-size: 20px; /* Размер заголовка */
+  text-align: center; /* Центрируем заголовок */
+}
+
+.auth-modal input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px; /* Закругляем углы полей ввода */
+  font-size: 14px; /* Размер шрифта */
+}
+
+.auth-modal button {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px; /* Закругляем углы кнопки */
+  cursor: pointer;
+  font-size: 16px; /* Размер шрифта */
+  transition: background 0.3s; /* Плавный переход для фона */
+}
+
+.auth-modal button:hover {
+  background: #0056b3; /* Темнее при наведении */
+}
+
+.auth-modal p {
+  cursor: pointer;
+  color: #007bff;
+  text-align: center;
+  margin-top: 15px; /* Добавляем отступ сверху */
+}

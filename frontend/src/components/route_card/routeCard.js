@@ -10,10 +10,13 @@ const RouteCard = ({
   distance,
   duration,
   rating,
-  images,
-  onShowRoute,         // колбэк для кнопки «Глаз»
-  onOpenRouteDetail,   // <--- добавляем: колбэк для клика на карточку
+  images = [],
   authorImage,
+
+  user,                // <-- добавлено: текущий пользователь (null, если не авторизован)
+  onOpenAuthModal,     // <-- добавлено: открыть окно авторизации
+  onShowRoute,
+  onOpenRouteDetail,
 }) => {
   const [scrollOffset, setScrollOffset] = useState(0);
   const imagesContainerRef = useRef(null);

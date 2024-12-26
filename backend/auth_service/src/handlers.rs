@@ -17,6 +17,37 @@ use bcrypt::{hash, verify};
 use uuid::Uuid;
 use chrono::Utc;
 use serde_json::json;
+use rand::Rng;
+
+async fn generate_unique_username(state: &AppState, base_username: &str) -> String {
+    let mut username = base_username.to_string();
+    let mut counter = 1;
+
+    loop {
+        let select_sql = r#"
+            SELECT user_id
+            FROM users
+            WHERE username = $1
+        "#;
+
+        let row_opt = match state.db_client.query_opt(select_sql, &[&username]).await {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("DB error: {}", e);
+                return "error".to_string();
+            }
+        };
+
+        if row_opt.is_none() {
+            break;
+        }
+
+        username = format!("{}{}", base_username, counter);
+        counter += 1;
+    }
+
+    username
+}
 
 pub async fn register_user(
     State(state): State<AppState>,
@@ -32,9 +63,9 @@ pub async fn register_user(
 
     let query = r#"
         INSERT INTO users (
-            username, email, password_hash, name, surname, phone, created_at, is_deleted
+            username, email, password_hash, name, created_at, is_deleted
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE)
+        VALUES ($1, $2, $3, $4, $5, FALSE)
         RETURNING user_id
     "#;
     let created_at = Utc::now().timestamp();
@@ -45,9 +76,7 @@ pub async fn register_user(
             &body.username,
             &body.email,
             &hashed_password,
-            &body.name,
-            &body.surname,
-            &body.phone,
+            &body.username,
             &created_at,
         ],
     ).await {
@@ -206,6 +235,7 @@ pub async fn login_via_vk(
     State(state): State<AppState>,
     Query(params): Query<VkAuthParams>,
 ) -> impl IntoResponse {
+    println!("{}", params.code);
     let client_id = match env::var("VK_CLIENT_ID") {
         Ok(v) => v,
         Err(_) => {
@@ -238,6 +268,8 @@ pub async fn login_via_vk(
         }
     };
 
+    println!("{:?}", vk_res);
+
     let vk_json: VkTokenResponse = match vk_res.json().await {
         Ok(json) => json,
         Err(e) => {
@@ -267,13 +299,16 @@ pub async fn login_via_vk(
     let db_user_id: i32 = if let Some(r) = row_opt {
         r.get("user_id")
     } else {
+        let base_username = user_email.split('@').next().unwrap_or("user");
+        let username = generate_unique_username(&state, base_username).await;
+
         let insert_sql = r#"
-            INSERT INTO users (email, vk_id, created_at, is_deleted)
-            VALUES ($1, $2, $3, FALSE)
+            INSERT INTO users (email, vk_id, username, created_at, is_deleted)
+            VALUES ($1, $2, $3, $4, FALSE)
             RETURNING user_id
         "#;
         let created_at = Utc::now().timestamp();
-        let row = match state.db_client.query_one(insert_sql, &[&user_email, &vk_user_id, &created_at]).await {
+        let row = match state.db_client.query_one(insert_sql, &[&user_email, &vk_user_id, &username, &created_at]).await {
             Ok(rr) => rr,
             Err(e) => {
                 eprintln!("DB insert error: {}", e);
