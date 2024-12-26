@@ -9,7 +9,8 @@ BACKEND := docker-compose.backend.yml
 COMPOSE_FILES := -f $(TRAEFIK) -f $(DATABASES) -f $(BACKEND)
 
 .PHONY: all
-all: clear-image down-all network-all rebuild-all start-all
+all: down-all network-all rebuild-all start-all
+# all: clear-image down-all network-all rebuild-all start-all
 
 .PHONY: network-all
 network-all: rm-network create-network

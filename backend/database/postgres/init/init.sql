@@ -13,6 +13,7 @@ $$;
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
+    vk_id BIGINT,
     name VARCHAR(50) NOT NULL,
     surname VARCHAR(50),
     country VARCHAR(50),
