@@ -7,6 +7,7 @@ import RoutePage from './pages/route_page/RoutePage';
 import CollectionListPage from './pages/collection_list_page/CollectionListPage';
 import Header from './components/header/header';
 import AuthPage from './pages/auth_page/AuthPage';
+import TestPage from './pages/test_page/testPage';
 
 const App = () => {
   return (

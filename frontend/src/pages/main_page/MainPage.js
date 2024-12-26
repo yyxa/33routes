@@ -15,6 +15,7 @@ import './MainPage.css';
 import SearchBar from "../../components/search_bar/searchBar";
 import Button from '../../components/buttons/button';
 import RouteCard from '../../components/route_card/routeCard';
+import CollectionCard from '../../components/collection_card/collectionCard';
 import Header from '../../components/header/header';
 
 const routeData = [
@@ -119,6 +120,27 @@ const routeData = [
   },
 ];
 
+const collectionData = [
+  {
+    id: 1,
+    title: "Культурные памятники",
+    description: "Коллекция культурных памятников Москвы.",
+    routesCount: 5,
+    averageRating: 4.7,
+    routes: ["Городской оазис", "Исторические памятники"],
+    images: ["./img1.jpg", "./img2.jpg", "./img3.jpg"],
+  },
+  {
+    id: 2,
+    title: "Парки и скверы",
+    description: "Коллекция красивых парков города.",
+    routesCount: 7,
+    averageRating: 4.5,
+    routes: ["Вдоль набережной", "Сокольники"],
+    images: [],
+  },
+];
+
 const MainPage = () => {
   const [activeRouteButton, setActiveRouteButton] = useState('МАРШРУТЫ');
   const [activeSortButton, setActiveSortButton] = useState('');
@@ -163,7 +185,6 @@ const MainPage = () => {
     }
   }, []);
 
-  // Добавляем сброс активных кнопок при клике на любое место экрана
   useEffect(() => {
     const handleDocumentClick = (event) => {
       const target = event.target;
@@ -180,7 +201,9 @@ const MainPage = () => {
   }, []);
 
   const handleRouteButtonClick = (buttonType) => {
-    setActiveRouteButton((prev) => (prev === buttonType ? '' : buttonType));
+    if (buttonType === 'МАРШРУТЫ' || buttonType === 'ПОДБОРКИ') {
+      setActiveRouteButton(buttonType);
+    }
   };
 
   const handleSortButtonClick = (buttonType) => {
@@ -241,11 +264,21 @@ const MainPage = () => {
                   images={route.images}
                 />
               ))}
+            {activeRouteButton === 'ПОДБОРКИ' &&
+              collectionData.map((collection, index) => (
+                <CollectionCard
+                  key={index}
+                  title={collection.title}
+                  description={collection.description}
+                  routesCount={collection.routesCount}
+                  averageRating={collection.averageRating}
+                  routes={collection.routes}
+                />
+              ))}
           </div>
         </div>
 
         <div className="right-panel">
-          {/* Контейнер для карты */}
           <div
             ref={mapContainerRef}
             className="leaflet-container"
