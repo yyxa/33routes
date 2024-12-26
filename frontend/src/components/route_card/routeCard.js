@@ -1,7 +1,20 @@
+// src/components/route_card/routeCard.js
+
 import React, { useState, useRef } from 'react';
 import './routeCard.css';
 
-const RouteCard = ({ name, description, distance, duration, rating, images, authorImage }) => {
+const RouteCard = ({
+  id,
+  name,
+  description,
+  distance,
+  duration,
+  rating,
+  images,
+  onShowRoute,         // колбэк для кнопки «Глаз»
+  onOpenRouteDetail,   // <--- добавляем: колбэк для клика на карточку
+  authorImage,
+}) => {
   const [scrollOffset, setScrollOffset] = useState(0);
   const imagesContainerRef = useRef(null);
 
@@ -24,8 +37,20 @@ const RouteCard = ({ name, description, distance, duration, rating, images, auth
     }
   };
 
+  // Клик по карточке (кроме кнопок)
+  const handleCardClick = (e) => {
+    if (e.target.closest('.eye-button') || e.target.closest('.favorite-button')) {
+      // Клик был по кнопкам – не переходим
+      return;
+    }
+    // Иначе открываем детальную инфу
+    if (onOpenRouteDetail) {
+      onOpenRouteDetail(id);
+    }
+  };
+
   return (
-    <div className="route-card">
+    <div className="route-card" onClick={handleCardClick}>
       <div className="route-card-header">
         <h3 className="route-name">{name}</h3>
         <div className="route-author-avatar">
@@ -62,6 +87,27 @@ const RouteCard = ({ name, description, distance, duration, rating, images, auth
             </button>
           </div>
         </div>
+
+        <button
+          className="eye-button"
+          style={{
+            position: 'absolute',
+            bottom: '15px',
+            right: '60px',
+            width: '25px',
+            height: '25px',
+            borderRadius: '50%',
+            backgroundColor: '#ffffff',
+            border: '1px solid #ccc',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onClick={() => onShowRoute && onShowRoute(id)}
+        >
+          👁
+        </button>
 
         <button className="favorite-button">★</button>
       </div>
