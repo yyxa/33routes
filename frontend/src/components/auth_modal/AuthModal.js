@@ -1,11 +1,10 @@
-// AuthModal.js
 import React, { useState } from 'react';
 import './AuthModal.css';
 
 const AuthModal = ({ onClose, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState(''); // Новое состояние для имени пользователя
+  const [username, setUsername] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
 
@@ -13,9 +12,11 @@ const AuthModal = ({ onClose, onLogin }) => {
     event.preventDefault();
     setError('');
 
-    const url = isRegistering ? 'http://localhost:8100/api/auth/register' : 'http://localhost:8100/api/auth/login';
-    const body = isRegistering 
-      ? JSON.stringify({ username, email, password }) // Добавляем username при регистрации
+    const url = isRegistering
+      ? 'https://33routes.ru/api/auth/register'
+      : 'https://33routes.ru/api/auth/login';
+    const body = isRegistering
+      ? JSON.stringify({ username, email, password })
       : JSON.stringify({ email, password });
 
     try {
@@ -33,9 +34,9 @@ const AuthModal = ({ onClose, onLogin }) => {
           console.log('User registered:', data);
         } else {
           console.log('User logged in:', data);
-          onLogin(data); // Передаем данные пользователя в родительский компонент
+          onLogin(data);
         }
-        onClose(); // Закрываем модальное окно
+        onClose();
       } else if (response.status === 409) {
         setError('User may already exist');
       } else if (response.status === 401) {
@@ -50,9 +51,14 @@ const AuthModal = ({ onClose, onLogin }) => {
   };
 
   return (
-    <div className="auth-modal-overlay">
-      <div className="auth-modal">
-        <button className="close-button" onClick={onClose}>×</button>
+    <div className="auth-modal-overlay" onClick={onClose}>
+      <div
+        className="auth-modal"
+        onClick={(e) => e.stopPropagation()} // Останавливаем всплытие события
+      >
+        <div className="close-icon" onClick={onClose}>
+          ×
+        </div>
         <h2>{isRegistering ? 'Register' : 'Login'}</h2>
         <form onSubmit={handleSubmit}>
           {isRegistering && (
