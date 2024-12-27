@@ -27,12 +27,12 @@ const SearchPage = () => {
     const fetchData = async () => {
       try {
         // 1) Список маршрутов
-        const routesRes = await fetch('http://33routes.ru/api/route/routes');
+        const routesRes = await fetch('https://33routes.ru/api/route/routes');
         const routesData = await routesRes.json();
         const routeIds = routesData.routes || [];
 
         const routePromises = routeIds.map(async (id) => {
-          const detailRes = await fetch(`http://33routes.ru/api/route/route/${id}`);
+          const detailRes = await fetch(`https://33routes.ru/api/route/route/${id}`);
           const detailData = await detailRes.json();
           const { route } = detailData;
           return {
@@ -49,11 +49,11 @@ const SearchPage = () => {
         setRoutes(routesResult);
 
         // 2) Список подборок (если нужно)
-        const collRes = await fetch('http://33routes.ru/api/collection/collections');
+        const collRes = await fetch('https://33routes.ru/api/collection/collections');
         const collData = await collRes.json(); // { collections: [1,2,3,...] }
         const collIds = collData.collections || [];
         const collPromises = collIds.map(async (cId) => {
-          const cRes = await fetch(`http://33routes.ru/api/collection/collection/${cId}`);
+          const cRes = await fetch(`https://33routes.ru/api/collection/collection/${cId}`);
           const cJson = await cRes.json();
           // cJson содержит информацию о подборке
           return {
