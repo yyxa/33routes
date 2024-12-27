@@ -2,23 +2,23 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;   /* фиксируем высоту экрана */
-  margin: 0;       /* убираем отступы */
+  height: 100vh;
+  margin: 0;
   padding: 0;
-  overflow: hidden; /* у root-layout нет прокрутки */
+  overflow: hidden;
 }
 
 .content {
   display: flex;
-  flex: 1;         /* растягивается на всю оставшуюся высоту */
-  height: 100%;    /* чтобы точно занять всю высоту */
+  flex: 1;         
+  height: 100%;    
 }
 
 .left-block {
   width: 50%;
-  overflow-y: auto;  /* прокрутка только здесь */
+  overflow-y: auto;
   background-color: #f8f8f8;
-  /* если контент больше, чем высота, появится scroll именно у левого блока */
+  padding: 20px;
 }
 
 .right-block {
