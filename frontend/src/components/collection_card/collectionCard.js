@@ -13,23 +13,27 @@ const CollectionCard = ({ title, description, routesCount, averageRating, routes
       <div className="collection-card-left">
         <h2 className="collection-title">{title}</h2>
         <p className="collection-description">{description}</p>
-        <ul className="collection-routes">
-          {routes.slice(0, 2).map((route, index) => (
-            <li key={index} className="collection-route-item">
-              <span className="route-index">{index + 1}. </span>
-              <span className="route-title">{route.title}</span>
-              <span className="route-distance">{route.distance} км</span>
-              <span className="route-time">{route.time}</span>
-              <span className="route-rating">{route.rating}★</span>
-            </li>
-          ))}
-        </ul>
+        
+        {/* Проверка, является ли routes массивом перед отрисовкой списка */}
+        {Array.isArray(routes) && routes.length > 0 && (
+          <ul className="collection-routes">
+            {routes.slice(0, 2).map((route, index) => (
+              <li key={index} className="collection-route-item">
+                <span className="route-index">{index + 1}. </span>
+                <span className="route-title">{route.title}</span>
+                <span className="route-distance">{route.distance} км</span>
+                <span className="route-time">{route.time}</span>
+                <span className="route-rating">{route.rating}★</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <div className="collection-card-right">
         <div className="collection-info">
           <div className="collection-stats">
             <span className="collection-routes-count">Маршрутов: {routesCount}</span>
-            <span className="collection-average-rating">Средняя оценка: {averageRating.toFixed(1)}★</span>
+            <span className="collection-average-rating">Средняя оценка: {averageRating}★</span>
           </div>
           <div className="collection-images">
             {images && images.length > 0 ? (
@@ -43,7 +47,7 @@ const CollectionCard = ({ title, description, routesCount, averageRating, routes
         </div>
       </div>
       <div className="collection-card-icons">
-        <div className="avatar-button-wrapper"> {/* Добавляем обертку для позиции */}
+        <div className="avatar-button-wrapper">
           <AvatarButton
             imageSrc={authorImage || 'https://via.placeholder.com/40'}
             altText="Автор коллекции"

@@ -39,7 +39,10 @@ const SearchPage = () => {
             id: route.route_id,
             name: route.name,
             description: route.description,
-            // ... и т.д.
+            distance: route.distance, // Убедитесь, что это поле существует
+            duration: route.duration, // Убедитесь, что это поле существует
+            rating: route.rating, // Убедитесь, что это поле существует
+            images: route.images, // Убедитесь, что это поле существует
           };
         });
         const routesResult = await Promise.all(routePromises);
@@ -55,9 +58,11 @@ const SearchPage = () => {
           // cJson содержит информацию о подборке
           return {
             id: cJson.collection.collection_id,
-            name: cJson.collection.name,
-            description: cJson.collection.description,
-            // ... и т.д.
+            title: cJson.collection.name, // Убедитесь, что это поле существует
+            description: cJson.collection.description, // Убедитесь, что это поле существует
+            routesCount: cJson.collection.routes.length, // Пример, как получить количество маршрутов
+            averageRating: cJson.collection.average_rating, // Убедитесь, что это поле существует
+            routes: cJson.collection.routes, // Убедитесь, что это поле существует
           };
         });
         const collectionsResult = await Promise.all(collPromises);
@@ -169,7 +174,7 @@ const SearchPage = () => {
                 description={collection.description}
                 routesCount={collection.routesCount}
                 averageRating={collection.averageRating}
-                routes={collection.routes}
+                routes={collection.routes || []}
               />
             ))}
           </div>
