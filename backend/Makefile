@@ -113,3 +113,42 @@ clear:
 .PHONY: clear-image
 clear-image:
 	@docker image prune -f
+
+.PHONY: tests-all
+tests-all:
+	$(MAKE) tests-collection && \
+	$(MAKE) tests-comment && \
+	$(MAKE) tests-moderation && \
+	$(MAKE) tests-review && \
+	$(MAKE) tests-route
+
+.PHONY: tests-collection
+tests-collection: check-venv
+
+
+.PHONY: tests-comment
+tests-comment: check-venv	
+	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+
+.PHONY: tests-moderation
+tests-moderation: check-venv
+	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+
+.PHONY: tests-review
+tests-review: check-venv
+	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+
+.PHONY: tests-route
+tests-route: check-venv
+	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+
+.PHONY: dev-install
+dev-install:
+	@sudo apt install python3 python3-venv
+	python3 -m venv .venv
+	.venv/bin/python3 -m pip install -U pip
+	.venv/bin/pip install -r requirements.txt
+
+.PHONY: check-venv
+check-venv:
+	@[ -d ".venv" ] || (echo "Virtual environment not found. Run 'make dev-install' first."; exit 1)
