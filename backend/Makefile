@@ -124,23 +124,23 @@ tests-all:
 
 .PHONY: tests-collection
 tests-collection: check-venv
-
+	@.venv/bin/python -m pytest collection_service/tests/tests.py
 
 .PHONY: tests-comment
 tests-comment: check-venv	
-	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+	@.venv/bin/python -m pytest comment_service/tests/tests.py
 
 .PHONY: tests-moderation
 tests-moderation: check-venv
-	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+	@.venv/bin/python -m pytest moderation_service/tests/tests.py
 
 .PHONY: tests-review
 tests-review: check-venv
-	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+	@.venv/bin/python -m pytest review_service/tests/tests.py
 
 .PHONY: tests-route
 tests-route: check-venv
-	@.venv/bin/python -m pytest tests/e2e-test/test_base_scheme.py
+	@.venv/bin/python -m pytest route_service/tests/tests.py
 
 .PHONY: dev-install
 dev-install:
