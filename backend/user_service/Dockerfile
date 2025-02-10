@@ -12,6 +12,6 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 
 FROM scratch
 
-COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/collection_service /usr/local/bin/collection_service
+COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/user_service /usr/local/bin/user_service
 
-CMD ["collection_service"]
+CMD ["user_service"]

@@ -1,11 +1,8 @@
-use axum::{
-    routing::{get, post},
-    Router,
-};
-use axum_server::Server;
+use axum::{routing::get, Router};
 use dotenv::dotenv;
 use std::sync::Arc;
 use tokio_postgres::NoTls;
+use axum_server::Server;
 use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
@@ -30,15 +27,8 @@ async fn main() {
 
     let db_client = Arc::new(db_client);
 
-    let redis_client = redis::Client::open(
-        std::env::var("REDIS_URL").expect("REDIS_URL not set")
-    )
-    .expect("Failed to create redis client");
-    let redis_client = Arc::new(redis_client);
-
     let app_state = models::AppState {
         db_client: db_client.clone(),
-        redis_client: redis_client.clone(),
     };
 
     let cors = CorsLayer::new()
@@ -47,10 +37,7 @@ async fn main() {
         .allow_headers(Any);
 
     let app = Router::new()
-        .route("/api/auth/register", post(handlers::register_user))
-        .route("/api/auth/login", post(handlers::login_user))
-        .route("/api/auth/check_token", get(handlers::check_token))
-        .route("/api/auth/vk", post(handlers::login_via_vk))
+        .route("/api/user/:username", get(handlers::get_user_profile))
         .with_state(app_state)
         .layer(cors);
 

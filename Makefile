@@ -10,6 +10,11 @@ frontend:
 	@cd frontend && \
 	$(MAKE) all
 
+.PHONY: frontend-admin
+frontend-admin:
+	@cd frontend_admin && \
+	$(MAKE) all
+
 .PHONY: swagger
 swagger:
 	@docker run -d \
