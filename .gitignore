@@ -3,3 +3,4 @@ data_example
 data
 .DS_Store
 need_to_swagger.yml
+.vscode

@@ -5,11 +5,6 @@ backend:
 	@cd backend && \
 	$(MAKE) all
 
-.PHONY: frontend
-frontend:
-	@cd frontend && \
-	$(MAKE) all
-
 .PHONY: swagger
 swagger:
 	@docker run -d \
