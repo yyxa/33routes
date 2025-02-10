@@ -5,3 +5,5 @@ data
 need_to_swagger.yml
 .vscode
 .venv
+__pycache__
+.pytest_cache
