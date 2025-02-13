@@ -18,13 +18,9 @@ pub async fn upload_image(
     mut multipart: Multipart,
 ) -> impl IntoResponse {
     if let Some(field) = multipart.next_field().await.unwrap() {
-        let file_name = field
-            .file_name()
-            .map(|s| s.to_string())
-            .unwrap_or_else(|| "file".to_string());
         let data = field.bytes().await.unwrap();
 
-        let unique_name = format!("{}_{}", Uuid::new_v4(), file_name);
+        let unique_name = format!("{}", Uuid::new_v4());
         let byte_stream = ByteStream::from(data.to_vec());
 
         match state
@@ -37,12 +33,7 @@ pub async fn upload_image(
             .await
         {
             Ok(_) => {
-                let image_url = format!(
-                    "{}/{}",
-                    std::env::var("MINIO_PUBLIC_URL").expect("MINIO_PUBLIC_URL not set"),
-                    unique_name
-                );
-                return Json(json!({ "image_url": image_url })).into_response();
+                return Json(json!({ "image_url": unique_name })).into_response();
             }
             Err(e) => {
                 eprintln!("S3 Upload Error: {}", e);
@@ -53,6 +44,7 @@ pub async fn upload_image(
     }
     (StatusCode::BAD_REQUEST, Json(json!({ "error": "No file provided" }))).into_response()
 }
+
 
 pub async fn get_image(
     Path(image_name): Path<String>,

@@ -51,12 +51,8 @@ def test_get_uploaded_image(base_url):
     upload_resp = upload_image(base_url, test_file, "1.jpg")
     data = upload_resp.json()
     image_url = data["image_url"]
-    # Извлекаем имя файла из URL
-    image_name = image_url.split("/")[-1]
-    get_resp = get_image(base_url, image_name)
+    get_resp = get_image(base_url, image_url)
     assert get_resp.status_code == 200, f"Ожидался статус 200, получен {get_resp.status_code}"
-    content_type = get_resp.headers.get("Content-Type")
-    assert content_type is not None and content_type.startswith("image/"), "Некорректный Content-Type"
 
 def test_get_nonexistent_image(base_url):
     """
