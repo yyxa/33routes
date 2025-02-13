@@ -4,7 +4,7 @@ services:
     container_name: 33routes_route_service
     build:
       context: ./route_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always
@@ -21,7 +21,7 @@ services:
     container_name: 33routes_review_service
     build:
       context: ./review_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always
@@ -38,7 +38,7 @@ services:
     container_name: 33routes_comment_service
     build:
       context: ./comment_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always
@@ -55,7 +55,7 @@ services:
     container_name: 33routes_collection_service
     build:
       context: ./collection_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always
@@ -70,7 +70,7 @@ services:
     container_name: 33routes_moderation_service
     build:
       context: ./moderation_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always
@@ -85,7 +85,7 @@ services:
     container_name: 33routes_image_service
     build:
       context: ./image_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always
@@ -100,7 +100,7 @@ services:
     container_name: 33routes_search_service
     build:
       context: ./search_service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env
     restart: always

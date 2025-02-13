@@ -5,6 +5,11 @@ include .env
 TRAEFIK := docker-compose.traefik.yml
 DATABASES := docker-compose.databases.yml
 BACKEND := docker-compose.backend.yml
+BACKEND_PROD := docker-compose.backend-prod.yml
+
+ifeq ($(PROD),1)
+    BACKEND := $(BACKEND_PROD)
+endif
 
 COMPOSE_FILES := -f $(TRAEFIK) -f $(DATABASES) -f $(BACKEND)
 
