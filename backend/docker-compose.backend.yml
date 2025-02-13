@@ -75,6 +75,36 @@ services:
       - "traefik.http.routers.moderation_service.rule=PathPrefix(`/api/moderation/`)"
       - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
 
+  33routes_image_service:
+    container_name: 33routes_image_service
+    build:
+      context: ./image_service
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.image_service.rule=PathPrefix(`/api/media/`)"
+      - "traefik.http.services.image_service.loadbalancer.server.port=8100"
+
+  33routes_search_service:
+    container_name: 33routes_search_service
+    build:
+      context: ./search_service
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.search_service.rule=PathPrefix(`/api/search/`)"
+      - "traefik.http.services.search_service.loadbalancer.server.port=8100"
+
 networks:
   33routes_backend_network:
     external: true
