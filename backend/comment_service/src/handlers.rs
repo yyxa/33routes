@@ -32,6 +32,7 @@ pub async fn get_comments(
         )
         .await;
 
+
     let total_comments: i64 = match total_comments_row {
         Ok(row) => row.get(0),
         Err(err) => {
@@ -43,6 +44,14 @@ pub async fn get_comments(
                 .into_response();
         }
     };
+
+    if total_comments == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
 
     let total_pages = (total_comments + per_page as i64 - 1) / per_page as i64;
 
@@ -128,6 +137,42 @@ pub async fn add_comment(
     let created_at = Utc::now().timestamp();
     let images = payload.images.clone().unwrap_or_default();
 
+    let review_existence = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*) FROM review_comments WHERE review_id = $1",
+            &[&review_id],
+        )
+        .await;
+
+    let review_count: i64 = match review_existence {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            eprintln!("Database error: {}", err);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+
+    if review_count == 0 {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json("Bad request"),
+        )
+        .into_response();
+    }
+
+    if payload.text.len() == 0 {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json("Bad request"),
+        )
+        .into_response();
+    }
+
     let result = state
         .db_client
         .execute(
@@ -182,6 +227,63 @@ pub async fn delete_comment(
         }
     };
 
+    let review_existence = state
+    .db_client
+    .query_one(
+        "SELECT COUNT(*) FROM review_comments WHERE review_id = $1",
+        &[&review_id],
+    )
+    .await;
+
+    let review_count: i64 = match review_existence {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            eprintln!("Database error: {}", err);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+
+    if review_count == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
+
+    let comment_existance = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*) FROM review_comments WHERE comment_id = $1 AND is_deleted = false",
+            &[&payload.comment_id],
+        )
+        .await;
+
+    let comment_count: i64 = match comment_existance {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            eprintln!("Database error: {}", err);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+    eprintln!("Comment count: {}", comment_count);
+
+    if comment_count == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
+
     let result = state
         .db_client
         .execute(
@@ -190,7 +292,6 @@ pub async fn delete_comment(
         )
         .await;
 
-    //   Дописать проверку, просто если нет такого коммента (апдейт возвращает кол во строк, поэтому если коммента нет, то вернется 0 и это будет валидное число)
     match result {
         Ok(_) => (StatusCode::OK).into_response(),
         Err(err) => {
