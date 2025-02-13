@@ -12,6 +12,9 @@ COMPOSE_FILES := -f $(TRAEFIK) -f $(DATABASES) -f $(BACKEND)
 all: down-all network-all rebuild-all start-all
 # all: clear-image down-all network-all rebuild-all start-all
 
+.PHONY: database-all
+database-all: down-databases rebuild-databases start-databases
+
 .PHONY: network-all
 network-all: rm-network create-network
 
@@ -120,7 +123,8 @@ tests-all:
 	$(MAKE) tests-comment && \
 	$(MAKE) tests-moderation && \
 	$(MAKE) tests-review && \
-	$(MAKE) tests-route
+	$(MAKE) tests-route && \
+	$(MAKE) tests-image
 
 .PHONY: tests-collection
 tests-collection: check-venv
@@ -142,6 +146,10 @@ tests-review: check-venv
 tests-route: check-venv
 	@.venv/bin/python -m pytest route_service/tests/tests.py
 
+.PHONY: tests-image
+tests-image: check-venv
+	@.venv/bin/python -m pytest image_service/tests/tests.py
+
 .PHONY: dev-install
 dev-install:
 	@sudo apt install python3 python3-venv
@@ -152,3 +160,12 @@ dev-install:
 .PHONY: check-venv
 check-venv:
 	@[ -d ".venv" ] || (echo "Virtual environment not found. Run 'make dev-install' first."; exit 1)
+
+DIRS = collection_service comment_service image_service moderation_service review_service route_service
+
+.PHONY: update-env
+update-env:
+	@for dir in $(DIRS); do \
+	    rm -f $$dir/.env; \
+	    cp .env $$dir/.env; \
+	done
