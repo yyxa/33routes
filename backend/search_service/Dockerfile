@@ -8,6 +8,6 @@ RUN cargo build --release
 
 FROM rust:1.82.0
 
-COPY --from=builder /usr/src/app/target/release/image_service /usr/local/bin/image_service
+COPY --from=builder /usr/src/app/target/release/search_service /usr/local/bin/search_service
 
-CMD ["image_service"]
+CMD ["search_service"]
