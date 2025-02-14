@@ -23,7 +23,7 @@ jobs:
           mkdir -p public
           cd public
           curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.0.0.tar.gz | tar -xz --strip-components=1
-          cp ../../swagger.yaml ./
+          cp ../swagger.yaml ./
           sed -i 's|https://petstore.swagger.io/v2/swagger.json|./swagger.yaml|' index.html
 
       - name: Deploy into GitHub Pages
