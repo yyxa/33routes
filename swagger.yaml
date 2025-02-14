@@ -1,7 +1,7 @@
 openapi: "3.0.0"
 info:
   title: "33routes API Documentation"
-  description: "API for Auth, User, Route, Collection, Comment, Search, File Storage, Moderation, Bug and Report Services."
+  description: "API for 33routes backend services."
   version: "1.0.0"
 servers:
   - url: http://localhost:8100
@@ -906,25 +906,103 @@ paths:
         200:
           description: "Маршрут успешно удален из подборки"
   
-  /api/media/image/{image-url}:
+  /api/media/image/upload:
+    post:
+      summary: "Загрузка изображения"
+      description: "Позволяет загрузить изображение в MinIO. Возвращает JSON с уникальным именем изображения."
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Файл изображения"
+              required:
+                - file
+      responses:
+        "200":
+          description: "Изображение успешно загружено"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  image_url:
+                    type: string
+                    description: "Уникальное имя изображения (ключ), которое используется для получения изображения"
+                    example: "ee8ae9b6-8d0f-42c5-8581-fa75df64fc07_2.jpg"
+        "400":
+          description: "Ошибка запроса – файл не предоставлен"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "No file provided"
+        "500":
+          description: "Внутренняя ошибка сервиса при загрузке изображения"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Upload failed"
+                    
+  /api/media/image/{image_name}:
     get:
       summary: "Получение изображения"
-      description: "Позволяет получить изображение."
+      description: "Позволяет получить изображение по его уникальному имени, загруженному в MinIO."
       parameters:
         - in: path
-          name: image-url
+          name: image_name
           required: true
           schema:
             type: string
-          description: "url изображения"
+          description: "Уникальное имя изображения (ключ), возвращенное при загрузке"
       responses:
-        200:
-          description: "Успешно получено изображение"
+        "200":
+          description: "Изображение успешно получено"
           content:
             image/jpeg:
               schema:
                 type: string
                 format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: "Изображение не найдено"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Image not found"
+        "500":
+          description: "Внутренняя ошибка сервиса при получении изображения"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to collect object body"
   
   /api/moderation/entity/report:
     post:
@@ -1541,7 +1619,271 @@ paths:
       responses:
         200:
           description: "Маршрут отклонён"
-                                                             
+
+  /api/search/users:
+    get:
+      summary: "Поиск пользователей"
+      description: "Поиск пользователей по имени, фамилии, username и пагинации."
+      parameters:
+        - name: q
+          in: query
+          description: "Строка поиска (имя, фамилия, username)"
+          required: false
+          schema:
+            type: string
+        - name: pagination-page-number
+          in: query
+          description: "Номер страницы (>=1)"
+          required: false
+          schema:
+            type: integer
+        - name: pagination-per-page
+          in: query
+          description: "Количество элементов на странице (1..100)"
+          required: false
+          schema:
+            type: integer
+        - name: extra
+          in: query
+          description: "Дополнительные неиспользуемые параметры"
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Список найденных пользователей (id) с заголовками пагинации."
+          headers:
+            pagination-current-page:
+              schema:
+                type: integer
+            pagination-total-elements:
+              schema:
+                type: integer
+            pagination-per-page:
+              schema:
+                type: integer
+            pagination-total-pages:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: integer
+        "400":
+          description: "Некорректные параметры (ошибка десериализации)."
+        "500":
+          description: "Внутренняя ошибка сервера."
+
+  /api/search/routes:
+    get:
+      summary: "Поиск маршрутов"
+      description: "Поиск маршрутов по названию, фильтрам (длина, длительность, рейтинг, теги, категория), пагинации, а также сортировка и поиск по геолокации."
+      parameters:
+        - name: q
+          in: query
+          description: "Строка поиска (название маршрута)"
+          schema:
+            type: string
+        - name: min_length
+          in: query
+          description: "Минимальная длина маршрута (м)"
+          schema:
+            type: integer
+        - name: max_length
+          in: query
+          description: "Максимальная длина маршрута (м)"
+          schema:
+            type: integer
+        - name: min_duration
+          in: query
+          description: "Минимальная длительность (секунды)"
+          schema:
+            type: integer
+        - name: max_duration
+          in: query
+          description: "Максимальная длительность (секунды)"
+          schema:
+            type: integer
+        - name: tags
+          in: query
+          description: "Теги, разделённые запятой (например, forest,near_water)."
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: "Категория маршрута (например, walking)."
+          schema:
+            type: string
+        - name: min_rating
+          in: query
+          description: "Минимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: max_rating
+          in: query
+          description: "Максимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: pagination-page-number
+          in: query
+          description: "Номер страницы (>=1)"
+          schema:
+            type: integer
+        - name: pagination-per-page
+          in: query
+          description: "Количество элементов на странице (1..100)"
+          schema:
+            type: integer
+        - name: order
+          in: query
+          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc, distance, between."
+          schema:
+            type: string
+        - name: lat
+          in: query
+          description: "Широта для сортировки по distance"
+          schema:
+            type: number
+            format: float
+        - name: lon
+          in: query
+          description: "Долгота для сортировки по distance"
+          schema:
+            type: number
+            format: float
+        - name: start_lat
+          in: query
+          description: "Широта начальной точки для order=between"
+          schema:
+            type: number
+            format: float
+        - name: start_lon
+          in: query
+          description: "Долгота начальной точки для order=between"
+          schema:
+            type: number
+            format: float
+        - name: end_lat
+          in: query
+          description: "Широта конечной точки для order=between"
+          schema:
+            type: number
+            format: float
+        - name: end_lon
+          in: query
+          description: "Долгота конечной точки для order=between"
+          schema:
+            type: number
+            format: float
+      responses:
+        "200":
+          description: "Список найденных маршрутов (id) с заголовками пагинации."
+          headers:
+            pagination-current-page:
+              schema:
+                type: integer
+            pagination-total-elements:
+              schema:
+                type: integer
+            pagination-per-page:
+              schema:
+                type: integer
+            pagination-total-pages:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: integer
+        "400":
+          description: "Некорректные параметры (ошибка десериализации). Например, неправильные координаты или рейтинги."
+        "500":
+          description: "Внутренняя ошибка сервера."
+
+  /api/search/collections:
+    get:
+      summary: "Поиск подборок"
+      description: "Поиск подборок по названию, рейтингу, тегам, пагинации и сортировке."
+      parameters:
+        - name: q
+          in: query
+          description: "Поисковая строка (название подборки)."
+          schema:
+            type: string
+        - name: min_rating
+          in: query
+          description: "Минимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: max_rating
+          in: query
+          description: "Максимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: tags
+          in: query
+          description: "Теги, разделённые запятой (например, park,forest)."
+          schema:
+            type: string
+        - name: pagination-page-number
+          in: query
+          description: "Номер страницы (>=1)"
+          schema:
+            type: integer
+        - name: pagination-per-page
+          in: query
+          description: "Количество элементов на странице (1..100)"
+          schema:
+            type: integer
+        - name: order
+          in: query
+          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Список найденных подборок (id) с заголовками пагинации."
+          headers:
+            pagination-current-page:
+              schema:
+                type: integer
+            pagination-total-elements:
+              schema:
+                type: integer
+            pagination-per-page:
+              schema:
+                type: integer
+            pagination-total-pages:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: integer
+        "400":
+          description: "Некорректные параметры (ошибка десериализации). Например, неправильный формат рейтинга."
+        "500":
+          description: "Внутренняя ошибка сервера."
+
   /api/auth/register:
     post:
       summary: Register a new user
