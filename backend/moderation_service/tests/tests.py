@@ -1,67 +1,70 @@
-import requests
 import pytest
+import requests
 
-BASE_URL = "http://localhost:8100/api/moderation/entity"
-SESSION_TOKEN = "your_test_session_token"
+BASE_URL = "http://localhost:8100/api/moderation"
+SESSION_TOKEN = "1"
 
-def test_send_report():
-  url = f"{BASE_URL}/report"
-  headers = {"session-token": SESSION_TOKEN}
-  payload = {
-    "user_id": 1,
-    "object_type": "route",
-    "object_id": 1,
-    "reason": "inappropriate content",
-    "details": "This route contains inappropriate language."
-  }
-  response = requests.post(url, json=payload, headers=headers)
-  assert response.status_code == 200
+headers = {"session-token": SESSION_TOKEN}
 
-def test_get_reports():
-  url = f"{BASE_URL}/reports?pagination-page-number=1&pagination-per-page=10&status=opened"
-  headers = {"session-token": SESSION_TOKEN}
-  response = requests.get(url, headers=headers)
-  assert response.status_code == 200
-  assert "reports" in response.json()
+@pytest.mark.parametrize("payload,expected_status", [
+  ({"user_id": 1, "object_type": "route", "object_id": 1, "reason": "inappropriate content", "details": "This route contains inappropriate language."}, 200),
+  ({"object_type": "route", "object_id": 1, "reason": "inappropriate content", "details": "This route contains inappropriate language."}, 400),
+  ({"user_id": 1, "object_type": "invalid_type", "object_id": 1, "reason": "inappropriate content", "details": "This route contains inappropriate language."}, 422),
+  ({"user_id": 1, "object_type": "route", "object_id": 1, "details": "This route contains inappropriate language."}, 422)
+])
+def test_report_creation(payload, expected_status):
+  response = requests.post(f"{BASE_URL}/entity/report", json=payload, headers=headers)
+  assert response.status_code == expected_status
 
-def test_resolve_report():
-  url = f"{BASE_URL}/report/resolve"
-  headers = {"session-token": SESSION_TOKEN}
-  payload = {
-    "user_id": 1,
-    "report_id": 1,
-    "resolution": "The issue has been resolved, and the content has been edited."
-  }
-  response = requests.post(url, json=payload, headers=headers)
-  assert response.status_code == 200
+@pytest.mark.parametrize("params,expected_status", [
+  ({"pagination-page-number": 1, "pagination-per-page": 10, "status": "opened"}, 200),
+  ({"pagination-page-number": 1, "pagination-per-page": 10}, 400),
+  ({"pagination-page-number": 1, "pagination-per-page": 10, "status": "unknown_status"}, 400)
+])
+def test_get_reports(params, expected_status):
+  response = requests.get(f"{BASE_URL}/entity/reports", params=params, headers=headers)
+  assert response.status_code == expected_status
 
-def test_send_bug_report():
-  url = "http://localhost:8100/api/moderation/bug/report"
-  headers = {"session-token": SESSION_TOKEN}
-  payload = {
-    "user_id": 1,
-    "description": "The app crashes when trying to upload a large file."
-  }
-  response = requests.post(url, json=payload, headers=headers)
-  assert response.status_code == 200
+@pytest.mark.parametrize("payload,expected_status", [
+  ({"user_id": 1, "report_id": 1, "resolution": "The issue has been resolved."}, 200),
+  ({"user_id": 1, "resolution": "The issue has been resolved."}, 422),
+  ({"user_id": 1, "report_id": 1}, 422)
+])
+def test_resolve_report(payload, expected_status):
+  response = requests.post(f"{BASE_URL}/entity/report/resolve", json=payload, headers=headers)
+  assert response.status_code == expected_status
 
-def test_get_bug_reports():
-  url = "http://localhost:8100/api/moderation/bug/reports?pagination-page-number=1&pagination-per-page=10"
-  headers = {"session-token": SESSION_TOKEN}
-  response = requests.get(url, headers=headers)
-  assert response.status_code == 200
-  assert "bug_reports" in response.json()
+@pytest.mark.parametrize("payload,expected_status", [
+  ({"user_id": 1, "description": "The app crashes when uploading a large file."}, 200),
+  ({"description": "The app crashes when uploading a large file."}, 422),
+  ({"user_id": 1}, 422)
+])
+def test_bug_report(payload, expected_status):
+  response = requests.post(f"{BASE_URL}/bug/report", json=payload, headers=headers)
+  assert response.status_code == expected_status
 
-def test_resolve_bug_report():
-  url = "http://localhost:8100/api/moderation/bug/report/resolve"
-  headers = {"session-token": SESSION_TOKEN}
-  payload = {
-    "user_id": 1,
-    "report_id": 1,
-    "resolution": "Fixed the file upload issue by optimizing memory handling."
-  }
-  response = requests.post(url, json=payload, headers=headers)
-  assert response.status_code == 200
+@pytest.mark.parametrize("payload,expected_status", [
+  ({"user_id": 1, "report_id": 1, "resolution": "Bug fixed."}, 200),
+  ({"user_id": 1, "resolution": "Bug fixed."}, 422),
+  ({"user_id": 1, "report_id": 1}, 422)
+])
+def test_resolve_bug(payload, expected_status):
+  response = requests.post(f"{BASE_URL}/bug/report/resolve", json=payload, headers=headers)
+  assert response.status_code == expected_status
 
-if __name__ == "__main__":
-  pytest.main()
+@pytest.mark.parametrize("payload,expected_status", [
+  ({"user_id": 1, "object_type": "route", "object_id": 1}, 200),
+  ({"user_id": 1, "object_id": 1}, 422),
+  ({"user_id": 1, "object_type": "invalid", "object_id": 1}, 422)
+])
+def test_approve_route(payload, expected_status):
+  response = requests.post(f"{BASE_URL}/route/approve", json=payload, headers=headers)
+  assert response.status_code == expected_status
+
+@pytest.mark.parametrize("payload,expected_status", [
+  ({"user_id": 1, "object_type": "route", "object_id": 1, "reason": "Incomplete description."}, 200),
+  ({"user_id": 1, "object_type": "route", "object_id": 1}, 422)
+])
+def test_reject_route(payload, expected_status):
+  response = requests.post(f"{BASE_URL}/route/reject", json=payload, headers=headers)
+  assert response.status_code == expected_status

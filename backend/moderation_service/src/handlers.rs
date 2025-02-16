@@ -6,15 +6,53 @@ use axum::{
 };
 use chrono::Utc;
 
+async fn check_user_exists(state: &AppState, user_id: &i32) -> bool {
+    let user_existence = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*) FROM users WHERE id = $1",
+            &[user_id],
+        )
+        .await;
+
+    match user_existence {
+        Ok(row) => {
+            let user_count: i64 = row.get(0);
+            eprintln!("User count: {}", user_count);
+            user_count > 0
+        }
+        Err(err) => {
+            eprintln!("Database error: {:?}", err);
+            false
+        }
+    }
+}
+
 pub async fn report_entity(
     State(state): State<AppState>,
     headers: HeaderMap,
-    Json(payload): Json<ReportEntityRequest>,
+    Json(payload): Json<ReportEntityRequest>, // Axum сам обработает ошибку JSON
 ) -> impl IntoResponse {
     if headers.get("session-token").is_none() {
         return (
             StatusCode::UNAUTHORIZED,
             "Missing session-token header",
+        )
+            .into_response();
+    }
+
+    let Some(user_id) = payload.user_id else {
+        return (
+            StatusCode::BAD_REQUEST,
+            "Missing user_id field",
+        )
+            .into_response();
+    };
+
+    if !check_user_exists(&state, &user_id).await {
+        return (
+            StatusCode::BAD_REQUEST,
+            "User doesn't exist",
         )
             .into_response();
     }
@@ -27,7 +65,7 @@ pub async fn report_entity(
             "INSERT INTO reports (user_id, reported_entity, entity_id, reason, details, created_at)
              VALUES ($1, $2, $3, $4, $5, $6)",
             &[
-                &payload.user_id,
+                &user_id,
                 &payload.object_type,
                 &payload.object_id,
                 &payload.reason,
@@ -46,6 +84,7 @@ pub async fn report_entity(
             .into_response(),
     }
 }
+
 
 pub async fn get_entity_reports(
     State(state): State<AppState>,
