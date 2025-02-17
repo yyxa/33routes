@@ -1,0 +1,33 @@
+name: Deploy Swagger Docs
+
+on:
+  push:
+    branches:
+      - mainp
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install swagger-ui
+        run: |
+          mkdir -p public
+          cd public
+          curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.0.0.tar.gz | tar -xz --strip-components=1
+          cp ../swagger.yaml ./
+          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./swagger.yaml|' index.html
+
+      - name: Deploy into GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pagesp
+          folder: public
