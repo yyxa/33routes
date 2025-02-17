@@ -16,11 +16,63 @@ pub struct PaginationParams {
     pub per_page: Option<i64>,
 }
 
+async fn check_route_existance(state: &AppState, route_id: &i32) -> bool {
+    let route_existance = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*)
+            FROM routes
+            WHERE route_id = $1",
+            &[route_id],
+        )
+        .await;
+    
+    match route_existance {
+        Ok(row) => {
+            let route_count: i64 = row.get(0);
+            route_count > 0
+        }
+        Err(err) => {
+            false
+        }
+    }
+}
+
+async fn check_review_existance(state: &AppState, review_id: &i32) -> bool {
+    let review_existance = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*)
+            FROM reviews
+            WHERE review_id = $1",
+            &[review_id],
+        )
+        .await;
+    
+    match review_existance {
+        Ok(row) => {
+            let review_count: i64 = row.get(0);
+            review_count > 0
+        }
+        Err(err) => {
+            false
+        }
+    }
+}
+
 pub async fn get_route_reviews(
     State(state): State<AppState>,
     Path(route_id): Path<i32>,
     Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
+    if !check_route_existance(&state, &route_id).await {
+        return (
+            StatusCode::NOT_FOUND,
+            "Route doesn't exist",
+        )
+            .into_response();
+    }
+
     let page_number = params.page_number.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(10).clamp(1, 100);
     let offset = (page_number - 1) * per_page;
@@ -100,6 +152,14 @@ pub async fn add_review(
 ) -> impl IntoResponse {
     let _session_token = headers.get("session-token").and_then(|v| v.to_str().ok());
 
+    if !check_route_existance(&state, &route_id).await {
+        return (
+            StatusCode::NOT_FOUND,
+            "Route doesn't exist",
+        )
+            .into_response();
+    }
+
     let created_at = Utc::now().timestamp();
     let images = payload.images.clone().unwrap_or_default();
 
@@ -140,6 +200,14 @@ pub async fn delete_review(
     Json(payload): Json<DeleteReviewRequest>,
 ) -> impl IntoResponse {
     let _session_token = headers.get("session-token").and_then(|v| v.to_str().ok());
+
+    if !check_review_existance(&state, &payload.review_id).await {
+        return (
+            StatusCode::NOT_FOUND,
+            "Review doesn't exist",
+        )
+            .into_response();
+    }
 
     let result = state.db_client
         .execute(
