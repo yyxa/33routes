@@ -1,0 +1,35 @@
+/* src/pages/search_page/SearchPage.css */
+
+.search-page {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .button-groups {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  
+  .type-button-container,
+  .sort-filter-container {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  
+  .list-content {
+    margin-top: 20px;
+  }
+  
+  /* Делаем простой вертикальный список карточек */
+  .route-list {
+    display: flex;
+    flex-direction: column; /* каждая карточка идёт сверху вниз */
+    gap: 20px;             /* отступ между карточками */
+  }
+  
+  /* Если нужно — можно убрать display:flex вовсе
+     и просто использовать .route-card { margin-bottom: 20px; }
+     Но flex+gap удобнее. */
+  

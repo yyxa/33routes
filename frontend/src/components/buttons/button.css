@@ -1,0 +1,31 @@
+.default-button {
+  padding: 3px 10px;
+  height: 25px;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.default-button.white {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+.default-button.dark {
+  background-color: #323232;
+  color: #fff;
+}
+
+.default-button.white:hover {
+  background-color: #e7e7e7;
+}
+
+.default-button.dark:hover {
+  background-color: #535353;
+}
