@@ -66,7 +66,7 @@ pub enum TagType {
 
 #[derive(Debug, Deserialize)]
 pub struct ReportEntityRequest {
-    pub user_id: i32,
+    pub user_id: Option<i32>,
     pub object_type: EntityType,
     pub object_id: i32,
     pub reason: ReportType,

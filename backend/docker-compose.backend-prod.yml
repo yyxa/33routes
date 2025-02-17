@@ -1,0 +1,116 @@
+services:
+
+  33routes_route_service:
+    container_name: 33routes_route_service
+    build:
+      context: ./route_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.route_service.rule=PathPrefix(`/api/route/`)"
+      - "traefik.http.services.route_service.loadbalancer.server.port=8100"
+    depends_on:
+      - 33routes_image_service
+
+  33routes_review_service:
+    container_name: 33routes_review_service
+    build:
+      context: ./review_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.review_service.rule=PathPrefix(`/api/review/`)"
+      - "traefik.http.services.review_service.loadbalancer.server.port=8100"
+    depends_on:
+      - 33routes_image_service
+
+  33routes_comment_service:
+    container_name: 33routes_comment_service
+    build:
+      context: ./comment_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comment_service.rule=PathPrefix(`/api/comment/`)"
+      - "traefik.http.services.comment_service.loadbalancer.server.port=8100"
+    depends_on:
+      - 33routes_image_service
+
+  33routes_collection_service:
+    container_name: 33routes_collection_service
+    build:
+      context: ./collection_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collection_service.rule=PathPrefix(`/api/collection/`)"
+      - "traefik.http.services.collection_service.loadbalancer.server.port=8100"
+
+  33routes_moderation_service:
+    container_name: 33routes_moderation_service
+    build:
+      context: ./moderation_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.moderation_service.rule=PathPrefix(`/api/moderation/`)"
+      - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
+
+  33routes_image_service:
+    container_name: 33routes_image_service
+    build:
+      context: ./image_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.image_service.rule=PathPrefix(`/api/media/`)"
+      - "traefik.http.services.image_service.loadbalancer.server.port=8100"
+
+  33routes_search_service:
+    container_name: 33routes_search_service
+    build:
+      context: ./search_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.search_service.rule=PathPrefix(`/api/search/`)"
+      - "traefik.http.services.search_service.loadbalancer.server.port=8100"
+
+networks:
+  33routes_backend_network:
+    external: true

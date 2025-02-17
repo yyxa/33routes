@@ -222,6 +222,16 @@ pub async fn update_collection(
         }
     };
 
+    if payload.name.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true)
+    && payload.description.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true)
+    && payload.tags.as_ref().map(|tags| tags.is_empty()).unwrap_or(true) {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json("Request body is empty"),
+        )
+            .into_response();
+    }
+
     let collection_id = match headers.get("collection-id") {
         Some(value) => match value.to_str() {
             Ok(v) => match v.parse::<i32>() {
@@ -250,6 +260,33 @@ pub async fn update_collection(
                 .into_response();
         }
     };
+
+    let collection_existence = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*) FROM collections WHERE collection_id = $1",
+            &[&collection_id],
+        )
+        .await;
+
+    let collection_count: i64 = match collection_existence {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+
+    if collection_count == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
 
     let mut query = String::from("UPDATE collections SET ");
     let mut params: Vec<&(dyn tokio_postgres::types::ToSql + Sync)> = Vec::new();
@@ -355,6 +392,33 @@ pub async fn delete_collection(
         }
     };
 
+    let collection_existence = state
+    .db_client
+    .query_one(
+        "SELECT COUNT(*) FROM collections WHERE collection_id = $1",
+        &[&collection_id],
+    )
+    .await;
+
+    let collection_count: i64 = match collection_existence {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+
+    if collection_count == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
+
     let result = state
         .db_client
         .execute(
@@ -401,6 +465,33 @@ pub async fn add_route_to_collection(
                 .into_response();
         }
     };
+
+    let route_existence = state
+    .db_client
+    .query_one(
+        "SELECT COUNT(*) FROM routes WHERE route_id = $1",
+        &[&route_id],
+    )
+    .await;
+
+    let route_count: i64 = match route_existence {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+
+    if route_count == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
 
     let ownership_check = state
         .db_client
@@ -475,6 +566,33 @@ pub async fn remove_route_from_collection(
                 .into_response();
         }
     };
+
+    let route_existence = state
+        .db_client
+        .query_one(
+            "SELECT COUNT(*) FROM routes WHERE route_id = $1",
+            &[&route_id],
+        )
+        .await;
+
+    let route_count: i64 = match route_existence {
+        Ok(row) => row.get(0),
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+            .into_response();
+        }
+    };
+
+    if route_count == 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            Json("Not found"),
+        )
+        .into_response();
+    }
 
     let ownership_check = state
         .db_client

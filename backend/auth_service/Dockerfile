@@ -2,35 +2,12 @@ FROM rust:1.82.0 AS builder
 
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y \
-    musl-tools \
-    pkg-config \
-    curl \
-    build-essential && \
-    curl -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1u/openssl-1.1.1u.tar.gz | tar xz && \
-    cd openssl-1.1.1u && \
-    ./Configure no-shared --prefix=/musl --openssldir=/musl/ssl linux-x86_64 -static && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf openssl-1.1.1u
+COPY . .
 
-RUN rustup target add x86_64-unknown-linux-musl
+RUN cargo build --release
 
-ENV OPENSSL_DIR=/musl
-ENV OPENSSL_LIB_DIR=/musl/lib
-ENV OPENSSL_INCLUDE_DIR=/musl/include
-ENV PKG_CONFIG_PATH=/musl/lib/pkgconfig
+FROM rust:1.82.0
 
-COPY Cargo.toml Cargo.lock ./
-
-COPY src src
-
-RUN cargo build --release --target x86_64-unknown-linux-musl
-
-FROM scratch
-
-COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/auth_service /usr/local/bin/auth_service
-COPY --from=builder /musl/ssl /etc/ssl
+COPY --from=builder /usr/src/app/target/release/auth_service /usr/local/bin/auth_service
 
 CMD ["auth_service"]

@@ -3,5 +3,7 @@ data_example
 data
 .DS_Store
 need_to_swagger.yml
-1.html
-test.py
+.vscode
+.venv
+__pycache__
+.pytest_cache
