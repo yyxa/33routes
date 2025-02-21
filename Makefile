@@ -22,5 +22,5 @@ swagger:
 	--restart=always \
 	-p 127.0.0.1:8081:8080 \
 	-e SWAGGER_JSON=/api/swagger.yaml \
-	-v ./swagger.yaml:/api/swagger.yaml \
+	-v ./docs/swagger.yaml:/api/swagger.yaml \
 	swaggerapi/swagger-ui:v5.18.1

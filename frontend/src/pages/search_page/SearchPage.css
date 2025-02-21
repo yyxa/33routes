@@ -32,4 +32,35 @@
   /* Если нужно — можно убрать display:flex вовсе
      и просто использовать .route-card { margin-bottom: 20px; }
      Но flex+gap удобнее. */
-  
+
+.pagination-container {
+  display: none;
+}
+
+.pagination-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.pagination-button:hover {
+  background-color: #0056b3;
+}
+
+.pagination-info {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Добавляем стили для индикаторов загрузки */
+.loading-indicator, .end-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 0.9em;
+}

@@ -20,61 +20,91 @@ const SearchPage = () => {
 
   const [routes, setRoutes] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Добавляем новые состояния
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    // При загрузке страницы — подгружаем список маршрутов
-    // (или сразу и маршруты, и подборки)
-    const fetchData = async () => {
-      try {
-        // 1) Список маршрутов
-        const routesRes = await fetch('https://33routes.ru/api/route/routes');
-        const routesData = await routesRes.json();
-        const routeIds = routesData.routes || [];
+    if (activeRouteButton === 'МАРШРУТЫ') {
+      setRoutes([]);
+      setCurrentPage(1);
+      fetchRoutes(1);
+    }
+  }, [activeRouteButton]);
 
-        const routePromises = routeIds.map(async (id) => {
-          const detailRes = await fetch(`https://33routes.ru/api/route/route/${id}`);
-          const detailData = await detailRes.json();
-          const { route } = detailData;
-          return {
-            id: route.route_id,
-            name: route.name,
-            description: route.description,
-            distance: route.distance, // Убедитесь, что это поле существует
-            duration: route.duration, // Убедитесь, что это поле существует
-            rating: route.rating, // Убедитесь, что это поле существует
-            images: route.images, // Убедитесь, что это поле существует
-          };
-        });
-        const routesResult = await Promise.all(routePromises);
-        setRoutes(routesResult);
+  const fetchRoutes = async (page = 1, perPage = 5) => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`http://localhost:8100/api/route/routes?pagination-page-number=${page}&pagination-per-page=${perPage}`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      // Получаем заголовки пагинации из ответа
+      const currentPage = parseInt(res.headers.get('pagination-current-page')) || 1;
+      const totalPages = parseInt(res.headers.get('pagination-total-pages')) || 1;
+      
+      const routePromises = data.routes.map(async (id) => {
+        const detailRes = await fetch(`http://localhost:8100/api/route/route/${id}`);
+        return detailRes.json();
+      });
 
-        // 2) Список подборок (если нужно)
-        const collRes = await fetch('https://33routes.ru/api/collection/collections');
-        const collData = await collRes.json(); // { collections: [1,2,3,...] }
-        const collIds = collData.collections || [];
-        const collPromises = collIds.map(async (cId) => {
-          const cRes = await fetch(`https://33routes.ru/api/collection/collection/${cId}`);
-          const cJson = await cRes.json();
-          // cJson содержит информацию о подборке
-          return {
-            id: cJson.collection.collection_id,
-            title: cJson.collection.name, // Убедитесь, что это поле существует
-            description: cJson.collection.description, // Убедитесь, что это поле существует
-            routesCount: cJson.collection.routes.length, // Пример, как получить количество маршрутов
-            averageRating: cJson.collection.average_rating, // Убедитесь, что это поле существует
-            routes: cJson.collection.routes, // Убедитесь, что это поле существует
-          };
-        });
-        const collectionsResult = await Promise.all(collPromises);
-        setCollections(collectionsResult);
+      const newRoutes = await Promise.all(routePromises);
+      
+      setRoutes(prev => [
+        ...prev, 
+        ...newRoutes.filter(r => !prev.some(existing => existing.id === r.route.route_id))
+                   .map(r => ({
+                      id: r.route.route_id,
+                      name: r.route.name,
+                      description: r.route.description,
+                      distance: r.route.distance,
+                      duration: r.route.duration,
+                      rating: r.route.rating,
+                      images: r.route.images || [],
+                    }))
+      ]);
 
-      } catch (err) {
-        console.error('Ошибка при загрузке данных:', err);
+      setCurrentPage(currentPage);
+      setTotalPages(totalPages);
+      setHasMore(currentPage < totalPages);
+      
+    } catch (err) {
+      console.error('Ошибка загрузки маршрутов:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      console.log('Scroll position:', scrollTop);
+      console.log('Total height:', scrollHeight);
+      console.log('Client height:', clientHeight);
+      console.log('Loading:', loading);
+      console.log('Has more:', hasMore);
+
+      if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && hasMore) {
+        console.log('Fetching next page:', currentPage + 1);
+        fetchRoutes(currentPage + 1);
       }
     };
 
-    fetchData();
-  }, []);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore, currentPage]);
 
   // Сброс активных кнопок при клике вне сортировки (пример)
   useEffect(() => {
@@ -148,7 +178,7 @@ const SearchPage = () => {
       <div className="list-content">
         {activeRouteButton === 'МАРШРУТЫ' && (
           <div className="route-list">
-            {routes.map((r) => (
+            {routes.map((r, index) => (
               <RouteCard
                 key={r.id}
                 id={r.id}
@@ -179,6 +209,9 @@ const SearchPage = () => {
             ))}
           </div>
         )}
+
+        {loading && <div className="loading-indicator">Загрузка...</div>}
+        {!hasMore && <div className="end-message">Вы достигли конца списка</div>}
       </div>
     </div>
   );
