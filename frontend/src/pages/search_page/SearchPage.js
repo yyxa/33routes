@@ -36,10 +36,17 @@ const SearchPage = () => {
   }, [activeRouteButton]);
 
   const fetchRoutes = async (page = 1, perPage = 5) => {
-    if (loading || !hasMore) return;
+    console.log('Начало fetchRoutes, страница:', page);
+    
+    if (loading) {
+      console.log('Загрузка остановлена - идёт предыдущая загрузка');
+      return;
+    }
+    
     setLoading(true);
     
     try {
+      console.log('Отправка запроса для страницы:', page);
       const res = await fetch(`http://localhost:8100/api/route/routes?pagination-page-number=${page}&pagination-per-page=${perPage}`);
       
       if (!res.ok) {
@@ -47,16 +54,18 @@ const SearchPage = () => {
       }
       
       const data = await res.json();
+      console.log('Получены данные:', data);
       
-      // Получаем заголовки пагинации из ответа
       const currentPage = parseInt(res.headers.get('pagination-current-page')) || 1;
       const totalPages = parseInt(res.headers.get('pagination-total-pages')) || 1;
+      
+      console.log('Заголовки пагинации:', { currentPage, totalPages });
       
       const routePromises = data.routes.map(async (id) => {
         const detailRes = await fetch(`http://localhost:8100/api/route/route/${id}`);
         return detailRes.json();
       });
-
+  
       const newRoutes = await Promise.all(routePromises);
       
       setRoutes(prev => [
@@ -72,10 +81,10 @@ const SearchPage = () => {
                       images: r.route.images || [],
                     }))
       ]);
-
+  
       setCurrentPage(currentPage);
       setTotalPages(totalPages);
-      setHasMore(currentPage < totalPages);
+      setHasMore(data.routes.length > 0);
       
     } catch (err) {
       console.error('Ошибка загрузки маршрутов:', err);
@@ -85,26 +94,27 @@ const SearchPage = () => {
   };
 
   useEffect(() => {
+    const leftBlock = document.querySelector('.left-block');
+    
     const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-
-      console.log('Scroll position:', scrollTop);
-      console.log('Total height:', scrollHeight);
-      console.log('Client height:', clientHeight);
-      console.log('Loading:', loading);
-      console.log('Has more:', hasMore);
-
-      if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && hasMore) {
-        console.log('Fetching next page:', currentPage + 1);
+      if (!leftBlock) return;
+      
+      const scrollTop = leftBlock.scrollTop;
+      const scrollHeight = leftBlock.scrollHeight;
+      const clientHeight = leftBlock.clientHeight;
+      
+      // Устанавливаем порог в 300px или примерно высоту одной карточки маршрута
+      const threshold = 300;
+      
+      if (scrollTop + clientHeight >= scrollHeight - threshold && !loading) {
+        console.log('Достигнут порог прокрутки, загружаем страницу:', currentPage + 1);
         fetchRoutes(currentPage + 1);
       }
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, currentPage]);
+  
+    leftBlock?.addEventListener('scroll', handleScroll);
+    return () => leftBlock?.removeEventListener('scroll', handleScroll);
+  }, [loading, currentPage]); // Убрали hasMore из зависимостей
 
   // Сброс активных кнопок при клике вне сортировки (пример)
   useEffect(() => {
@@ -195,24 +205,25 @@ const SearchPage = () => {
           </div>
         )}
 
-        {activeRouteButton === 'ПОДБОРКИ' && (
-          <div className="collection-list">
-            {collections.map((collection, index) => (
-              <CollectionCard
-                key={index}
-                title={collection.title}
-                description={collection.description}
-                routesCount={collection.routesCount}
-                averageRating={collection.averageRating}
-                routes={collection.routes || []}
-              />
-            ))}
-          </div>
-        )}
 
-        {loading && <div className="loading-indicator">Загрузка...</div>}
-        {!hasMore && <div className="end-message">Вы достигли конца списка</div>}
-      </div>
+        {activeRouteButton === 'ПОДБОРКИ' && (
+            <div className="collection-list">
+              {collections.map((collection, index) => (
+                <CollectionCard
+                  key={index}
+                  title={collection.title}
+                  description={collection.description}
+                  routesCount={collection.routesCount}
+                  averageRating={collection.averageRating}
+                  routes={collection.routes || []}
+                />
+              ))}
+            </div>
+          )}
+
+          {loading && <div className="loading-indicator">Загрузка...</div>}
+          {!hasMore && <div className="end-message">Вы достигли конца списка</div>}
+        </div>
     </div>
   );
 };
