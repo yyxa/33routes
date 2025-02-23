@@ -7,7 +7,7 @@
   cursor: pointer;
   transition: box-shadow 0.3s ease;
   max-width: 100%;
-  height: 180px; /* Увеличиваем общую высоту карточки */
+  height: 240px; /* Увеличиваем общую высоту карточки */
   display: flex;
   flex-direction: column;
 }
@@ -45,7 +45,6 @@
 }
 
 .collection-content-left {
-  /* flex: 0 0 45%; */
   display: flex;
   flex-direction: column;
   margin-top: 10px;
@@ -57,20 +56,46 @@
   color: #333;
   font-size: 0.95em;
   height: 50%;
+  overflow: hidden;
+  position: relative;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.4em;
+  max-height: 4.2em; /* line-height * 3 строки */
 }
 
-.collection-route-1 {
-  height: 50%;
-  font-size: 1.5em;
-  color: #8B0000;
+/* Показываем градиент и многоточие только если текст обрезается */
+.collection-description:has(+ .collection-description::before) {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1.4em;
+  background: linear-gradient(to bottom, transparent, white);
+}
+
+.collection-description::after {
+  content: "";  /* По умолчанию пустой контент */
+}
+
+/* Добавляем многоточие только если высота контента больше max-height */
+.collection-description:not(:-webkit-any(:hover, :focus)):has(+ .collection-description::before)::after {
+  content: "...";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.coll-route-name {
+  color: #333;
+  font-size: 1.1em;
   font-weight: bold;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.collection-route-2 {
-  height: 50%;
+.collection-route-1, .collection-route-2 {
+  max-height: 45px;
   font-size: 1.5em;
   color: #8B0000;
   font-weight: bold;

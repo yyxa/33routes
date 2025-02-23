@@ -113,6 +113,7 @@ const SearchPage = () => {
           const routeRes = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
           const routeData = await routeRes.json();
           return {
+            name: routeData.route.name,
             length: routeData.route.length,
             duration: routeData.route.duration,
             rating: routeData.route.rating

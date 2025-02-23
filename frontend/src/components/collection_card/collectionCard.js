@@ -27,18 +27,24 @@ const CollectionCard = ({
       <div className="collection-content-left">
         <div className="collection-description">{description}</div>
         {firstRoute && (
-          <div className="collection-route-1">
-            <span className="route-length">{firstRoute.length} км</span>
-            <span className="route-time">{formatDuration(firstRoute.duration)}</span>
-            <span className="route-rate">{firstRoute.rating}★</span>
-          </div>
+          <>
+            <div className="coll-route-name">1. {firstRoute.name}</div>
+            <div className="collection-route-1">
+              <span className="route-length">{firstRoute.length} км</span>
+              <span className="route-time">{formatDuration(firstRoute.duration)}</span>
+              <span className="route-rate">{firstRoute.rating}★</span>
+            </div>
+          </>
         )}
         {secondRoute && (
-          <div className="collection-route-2">
-            <span className="route-length">{secondRoute.length} км</span>
-            <span className="route-time">{formatDuration(secondRoute.duration)}</span>
-            <span className="route-rate">{secondRoute.rating}★</span>
-          </div>
+          <>
+            <div className="coll-route-name">2. {secondRoute.name}</div>
+            <div className="collection-route-2">
+              <span className="route-length">{secondRoute.length} км</span>
+              <span className="route-time">{formatDuration(secondRoute.duration)}</span>
+              <span className="route-rate">{secondRoute.rating}★</span>
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -50,6 +56,7 @@ CollectionCard.propTypes = {
   name: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   routes: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string, 
     length: PropTypes.number,
     duration: PropTypes.number,
     rating: PropTypes.number
