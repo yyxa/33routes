@@ -104,12 +104,17 @@ pg-cli:
 
 .PHONY: pg-seed-data
 pg-seed-data:
-	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ./database/postgres/test_data/seed_data.sql
-
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/seed_data.sql
+	@for file in ../data/sql/*.sql; do \
+		if [ -f "$$file" ]; then \
+			echo "Загрузка $$file..."; \
+			docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < "$$file"; \
+		fi \
+	done
+	
 .PHONY: rm-pg-data
 rm-pg-data:
-	@rm -rf database/postgres/data && \
-	mkdir database/postgres/data
+	@rm -rf database/postgres/data
 
 .PHONY: clear-all
 clear-all: clear rm-pg-data

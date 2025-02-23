@@ -1,6 +1,5 @@
 data_example
 .env
-data
 .DS_Store
 need_to_swagger.yml
 .vscode
