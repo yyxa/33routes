@@ -1,6 +1,6 @@
 // src/pages/search_page/SearchPage.jsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import _ from 'lodash';
@@ -28,15 +28,7 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    if (activeRouteButton === 'МАРШРУТЫ') {
-      setRoutes([]);
-      setCurrentPage(1);
-      fetchRoutes(1);
-    }
-  }, [activeRouteButton]);
-
-  const fetchRoutes = async (page = 1, perPage = 5) => {
+  const fetchRoutes = useCallback(async (page = 1, perPage = 5) => {
     console.log('Начало fetchRoutes, страница:', page);
     
     if (loading) {
@@ -92,7 +84,86 @@ const SearchPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading]);
+
+  const fetchCollections = useCallback(async (page = 1, perPage = 5) => {
+    if (loading) {
+      console.log('Загрузка остановлена - идёт предыдущая загрузка');
+      return;
+    }
+    
+    setLoading(true);
+    console.log('Начало загрузки подборок, страница:', page);
+    
+    try {
+      const res = await fetch(`http://localhost:8100/api/collection/collections?pagination-page-number=${page}&pagination-per-page=${perPage}`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      console.log('Получены данные подборок:', data);
+      
+      const collectionPromises = data.collections.map(async (id) => {
+        const detailRes = await fetch(`http://localhost:8100/api/collection/collection/${id}`);
+        const collectionData = await detailRes.json();
+        
+        const routePromises = collectionData.collection.routes.ids.map(async (routeId) => {
+          const routeRes = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
+          const routeData = await routeRes.json();
+          return {
+            length: routeData.route.length,
+            duration: routeData.route.duration,
+            rating: routeData.route.rating
+          };
+        });
+
+        const routesDetails = await Promise.all(routePromises);
+        
+        // Вычисляем общую длину маршрутов
+        const totalLength = routesDetails.reduce((sum, route) => sum + route.length, 0);
+        
+        return {
+          id: collectionData.collection.collection_id,
+          name: collectionData.collection.name,
+          description: collectionData.collection.description,
+          tags: collectionData.collection.tags,
+          rating: collectionData.collection.rating,
+          routesCount: collectionData.collection.routes.amount,
+          routes: routesDetails,
+          length: totalLength // Добавляем общую длину
+        };
+      });
+
+      const newCollections = await Promise.all(collectionPromises);
+      
+      setCollections(prev => [
+        ...prev, 
+        ...newCollections.filter(c => !prev.some(existing => existing.id === c.id))
+      ]);
+
+      setCurrentPage(page);
+      setHasMore(data.collections.length > 0);
+      
+    } catch (err) {
+      console.error('Ошибка загрузки подборок:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (activeRouteButton === 'МАРШРУТЫ') {
+      setRoutes([]);
+      setCurrentPage(1);
+      fetchRoutes(1);
+    } else if (activeRouteButton === 'ПОДБОРКИ') {
+      setCollections([]);
+      setCurrentPage(1);
+      fetchCollections(1);
+    }
+  }, [activeRouteButton]);
 
   useEffect(() => {
     const leftBlock = document.querySelector('.left-block');
@@ -117,7 +188,11 @@ const SearchPage = () => {
           !loading && 
           hasMore && 
           scrollTop > 0) {
-        fetchRoutes(currentPage + 1);
+        if (activeRouteButton === 'МАРШРУТЫ') {
+          fetchRoutes(currentPage + 1);
+        } else if (activeRouteButton === 'ПОДБОРКИ') {
+          fetchCollections(currentPage + 1);
+        }
       }
     };
 
@@ -128,7 +203,7 @@ const SearchPage = () => {
       leftBlock?.removeEventListener('scroll', throttledHandleScroll);
       throttledHandleScroll.cancel();
     };
-  }, [loading, hasMore, currentPage, fetchRoutes]);
+  }, [loading, hasMore, currentPage, fetchRoutes, fetchCollections, activeRouteButton]);
 
   // Сброс активных кнопок при клике вне сортировки (пример)
   useEffect(() => {
@@ -219,21 +294,20 @@ const SearchPage = () => {
           </div>
         )}
 
-
         {activeRouteButton === 'ПОДБОРКИ' && (
-            <div className="collection-list">
-              {collections.map((collection, index) => (
-                <CollectionCard
-                  key={index}
-                  title={collection.title}
-                  description={collection.description}
-                  routesCount={collection.routesCount}
-                  averageRating={collection.averageRating}
-                  routes={collection.routes || []}
-                />
-              ))}
-            </div>
-          )}
+          <div className="collection-list">
+            {collections.map((c) => (
+              <CollectionCard
+                key={c.id}
+                id={c.id}
+                name={c.name}
+                description={c.description}
+                routes={c.routes}
+                onOpenCollectionDetail={handleOpenCollectionDetail}
+              />
+            ))}
+          </div>
+        )}
 
           {loading && <div className="loading-indicator">Загрузка...</div>}
           {!hasMore && <div className="end-message">Вы достигли конца списка</div>}

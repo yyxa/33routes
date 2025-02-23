@@ -84,19 +84,49 @@ VALUES
     (9, 'Adventure Trails', 4.8, 'adventure-trails', 'For the adventurous spirit.', ARRAY['forest']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE),
     (10, 'Relaxing Walks', 4.6, 'relaxing-walks', 'Calm and peaceful walks.', ARRAY['near_water']::tag_type[], EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE);
 
--- Вставка тестовых данных в таблицу collection_routes
+-- Обновление данных в таблице collection_routes
 INSERT INTO collection_routes (collection_id, route_id)
 VALUES
+    -- Коллекция 1: один маршрут
     (1, 1),
-    (1, 3),
+    
+    -- Коллекция 2: три маршрута
     (2, 2),
-    (3, 4),
-    (4, 5),
-    (5, 6),
-    (6, 7),
-    (7, 8),
-    (8, 9),
-    (9, 10);
+    (2, 3),
+    (2, 4),
+    
+    -- Коллекция 3: два маршрута
+    (3, 5),
+    (3, 6),
+    
+    -- Коллекция 4: три маршрута
+    (4, 7),
+    (4, 8),
+    (4, 9),
+    
+    -- Коллекция 5: один маршрут
+    (5, 10),
+    
+    -- Коллекция 6: два маршрута
+    (6, 1),
+    (6, 2),
+    
+    -- Коллекция 7: три маршрута
+    (7, 3),
+    (7, 4),
+    (7, 5),
+    
+    -- Коллекция 8: один маршрут
+    (8, 6),
+    
+    -- Коллекция 9: два маршрута
+    (9, 7),
+    (9, 8),
+    
+    -- Коллекция 10: три маршрута
+    (10, 8),
+    (10, 9),
+    (10, 10);
 
 -- Вставка тестовых данных в таблицу reviews
 INSERT INTO reviews (user_id, route_id, rating, comment, created_at, is_deleted, images)
@@ -117,7 +147,7 @@ INSERT INTO review_comments (review_id, user_id, comment, created_at, reply_to, 
 VALUES
     (1, 2, 'I agree! It was a fantastic experience.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image1.jpg']),
     (2, 1, 'Thanks for the review! I will check it out.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image2.jpg']),
-    (3, 3, 'Sounds amazing, can’t wait to visit!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image3.jpg']);
+    (3, 3, 'Sounds amazing, can't wait to visit!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image3.jpg']);
 
 -- Вставка тестовых данных в таблицу saved_routes
 INSERT INTO saved_routes (user_id, route_id)

@@ -1,135 +1,121 @@
 .collection-card {
+  background: white;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  max-width: 100%;
+  height: 180px; /* Увеличиваем общую высоту карточки */
+  display: flex;
+  flex-direction: column;
+}
+
+.collection-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.collection-header {
   display: flex;
   justify-content: space-between;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding-left: 20px;
-  padding-right: 10px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-bottom: 15px;
+  align-items: center;
+  height: 25px;
   position: relative;
 }
 
-.collection-card-left, .collection-card-right {
-  width: 45%;
-  overflow-y: auto;
-}
-
-.collection-card-left {
-  flex: 0.45;
-}
-
-.collection-title {
-  font-size: 1.5rem;
-  font-weight: lighter;
-
-  color: #b22222;
-}
-
-.collection-description {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 15px;
-}
-
-.collection-routes {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.collection-route-item {
-  font-size: 0.9rem;
-  margin-bottom: 5px;
-  display: flex;
-  justify-content: space-between;
-  color: #333;
-}
-
-.route-index {
+.coll-name {
+  font-size: 1.5em;
+  color: #8B0000;
   font-weight: bold;
 }
 
-.collection-card-right {
-  flex: 0.45;
-  display: flex;
-  flex-direction: column;
-  padding-left: 20px;
-  align-items: stretch;
-  justify-content: space-between;
-  position: relative;
-}
-
-.collection-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: 10px;
-}
-
-.collection-routes-count,
-.collection-average-rating {
-  margin-bottom: 5px;
-  font-size: 14px;
-  color: #555;
-}
-
-.collection-images {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.collection-image {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-}
-
-.no-images-placeholder {
-  width: 100%;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #aaa;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.collection-card-icons {
-  padding-top: 5px;
-  width: 10px;
-  flex: 0.1;
-  overflow-y: auto;
-}
-
-.author-image {
-  padding-right: 0px;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.favorite-button {
-  background-color: #fff;
-  border: 1px solid #ddd;
+.collection-author {
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid #bbbbbb;
+  background-color: #838383;
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  top: 0;
+  right: 0;
+  cursor: pointer;
 }
 
-.favorite-button:hover {
-  background-color: #f0f0f0;
+.collection-content-left {
+  /* flex: 0 0 45%; */
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  width: 40%;
+  height: 100%;
 }
 
+.collection-description {
+  color: #333;
+  font-size: 0.95em;
+  height: 50%;
+}
+
+.collection-route-1 {
+  height: 50%;
+  font-size: 1.5em;
+  color: #8B0000;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collection-route-2 {
+  height: 50%;
+  font-size: 1.5em;
+  color: #8B0000;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.route-length {
+  text-align: left;
+}
+
+.route-time {
+  text-align: center;
+}
+
+.route-rate {
+  text-align: right;
+}
+
+/*
+.collection-header h2 {
+  color: #B22222;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collection-content {
+  padding: 10px 20px;
+  flex: 1;
+}
+
+.collection-content p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+} */ 
