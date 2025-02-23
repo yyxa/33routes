@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
+import _ from 'lodash';
 
 import SearchBar from '../../components/search_bar/searchBar';
 import Button from '../../components/buttons/button';
@@ -102,19 +103,32 @@ const SearchPage = () => {
       const scrollTop = leftBlock.scrollTop;
       const scrollHeight = leftBlock.scrollHeight;
       const clientHeight = leftBlock.clientHeight;
+      const maxScroll = scrollHeight - clientHeight;
       
-      // Устанавливаем порог в 300px или примерно высоту одной карточки маршрута
+      // Если проскроллили дальше максимальной позиции, возвращаем на максимальную
+      if (scrollTop > maxScroll) {
+        leftBlock.scrollTop = maxScroll;
+        return;
+      }
+      
       const threshold = 300;
       
-      if (scrollTop + clientHeight >= scrollHeight - threshold && !loading) {
-        console.log('Достигнут порог прокрутки, загружаем страницу:', currentPage + 1);
+      if (scrollTop + clientHeight >= scrollHeight - threshold && 
+          !loading && 
+          hasMore && 
+          scrollTop > 0) {
         fetchRoutes(currentPage + 1);
       }
     };
-  
-    leftBlock?.addEventListener('scroll', handleScroll);
-    return () => leftBlock?.removeEventListener('scroll', handleScroll);
-  }, [loading, currentPage]); // Убрали hasMore из зависимостей
+
+    const throttledHandleScroll = _.throttle(handleScroll, 200);
+
+    leftBlock?.addEventListener('scroll', throttledHandleScroll);
+    return () => {
+      leftBlock?.removeEventListener('scroll', throttledHandleScroll);
+      throttledHandleScroll.cancel();
+    };
+  }, [loading, hasMore, currentPage, fetchRoutes]);
 
   // Сброс активных кнопок при клике вне сортировки (пример)
   useEffect(() => {
