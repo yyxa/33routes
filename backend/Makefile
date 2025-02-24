@@ -176,7 +176,7 @@ dev-install:
 check-venv:
 	@[ -d ".venv" ] || (echo "Virtual environment not found. Run 'make dev-install' first."; exit 1)
 
-DIRS = collection_service comment_service image_service moderation_service review_service route_service image_service search_service
+DIRS = collection_service comment_service image_service moderation_service review_service route_service image_service search_service auth_service
 
 .PHONY: update-env
 update-env:
