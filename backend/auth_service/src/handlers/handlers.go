@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func checkUserExistanceToInsert(db *sql.DB, username *string, email *string) error {
@@ -35,9 +37,14 @@ func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (error, uint) {
 		return fmt.Errorf("user already exists"), 0
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("Error hashing password"), 0
+	}
+
 	query := `INSERT INTO users (username, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`
 	var userId int
-	err = db.QueryRow(query, user.Username, user.Name, user.Email, user.Password, time.Now().Unix()).Scan(&userId)
+	err = db.QueryRow(query, user.Username, user.Name, user.Email, hashedPassword, time.Now().Unix()).Scan(&userId)
 
 	if err != nil {
 		return err, 0

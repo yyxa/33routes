@@ -1,13 +1,14 @@
-FROM rust:1.82.0 AS builder
+FROM golang:1.22-alpine
 
 WORKDIR /usr/src/app
 
+RUN apk add --no-cache git
+
 COPY . .
 
-RUN cargo build --release
+RUN go mod tidy
+RUN go mod download
 
-FROM rust:1.82.0
-
-COPY --from=builder /usr/src/app/target/release/auth_service /usr/local/bin/auth_service
+RUN go build -o /usr/local/bin/auth_service ./src
 
 CMD ["auth_service"]
