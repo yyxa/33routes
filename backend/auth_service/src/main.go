@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func init() {
@@ -25,8 +26,11 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Post("api/auth/register", handlers.RegisterUser(db))
+	r.Post("/api/auth/register", handlers.RegisterUser(db))
 
 	log.Println("Auth server is running")
-	http.ListenAndServe(":8081", r)
+	err := http.ListenAndServe(":8100", r)
+	if err != nil {
+		log.Fatal("Server failed to start:", err)
+	}
 }

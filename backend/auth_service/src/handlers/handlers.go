@@ -6,10 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func checkUserExistanceToInsert(db *sql.DB, username *string, email *string) error {
-	query := `SELECT id 
+	query := `SELECT user_id 
 						FROM users 
 						WHERE username = $1 OR email = $2`
 	row := db.QueryRow(query, username, email)
@@ -34,9 +35,9 @@ func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (error, uint) {
 		return fmt.Errorf("user already exists"), 0
 	}
 
-	query := `INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id`
+	query := `INSERT INTO users (username, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`
 	var userId int
-	err = db.QueryRow(query, user.Username, user.Email, user.Password).Scan(&userId)
+	err = db.QueryRow(query, user.Username, user.Name, user.Email, user.Password, time.Now().Unix()).Scan(&userId)
 
 	if err != nil {
 		return err, 0
@@ -56,15 +57,17 @@ func RegisterUser(db *sql.DB) http.HandlerFunc {
 
 		err, userId := addUserToDB(db, &userData)
 
-		if err.Error() == "user already exists" {
-			http.Error(w, "User already exists", http.StatusBadRequest)
-			return
-		} else if err.Error() == "database error" {
-			http.Error(w, "Database error", http.StatusInternalServerError)
-			return
-		} else if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
+		if err != nil {
+			if err.Error() == "user already exists" {
+				http.Error(w, "User already exists", http.StatusBadRequest)
+				return
+			} else if err.Error() == "database error" {
+				http.Error(w, "Database error", http.StatusInternalServerError)
+				return
+			} else {
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
 		}
 
 		err, token := CreateToken(&userId)
