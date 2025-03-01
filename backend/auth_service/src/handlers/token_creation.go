@@ -19,11 +19,11 @@ type UserTokenBody struct {
 	UserId uint `json:"user_id"`
 }
 
-func CreateToken(userId *uint) (error, string) {
+func CreateToken(userId *uint) (string, error) {
 	key, status := os.LookupEnv("TOKEN_SECRET_KEY")
 
 	if !status {
-		return fmt.Errorf("secret key was not found"), ""
+		return "", fmt.Errorf("secret key was not found")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -34,8 +34,8 @@ func CreateToken(userId *uint) (error, string) {
 	signed, err := token.SignedString([]byte(key))
 
 	if err != nil {
-		return fmt.Errorf("error signing token"), ""
+		return "", fmt.Errorf("error signing token")
 	}
 
-	return nil, signed
+	return signed, nil
 }

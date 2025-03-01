@@ -21,7 +21,7 @@ func checkUserExistanceToInsert(db *sql.DB, username *string, email *string) err
 	return err
 }
 
-func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (error, uint) {
+func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (uint, error) {
 	var existance bool
 	err := checkUserExistanceToInsert(db, &user.Username, &user.Email)
 
@@ -29,17 +29,17 @@ func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (error, uint) {
 		if err == sql.ErrNoRows {
 			existance = false
 		} else {
-			return fmt.Errorf("database error"), 0
+			return 0, fmt.Errorf("database error")
 		}
 	}
 
 	if existance {
-		return fmt.Errorf("user already exists"), 0
+		return 0, fmt.Errorf("user already exists")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return fmt.Errorf("Error hashing password"), 0
+		return 0, fmt.Errorf("error hashing password")
 	}
 
 	query := `INSERT INTO users (username, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`
@@ -47,10 +47,10 @@ func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (error, uint) {
 	err = db.QueryRow(query, user.Username, user.Name, user.Email, hashedPassword, time.Now().Unix()).Scan(&userId)
 
 	if err != nil {
-		return err, 0
+		return 0, err
 	}
 
-	return nil, uint(userId)
+	return uint(userId), nil
 }
 
 func RegisterUser(db *sql.DB) http.HandlerFunc {
@@ -62,7 +62,7 @@ func RegisterUser(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		err, userId := addUserToDB(db, &userData)
+		userId, err := addUserToDB(db, &userData)
 
 		if err != nil {
 			if err.Error() == "user already exists" {
@@ -77,7 +77,7 @@ func RegisterUser(db *sql.DB) http.HandlerFunc {
 			}
 		}
 
-		err, token := CreateToken(&userId)
+		token, err := CreateToken(&userId)
 
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
