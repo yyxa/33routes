@@ -659,7 +659,7 @@ paths:
                     type: object
                     properties:
                       collection_id:
-                        type: int
+                        type: integer
                         description: "ID подборки"
                       name:
                         type: string
@@ -1943,10 +1943,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
                   user_id:
-                    type: string
+                    type: integer
         '400':
           description: Invalid session-token
         '401':

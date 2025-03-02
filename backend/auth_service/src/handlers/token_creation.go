@@ -31,7 +31,6 @@ func CreateToken(redisDb *redis.Client, userId *uint) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userId,
-		"exp":     time.Now().AddDate(0, 6, 0).Unix(),
 	})
 
 	signed, err := token.SignedString([]byte(key))
@@ -40,8 +39,18 @@ func CreateToken(redisDb *redis.Client, userId *uint) (string, error) {
 		return "", fmt.Errorf("error signing token")
 	}
 
-	session_key := fmt.Sprintf("users_session:%v", strconv.Itoa(int(*userId)))
-	redisDb.Set(context.Background(), session_key, signed, time.Hour*24*30*6)
+	t := time.Now().Unix() + 60*60*24*31*6
+
+	session_key := fmt.Sprintf("user:%v", strconv.Itoa(int(*userId)))
+
+	_, err = redisDb.ZAdd(context.Background(), session_key, redis.Z{
+		Score:  float64(t),
+		Member: signed,
+	}).Result()
+
+	if err != nil {
+		return "", fmt.Errorf("error adding token to Redis")
+	}
 
 	return signed, nil
 }
