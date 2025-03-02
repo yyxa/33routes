@@ -1,12 +1,15 @@
 package auth_handlers
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 func init() {
@@ -19,7 +22,7 @@ type UserTokenBody struct {
 	UserId uint `json:"user_id"`
 }
 
-func CreateToken(userId *uint) (string, error) {
+func CreateToken(redisDb *redis.Client, userId *uint) (string, error) {
 	key, status := os.LookupEnv("TOKEN_SECRET_KEY")
 
 	if !status {
@@ -36,6 +39,9 @@ func CreateToken(userId *uint) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error signing token")
 	}
+
+	session_key := fmt.Sprintf("users_session:%v", strconv.Itoa(int(*userId)))
+	redisDb.Set(context.Background(), session_key, signed, time.Hour*24*30*6)
 
 	return signed, nil
 }

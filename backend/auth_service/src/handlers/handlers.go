@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -53,7 +54,7 @@ func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (uint, error) {
 	return uint(userId), nil
 }
 
-func RegisterUser(db *sql.DB) http.HandlerFunc {
+func RegisterUser(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var userData models.UserRegisterInfo
 
@@ -77,7 +78,7 @@ func RegisterUser(db *sql.DB) http.HandlerFunc {
 			}
 		}
 
-		token, err := CreateToken(&userId)
+		token, err := CreateToken(redisDb, &userId)
 
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
