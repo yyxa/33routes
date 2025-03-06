@@ -5,40 +5,57 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"math"
 	"net/http"
-	"strconv"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
 func CheckToken(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var userData models.TokenCheck
+
+		if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
 		token := r.Header.Get("session-token")
 
 		if token == "" {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		key := fmt.Sprintf("user:%v", userData.User_id)
+		minUnixTime := fmt.Sprintf("%d", time.Now().Unix())
+		maxUnixTime := fmt.Sprintf("%d", math.MaxInt32-1)
+
+		tokens, err := redisDb.ZRangeByScore(context.Background(), key, &redis.ZRangeBy{
+			Min: minUnixTime,
+			Max: maxUnixTime,
+		}).Result()
+
+		if err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		tokenFound := false
+		for _, storedToken := range tokens {
+			if storedToken == token {
+				tokenFound = true
+				break
+			}
+		}
+
+		if !tokenFound {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		user_id, err := redisDb.Get(context.Background(), r.Header.Get("session-token")).Result()
-
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		user_id_int, err := strconv.Atoi(user_id)
-
-		if err != nil {
-			http.Error(w, "Invalid session-token", http.StatusUnauthorized)
-			return
-		}
-
-		response := models.TokenCheckResponse{
-			User_id: uint(user_id_int),
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		w.WriteHeader(http.StatusOK)
 	}
 }

@@ -1927,7 +1927,7 @@ paths:
           description: Internal server error
 
   /api/auth/check_token:
-    get:
+    post:
       summary: Check if the token is valid
       parameters:
         - name: session-token
@@ -1935,6 +1935,12 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckTokenRequest'
       responses:
         '200':
           description: Token is valid
@@ -2012,6 +2018,12 @@ components:
           type: string
         refresh_token:
           type: string
+    
+    CheckTokenRequest:
+      type: object
+      properties:
+        user_id: 
+          type: integer
 
     VkAuthParams:
       type: object

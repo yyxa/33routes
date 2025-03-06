@@ -22,6 +22,10 @@ type UserLoginResponse struct {
 	Refresh_token string `json:"refresh_token"`
 }
 
+type TokenCheck struct {
+	User_id uint `json:"user_id"`
+}
+
 type TokenCheckResponse struct {
 	User_id uint `json:"user_id"`
 }

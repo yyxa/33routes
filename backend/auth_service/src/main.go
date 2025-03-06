@@ -13,6 +13,7 @@ import (
 	handlers "auth_service/src/handlers"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/redis/go-redis/v9"
@@ -44,11 +45,19 @@ func main() {
 
 	r := chi.NewRouter()
 
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "session-token"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
 	r.Post("/api/auth/register", handlers.RegisterUser(db, redisDb))
-	r.Get("/api/auth/check_token", handlers.CheckToken(db, redisDb))
+	r.Post("/api/auth/check_token", handlers.CheckToken(db, redisDb))
 
 	log.Println("Auth server is running")
-	err = http.ListenAndServe(":8110", r)
+	err = http.ListenAndServe(":8100", r)
 	if err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
