@@ -24,22 +24,22 @@ type UserTokenBody struct {
 
 func CreateToken(redisDb *redis.Client, userId *uint) (string, error) {
 	key, status := os.LookupEnv("TOKEN_SECRET_KEY")
+	t := time.Now().Unix() + 60*60*24*31*6
 
 	if !status {
-		return "", fmt.Errorf("secret key was not found")
+		return "", fmt.Errorf("internal server error: secret key was not found")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userId,
+		"exp":     t,
 	})
 
 	signed, err := token.SignedString([]byte(key))
 
 	if err != nil {
-		return "", fmt.Errorf("error signing token")
+		return "", fmt.Errorf("internal server error: %v", err.Error())
 	}
-
-	t := time.Now().Unix() + 60*60*24*31*6
 
 	session_key := fmt.Sprintf("user:%v", strconv.Itoa(int(*userId)))
 
@@ -49,7 +49,7 @@ func CreateToken(redisDb *redis.Client, userId *uint) (string, error) {
 	}).Result()
 
 	if err != nil {
-		return "", fmt.Errorf("error adding token to Redis")
+		return "", fmt.Errorf("internal server error: %v", err.Error())
 	}
 
 	return signed, nil

@@ -18,8 +18,7 @@ type UserLogin struct {
 }
 
 type UserLoginResponse struct {
-	Token         string `json:"token"`
-	Refresh_token string `json:"refresh_token"`
+	Token string `json:"token"`
 }
 
 type TokenCheck struct {

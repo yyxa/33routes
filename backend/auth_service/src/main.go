@@ -55,6 +55,7 @@ func main() {
 
 	r.Post("/api/auth/register", handlers.RegisterUser(db, redisDb))
 	r.Post("/api/auth/check_token", handlers.CheckToken(db, redisDb))
+	r.Post("/api/auth/login", handlers.Login(db, redisDb))
 
 	log.Println("Auth server is running")
 	err = http.ListenAndServe(":8100", r)
