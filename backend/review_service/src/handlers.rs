@@ -16,8 +16,8 @@ pub struct PaginationParams {
     pub per_page: Option<i64>,
 }
 
-async fn check_route_existance(state: &AppState, route_id: &i32) -> bool {
-    let route_existance = state
+async fn check_route_existence(state: &AppState, route_id: &i32) -> bool {
+    let route_existence = state
         .db_client
         .query_one(
             "SELECT COUNT(*)
@@ -27,7 +27,7 @@ async fn check_route_existance(state: &AppState, route_id: &i32) -> bool {
         )
         .await;
     
-    match route_existance {
+    match route_existence {
         Ok(row) => {
             let route_count: i64 = row.get(0);
             route_count > 0
@@ -38,8 +38,8 @@ async fn check_route_existance(state: &AppState, route_id: &i32) -> bool {
     }
 }
 
-async fn check_review_existance(state: &AppState, review_id: &i32) -> bool {
-    let review_existance = state
+async fn check_review_existence(state: &AppState, review_id: &i32) -> bool {
+    let review_existence = state
         .db_client
         .query_one(
             "SELECT COUNT(*)
@@ -49,7 +49,7 @@ async fn check_review_existance(state: &AppState, review_id: &i32) -> bool {
         )
         .await;
     
-    match review_existance {
+    match review_existence {
         Ok(row) => {
             let review_count: i64 = row.get(0);
             review_count > 0
@@ -65,7 +65,7 @@ pub async fn get_route_reviews(
     Path(route_id): Path<i32>,
     Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
-    if !check_route_existance(&state, &route_id).await {
+    if !check_route_existence(&state, &route_id).await {
         return (
             StatusCode::NOT_FOUND,
             "Route doesn't exist",
@@ -152,7 +152,7 @@ pub async fn add_review(
 ) -> impl IntoResponse {
     let _session_token = headers.get("session-token").and_then(|v| v.to_str().ok());
 
-    if !check_route_existance(&state, &route_id).await {
+    if !check_route_existence(&state, &route_id).await {
         return (
             StatusCode::NOT_FOUND,
             "Route doesn't exist",
@@ -201,7 +201,7 @@ pub async fn delete_review(
 ) -> impl IntoResponse {
     let _session_token = headers.get("session-token").and_then(|v| v.to_str().ok());
 
-    if !check_review_existance(&state, &payload.review_id).await {
+    if !check_review_existence(&state, &payload.review_id).await {
         return (
             StatusCode::NOT_FOUND,
             "Review doesn't exist",

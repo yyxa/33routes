@@ -33,6 +33,13 @@ func CheckToken(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 		minUnixTime := fmt.Sprintf("%d", time.Now().Unix())
 		maxUnixTime := fmt.Sprintf("%d", math.MaxInt32-1)
 
+		userExistence := redisDb.Get(context.Background(), key)
+
+		if userExistence == nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		tokens, err := redisDb.ZRangeByScore(context.Background(), key, &redis.ZRangeBy{
 			Min: minUnixTime,
 			Max: maxUnixTime,

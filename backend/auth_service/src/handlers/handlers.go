@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func checkUserExistance(db *sql.DB, username *string, email *string) error {
+func checkUserExistence(db *sql.DB, username *string, email *string) error {
 	query := `SELECT user_id 
 						FROM users 
 						WHERE username = $1 OR email = $2`
@@ -26,7 +26,7 @@ func checkUserExistance(db *sql.DB, username *string, email *string) error {
 
 func authInfoCheck(db *sql.DB, email *string, password *string) error {
 	var hashedPassword string
-	err := checkUserExistance(db, nil, email)
+	err := checkUserExistence(db, nil, email)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -58,18 +58,18 @@ func authInfoCheck(db *sql.DB, email *string, password *string) error {
 }
 
 func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (uint, error) {
-	var existance bool
-	err := checkUserExistance(db, &user.Username, &user.Email)
+	var existence bool
+	err := checkUserExistence(db, &user.Username, &user.Email)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			existance = false
+			existence = false
 		} else {
 			return 0, fmt.Errorf("database error")
 		}
 	}
 
-	if existance {
+	if existence {
 		return 0, fmt.Errorf("user already exists")
 	}
 

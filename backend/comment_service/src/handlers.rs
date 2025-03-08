@@ -255,7 +255,7 @@ pub async fn delete_comment(
         .into_response();
     }
 
-    let comment_existance = state
+    let comment_existence = state
         .db_client
         .query_one(
             "SELECT COUNT(*) FROM review_comments WHERE comment_id = $1 AND is_deleted = false",
@@ -263,7 +263,7 @@ pub async fn delete_comment(
         )
         .await;
 
-    let comment_count: i64 = match comment_existance {
+    let comment_count: i64 = match comment_existence {
         Ok(row) => row.get(0),
         Err(err) => {
             eprintln!("Database error: {}", err);
