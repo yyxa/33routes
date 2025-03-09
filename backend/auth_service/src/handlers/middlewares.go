@@ -1,35 +1,77 @@
 package auth_handlers
 
 import (
-	models "auth_service/src/models"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"math"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
 )
 
+func extractUserIdFromToken(tokenStr string) (uint, error) {
+	secretKey, exists := os.LookupEnv("TOKEN_SECRET_KEY")
+	if !exists {
+		return 0, fmt.Errorf("internal server error: secret key not found")
+	}
+
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("internal server error: token parse error")
+		}
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return 0, fmt.Errorf("internal server error: token parse error")
+	}
+
+	claims, status := token.Claims.(jwt.MapClaims)
+	if !status || !token.Valid {
+		return 0, fmt.Errorf("unauthorized: invalid token")
+	}
+
+	userIDFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		return 0, fmt.Errorf("unauthorized: user_id not found in token")
+	}
+
+	return uint(userIDFloat), nil
+}
+
 func CheckToken(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var userData models.TokenCheck
+		cookie, err := r.Cookie("session_token")
 
-		if err := json.NewDecoder(r.Body).Decode(&userData); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-
-		token := r.Header.Get("session-token")
+		token := cookie.Value
 
 		if token == "" {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
 
-		key := fmt.Sprintf("user:%v", userData.User_id)
+		user_id, err := extractUserIdFromToken(token)
+
+		if err != nil {
+			if strings.Contains(err.Error(), "unauthorized") {
+				// log (?)
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			} else {
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		key := fmt.Sprintf("user:%v", user_id)
 		minUnixTime := fmt.Sprintf("%d", time.Now().Unix())
 		maxUnixTime := fmt.Sprintf("%d", math.MaxInt32-1)
 

@@ -120,13 +120,17 @@ func RegisterUser(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 			return
 		}
 
-		response := models.UserRegisterResponse{
-			User_id: userId,
-			Token:   string(token),
-		}
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_token",
+			Value:    token,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
+			Path:     "/",
+			Expires:  time.Now().Add(6 * 30 * 24 * time.Hour),
+		})
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -171,11 +175,16 @@ func Login(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 			return
 		}
 
-		response := models.UserLoginResponse{
-			Token: string(token),
-		}
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_token",
+			Value:    token,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
+			Path:     "/",
+			Expires:  time.Now().Add(6 * 30 * 24 * time.Hour),
+		})
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		w.WriteHeader(http.StatusOK)
 	}
 }
