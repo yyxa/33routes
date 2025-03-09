@@ -135,7 +135,9 @@ tests-all:
 	$(MAKE) tests-review && \
 	$(MAKE) tests-route && \
 	$(MAKE) tests-image && \
-	$(MAKE) tests-search
+	$(MAKE) tests-search && \
+	$(MAKE) tests-auth && \
+	$(MAKE) tests-user
 
 .PHONY: tests-collection
 tests-collection: check-venv
@@ -165,6 +167,14 @@ tests-image: check-venv
 tests-search: check-venv
 	@.venv/bin/python -m pytest search_service/tests/tests.py
 
+.PHONY: tests-auth
+tests-auth: check-venv
+	@.venv/bin/python -m pytest auth_service/tests/tests.py
+
+.PHONY: tests-user
+tests-user: check-venv
+	@.venv/bin/python -m pytest user_service/tests/tests.py
+
 .PHONY: dev-install
 dev-install:
 	@sudo apt install python3 python3-venv
@@ -176,7 +186,7 @@ dev-install:
 check-venv:
 	@[ -d ".venv" ] || (echo "Virtual environment not found. Run 'make dev-install' first."; exit 1)
 
-DIRS = collection_service comment_service image_service moderation_service review_service route_service image_service search_service auth_service
+DIRS = collection_service comment_service image_service moderation_service review_service route_service image_service search_service auth_service user_service
 
 .PHONY: update-env
 update-env:

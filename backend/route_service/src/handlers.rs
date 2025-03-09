@@ -8,6 +8,8 @@ use axum::{
 use serde_json::json;
 use serde::Deserialize;
 use tokio_postgres::Client;
+use reqwest::Client as ReqwestClient;
+use chrono::Utc;
 
 #[derive(Deserialize)]
 pub struct PaginationParams {
@@ -205,4 +207,362 @@ async fn get_route_details(
         .collect();
 
     Ok(RouteDetails { user, route, points })
+}
+
+async fn upload_image(image_data: &str) -> Result<String, reqwest::Error> {
+    let client = ReqwestClient::new();
+    let response = client
+        .post("http://image-service/api/media/image/upload")
+        .json(&json!({ "image": image_data }))
+        .send()
+        .await?;
+    let json_resp: serde_json::Value = response.json().await?;
+    if let Some(url) = json_resp.get("image_url").and_then(|v| v.as_str()) {
+        Ok(url.to_string())
+    } else {
+        Err(reqwest::Error::new(
+            reqwest::ErrorKind::Decode,
+            "Missing image_url in response",
+        ))
+    }
+}
+
+pub async fn create_route(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(payload): Json<CreateRouteRequest>,
+) -> impl IntoResponse {
+    let user_id = match headers.get("user-id")
+        .and_then(|id| id.to_str().ok())
+        .and_then(|id| id.parse::<i32>().ok())
+    {
+        Some(id) => id,
+        None => {
+            return (
+                StatusCode::UNAUTHORIZED,
+                Json(json!({"error": "Missing or invalid user-id header"}))
+            )
+            .into_response();
+        }
+    };
+
+    let route_images = if let Some(image_list) = &payload.images {
+        let mut uploaded = Vec::new();
+        for image in image_list {
+            match upload_image(image).await {
+                Ok(url) => uploaded.push(url),
+                Err(e) => {
+                    eprintln!("Ошибка загрузки изображения маршрута: {}", e);
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(json!({"error": "Failed to upload route image"}))
+                    )
+                    .into_response();
+                }
+            }
+        }
+        Some(uploaded)
+    } else {
+        None
+    };
+
+    let transaction = match state.db_client.transaction().await {
+        Ok(tx) => tx,
+        Err(e) => {
+            eprintln!("Ошибка начала транзакции: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Internal server error"}))
+            )
+            .into_response();
+        }
+    };
+
+    let url = payload.name.to_lowercase()
+        .chars()
+        .filter(|c| c.is_alphanumeric() || c.is_whitespace())
+        .collect::<String>()
+        .replace(" ", "-");
+
+    let route_row = match transaction
+        .query_one(
+            "INSERT INTO routes (user_id, name, url, description, length, duration, tags, category, created_at, images) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7::tag_type[], $8::category_type, $9, $10) 
+         RETURNING route_id",
+            &[
+                &user_id,
+                &payload.name,
+                &url,
+                &payload.description,
+                &payload.length,
+                &payload.duration,
+                &payload.tags,
+                &payload.category,
+                &Utc::now().timestamp_millis(),
+                &route_images,
+            ],
+        )
+        .await
+    {
+        Ok(row) => row,
+        Err(e) => {
+            eprintln!("Ошибка вставки маршрута: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Failed to create route"}))
+            )
+            .into_response();
+        }
+    };
+
+    let route_id: i32 = route_row.get("route_id");
+
+    for point in payload.points {
+        let point_images = if let Some(image_list) = &point.images {
+            let mut uploaded = Vec::new();
+            for image in image_list {
+                match upload_image(image).await {
+                    Ok(url) => uploaded.push(url),
+                    Err(e) => {
+                        eprintln!("Ошибка загрузки изображения точки: {}", e);
+                        return (
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            Json(json!({"error": "Failed to upload point image"}))
+                        )
+                        .into_response();
+                    }
+                }
+            }
+            Some(uploaded)
+        } else {
+            None
+        };
+
+        if let Err(e) = transaction
+            .query_one(
+                "INSERT INTO route_points (route_id, coordinate, time_offset, elevation, speed, images) 
+             VALUES ($1, ST_SetSRID(ST_MakePoint($3, $2), 4326), $4, $5, $6, $7)
+             RETURNING point_id",
+                &[
+                    &route_id,
+                    &point.latitude,
+                    &point.longitude,
+                    &point.time_offset,
+                    &point.elevation,
+                    &point.speed,
+                    &point_images,
+                ],
+            )
+            .await
+        {
+            eprintln!("Ошибка вставки точки маршрута: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Failed to create route point"}))
+            )
+            .into_response();
+        }
+    }
+
+    if let Err(e) = transaction.commit().await {
+        eprintln!("Ошибка коммита транзакции: {}", e);
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": "Failed to commit route creation"}))
+        )
+        .into_response();
+    }
+
+    StatusCode::CREATED.into_response()
+}
+
+pub async fn update_route(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(route_id): Path<i32>,
+    Json(payload): Json<UpdateRouteRequest>,
+) -> impl IntoResponse {
+    let user_id = match headers.get("user-id")
+        .and_then(|id| id.to_str().ok())
+        .and_then(|id| id.parse::<i32>().ok())
+    {
+        Some(id) => id,
+        None => {
+            return (
+                StatusCode::UNAUTHORIZED,
+                Json(json!({"error": "Missing or invalid user-id header"}))
+            )
+            .into_response();
+        }
+    };
+
+    let route_exists = match state.db_client
+        .query_one(
+            "SELECT user_id FROM routes WHERE route_id = $1 AND NOT is_deleted",
+            &[&route_id],
+        )
+        .await
+    {
+        Ok(row) => {
+            let route_user_id: i32 = row.get("user_id");
+            if route_user_id != user_id {
+                return (
+                    StatusCode::FORBIDDEN,
+                    Json(json!({"error": "Not authorized to update this route"}))
+                )
+                .into_response();
+            }
+            true
+        }
+        Err(_) => false,
+    };
+
+    if !route_exists {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(json!({"error": "Route not found"}))
+        )
+        .into_response();
+    }
+
+    let transaction = match state.db_client.transaction().await {
+        Ok(tx) => tx,
+        Err(e) => {
+            eprintln!("Ошибка начала транзакции: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Internal server error"}))
+            )
+            .into_response();
+        }
+    };
+
+    let mut update_fields = Vec::new();
+    let mut params: Vec<&(dyn tokio_postgres::types::ToSql + Sync)> = vec![&route_id];
+
+    if let Some(name) = &payload.name {
+        update_fields.push(format!("name = ${}", params.len() + 1));
+        params.push(name);
+    }
+    if let Some(description) = &payload.description {
+        update_fields.push(format!("description = ${}", params.len() + 1));
+        params.push(description);
+    }
+    if let Some(length) = &payload.length {
+        update_fields.push(format!("length = ${}", params.len() + 1));
+        params.push(length);
+    }
+    if let Some(duration) = &payload.duration {
+        update_fields.push(format!("duration = ${}", params.len() + 1));
+        params.push(duration);
+    }
+    if let Some(tags) = &payload.tags {
+        update_fields.push(format!("tags = ${}::tag_type[]", params.len() + 1));
+        params.push(tags);
+    }
+    if let Some(category) = &payload.category {
+        update_fields.push(format!("category = ${}::category_type", params.len() + 1));
+        params.push(category);
+    }
+    if let Some(images) = &payload.images {
+        let mut uploaded = Vec::new();
+        for image in images {
+            match upload_image(image).await {
+                Ok(url) => uploaded.push(url),
+                Err(e) => {
+                    eprintln!("Ошибка загрузки изображения маршрута: {}", e);
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(json!({"error": "Failed to upload route image"}))
+                    )
+                    .into_response();
+                }
+            }
+        }
+        update_fields.push(format!("images = ${}", params.len() + 1));
+        params.push(&Some(uploaded));
+    }
+
+    if !update_fields.is_empty() {
+        let query = format!(
+            "UPDATE routes SET {} WHERE route_id = $1",
+            update_fields.join(", ")
+        );
+        if let Err(e) = transaction.execute(&query, &params[..]).await {
+            eprintln!("Ошибка обновления маршрута: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Failed to update route"}))
+            )
+            .into_response();
+        }
+    }
+
+    if let Some(points) = &payload.points {
+        if let Err(e) = transaction
+            .execute("DELETE FROM route_points WHERE route_id = $1", &[&route_id])
+            .await
+        {
+            eprintln!("Ошибка удаления точек маршрута: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Failed to update route points"}))
+            )
+            .into_response();
+        }
+        for point in points {
+            let point_images = if let Some(image_list) = &point.images {
+                let mut uploaded = Vec::new();
+                for image in image_list {
+                    match upload_image(image).await {
+                        Ok(url) => uploaded.push(url),
+                        Err(e) => {
+                            eprintln!("Ошибка загрузки изображения точки: {}", e);
+                            return (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(json!({"error": "Failed to upload point image"}))
+                            )
+                            .into_response();
+                        }
+                    }
+                }
+                Some(uploaded)
+            } else {
+                None
+            };
+            if let Err(e) = transaction.execute(
+                "INSERT INTO route_points (route_id, coordinate, time_offset, elevation, speed, images) 
+                 VALUES ($1, ST_SetSRID(ST_MakePoint($3, $2), 4326), $4, $5, $6, $7)",
+                &[
+                    &route_id,
+                    &point.latitude,
+                    &point.longitude,
+                    &point.time_offset,
+                    &point.elevation,
+                    &point.speed,
+                    &point_images,
+                ],
+            )
+            .await
+            {
+                eprintln!("Ошибка вставки точки маршрута: {}", e);
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({"error": "Failed to update route points"}))
+                )
+                .into_response();
+            }
+        }
+    }
+
+    if let Err(e) = transaction.commit().await {
+        eprintln!("Ошибка коммита транзакции: {}", e);
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": "Failed to commit route update"}))
+        )
+        .into_response();
+    }
+
+    StatusCode::OK.into_response()
 }
