@@ -16,6 +16,7 @@ services:
   #     - "traefik.http.services.route_service.loadbalancer.server.port=8100"
   #   depends_on:
   #     - 33routes_image_service
+  #     - 33routes_auth_service
 
   33routes_review_service:
     container_name: 33routes_review_service
@@ -130,6 +131,38 @@ services:
       - "traefik.http.routers.auth_service.rule=PathPrefix(`/api/auth/`)"
       - "traefik.http.services.auth_service.loadbalancer.server.port=8100"
 
+  # 33routes_user_service:
+  #   container_name: 33routes_user_service
+  #   build:
+  #     context: ./user_service
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.user_service.rule=PathPrefix(`/api/user/`)"
+  #     - "traefik.http.services.user_service.loadbalancer.server.port=8100"
+
+  33routes_like_service:
+    container_name: 33routes_like_service
+    build:
+      context: ./like_service
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.like_service.rule=PathPrefix(`/api/like/`)"
+      - "traefik.http.services.like_service.loadbalancer.server.port=8100"
+    depends_on:
+    - 33routes_auth_service
+    
 networks:
   33routes_backend_network:
     external: true

@@ -1979,6 +1979,186 @@ paths:
         '500':
           description: Internal server error
 
+  /api/like/comment/{comment-id}:
+    post:
+      summary: "Поставить лайк на комментарий"
+      description: "Позволяет пользователю поставить лайк на комментарий."
+      parameters:
+        - in: path
+          name: comment-id
+          required: true
+          schema:
+            type: integer
+          description: "ID комментария"
+        - in: header
+          name: session_token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя, ставящего лайк"
+                  example: 1
+      responses:
+        200:
+          description: "Лайк успешно поставлен"
+        400:
+          description: "Некорректный запрос"
+        401:
+          description: "Пользователь не авторизован (неправильный session_token)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        500:
+          description: "Внутренняя ошибка сервиса"
+    delete:
+      summary: "Убрать лайк с комментария"
+      description: "Позволяет пользователю убрать поставленный лайк с комментария."
+      parameters:
+        - in: path
+          name: comment-id
+          required: true
+          schema:
+            type: integer
+          description: "ID комментария"
+        - in: header
+          name: session_token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя, убирающего лайк"
+                  example: 1
+      responses:
+        200:
+          description: "Лайк успешно убран"
+        400:
+          description: "Некорректный запрос"
+        401:
+          description: "Пользователь не авторизован (неправильный session_token)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        500:
+          description: "Внутренняя ошибка сервиса"
+
+  /api/like/review/{review-id}:
+    post:
+      summary: "Поставить лайк на рецензию"
+      description: "Позволяет пользователю поставить лайк на рецензию."
+      parameters:
+        - in: path
+          name: review-id
+          required: true
+          schema:
+            type: integer
+          description: "ID рецензии"
+        - in: header
+          name: session_token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя, ставящего лайк"
+                  example: 1
+      responses:
+        200:
+          description: "Лайк успешно поставлен"
+        400:
+          description: "Некорректный запрос"
+        401:
+          description: "Пользователь не авторизован (неправильный session_token)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        500:
+          description: "Внутренняя ошибка сервиса"
+    delete:
+      summary: "Убрать лайк с рецензии"
+      description: "Позволяет пользователю убрать поставленный лайк с рецензии."
+      parameters:
+        - in: path
+          name: review-id
+          required: true
+          schema:
+            type: integer
+          description: "ID рецензии"
+        - in: header
+          name: session_token
+          required: true
+          schema:
+            type: string
+          description: "Токен сессии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя, убирающего лайк"
+                  example: 1
+      responses:
+        200:
+          description: "Лайк успешно убран"
+        400:
+          description: "Некорректный запрос"
+        401:
+          description: "Пользователь не авторизован (неправильный session_token)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        500:
+          description: "Внутренняя ошибка сервиса"
+
 components:
   schemas:
     RegisterRequest:

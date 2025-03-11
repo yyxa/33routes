@@ -122,13 +122,25 @@ CREATE TABLE IF NOT EXISTS review_comments (
     images TEXT[]
 );
 
--- CREATE TABLE IF NOT EXISTS review_likes (
+CREATE TABLE IF NOT EXISTS review_likes (
+    user_id INT REFERENCES users(user_id),
+    review_id INT REFERENCES reviews(review_id),
+    PRIMARY KEY (user_id, review_id)
+);
+
+CREATE TABLE IF NOT EXISTS comment_likes (
+    user_id INT REFERENCES users(user_id),
+    comment_id INT REFERENCES review_comments(comment_id),
+    PRIMARY KEY (user_id, comment_id)
+);
+
+-- CREATE TABLE IF NOT EXISTS review_views (
 --     user_id INT REFERENCES users(user_id),
 --     review_id INT REFERENCES reviews(review_id),
 --     PRIMARY KEY (user_id, review_id)
 -- );
 
--- CREATE TABLE IF NOT EXISTS comment_likes (
+-- CREATE TABLE IF NOT EXISTS comment_views (
 --     user_id INT REFERENCES users(user_id),
 --     comment_id INT REFERENCES review_comments(comment_id),
 --     PRIMARY KEY (user_id, comment_id)

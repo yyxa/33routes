@@ -147,7 +147,7 @@ INSERT INTO review_comments (review_id, user_id, comment, created_at, reply_to, 
 VALUES
     (1, 2, 'I agree! It was a fantastic experience.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image1.jpg']),
     (2, 1, 'Thanks for the review! I will check it out.', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image2.jpg']),
-    (3, 3, 'Sounds amazing, can't wait to visit!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image3.jpg']);
+    (3, 3, 'Sounds amazing, cant wait to visit!', EXTRACT(EPOCH FROM NOW())::BIGINT, NULL, FALSE, ARRAY['comment_image3.jpg']);
 
 -- Вставка тестовых данных в таблицу saved_routes
 INSERT INTO saved_routes (user_id, route_id)
