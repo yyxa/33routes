@@ -1,4 +1,5 @@
 use serde::Serialize;
+use serde::Deserialize;
 use std::sync::Arc;
 use tokio_postgres::Client;
 
@@ -58,4 +59,51 @@ pub struct PointInfo {
 pub struct Coordinate {
     pub latitude: f64,
     pub longitude: f64,
+}
+
+#[derive(Deserialize)]
+pub struct CreateRouteRequest {
+    pub name: String,
+    pub description: Option<String>,
+    pub length: i32,
+    pub duration: i64,
+    pub tags: Option<Vec<String>>,
+    pub category: String,
+    pub images: Option<Vec<String>>,
+    pub points: Vec<CreatePointInfo>
+}
+
+#[derive(Deserialize)]
+pub struct CreatePointInfo {
+    pub latitude: f64,
+    pub longitude: f64,
+    pub time_offset: Option<i64>,
+    pub elevation: Option<i32>,
+    pub speed: Option<f64>,
+    pub point_description: Option<String>,
+    pub images: Option<Vec<String>>
+}
+
+#[derive(Deserialize)]
+pub struct UpdateRouteRequest {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub length: Option<i32>,
+    pub duration: Option<i64>,
+    pub tags: Option<Vec<String>>,
+    pub category: Option<String>,
+    pub images: Option<Vec<String>>,
+    pub points: Option<Vec<UpdatePointInfo>>
+}
+
+#[derive(Deserialize)]
+pub struct UpdatePointInfo {
+    pub point_id: Option<i32>,
+    pub latitude: f64, 
+    pub longitude: f64,
+    pub time_offset: Option<i64>,
+    pub elevation: Option<i32>, 
+    pub speed: Option<f64>,
+    pub point_description: Option<String>,
+    pub images: Option<Vec<String>>
 }
