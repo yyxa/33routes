@@ -124,8 +124,8 @@ func RegisterUser(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 			Name:     "session_token",
 			Value:    token,
 			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteStrictMode,
+			Secure:   false,
+			SameSite: http.SameSiteLaxMode,
 			Path:     "/",
 			Expires:  time.Now().Add(6 * 30 * 24 * time.Hour),
 		})
@@ -179,8 +179,8 @@ func Login(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 			Name:     "session_token",
 			Value:    token,
 			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteStrictMode,
+			Secure:   false,
+			SameSite: http.SameSiteLaxMode,
 			Path:     "/",
 			Expires:  time.Now().Add(6 * 30 * 24 * time.Hour),
 		})

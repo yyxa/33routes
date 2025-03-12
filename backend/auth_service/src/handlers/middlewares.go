@@ -3,6 +3,7 @@ package auth_handlers
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"math"
 	"net/http"
@@ -105,6 +106,9 @@ func CheckToken(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"user_id": user_id,
+		})
 	}
 }

@@ -26,10 +26,11 @@ const AuthModal = ({ onClose, onLogin }) => {
           'Content-Type': 'application/json',
         },
         body,
+        credentials: "include",
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response;
         if (isRegistering) {
           console.log('User registered:', data);
         } else {
