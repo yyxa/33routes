@@ -13,7 +13,7 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * atan2(sqrt(a), sqrt(1-a))
     return R * c
 
-def parse_tcx_to_sql(tcx_file):
+def parse_tcx_to_sql(tcx_file, route_id=1):
     output_dir = '../sql'
     os.makedirs(output_dir, exist_ok=True)
     base_name = os.path.basename(tcx_file)
@@ -81,7 +81,7 @@ def parse_tcx_to_sql(tcx_file):
                 f"""INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (
-                    1, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), 
+                    {route_id}, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), 
                     {time_timestamp}, {int(alt)}, {speed}
                 );\n"""
             )
@@ -94,6 +94,7 @@ def process_tcx_directory(directory_path):
     existing_sql_files = {os.path.splitext(f)[0] for f in os.listdir(output_dir) if f.endswith('.sql')}
     processed = 0
     skipped = 0
+    route_id = 1
     
     for filename in os.listdir(directory_path):
         if filename.endswith('.tcx'):
@@ -104,8 +105,9 @@ def process_tcx_directory(directory_path):
                 continue
             tcx_path = os.path.join(directory_path, filename)
             try:
-                parse_tcx_to_sql(tcx_path)
+                parse_tcx_to_sql(tcx_path, route_id)
                 processed += 1
+                route_id += 1
             except Exception as e:
                 print(f"Ошибка при обработке {filename}: {str(e)}")
     

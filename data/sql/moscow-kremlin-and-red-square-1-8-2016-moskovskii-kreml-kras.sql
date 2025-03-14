@@ -1,11 +1,10 @@
--- SQL Insert Statements
 BEGIN;
 INSERT INTO routes (
                 name, url, length, duration, 
                 category, created_at
             ) VALUES (
                 'Moscow, Kremlin and Red square 1-8-2016 (Московский Кремль, Красная Площадь)', 'moscow,-kremlin-and-red-square-1-8-2016-(московский-кремль,-красная-площадь)', 8349, 10816,
-                'walking', 1740335252
+                'walking', 1741996736
             );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
