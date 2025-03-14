@@ -99,6 +99,10 @@ restart: down-all start-all
 logs:
 	@docker compose $(COMPOSE_FILES) logs -f --tail 100
 
+.PHONY: redis-cli
+redis-cli:
+	@docker exec -it $(REDIS_CONTAINER_NAME) redis-cli
+
 .PHONY: pg-cli
 pg-cli:
 	@docker exec -it $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)

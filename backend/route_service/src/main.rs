@@ -1,12 +1,14 @@
-use axum::{routing::get, Router};
+use axum::{routing::{get, put, post}, Router};
 use dotenv::dotenv;
 use std::sync::Arc;
 use tokio_postgres::NoTls;
 use axum_server::Server;
 use tower_http::cors::{Any, CorsLayer};
+use tokio::sync::Mutex;
 
 mod handlers;
 mod models;
+use models::AppState;
 
 #[tokio::main]
 async fn main() {
@@ -25,9 +27,9 @@ async fn main() {
         }
     });
 
-    let db_client = Arc::new(db_client);
+    let db_client = Arc::new(Mutex::new(db_client));
 
-    let app_state = models::AppState {
+    let app_state = AppState {
         db_client: db_client.clone(),
     };
 
@@ -38,7 +40,8 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/route/routes", get(handlers::get_routes))
-        .route("/api/route/route/:route_id", get(handlers::get_route_by_id), put(handlers::update_route))
+        .route("/api/route/route/:route_id", get(handlers::get_route_by_id))
+        .route("/api/route/route/:route_id", put(handlers::update_route))
         .route("/api/route/route", post(handlers::create_route))
         .with_state(app_state)
         .layer(cors);

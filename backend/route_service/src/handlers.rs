@@ -3,13 +3,14 @@ use axum::{
     extract::{Path, Query, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json
+    Json,
 };
 use serde_json::json;
 use serde::Deserialize;
 use tokio_postgres::Client;
 use reqwest::Client as ReqwestClient;
 use chrono::Utc;
+use std::error::Error;
 
 #[derive(Deserialize)]
 pub struct PaginationParams {
@@ -19,10 +20,15 @@ pub struct PaginationParams {
     per_page: Option<i64>,
 }
 
+async fn get_db_client(state: &AppState) -> tokio::sync::MutexGuard<'_, Client> {
+    state.db_client.lock().await
+}
+
 pub async fn get_routes(
     State(state): State<AppState>,
     Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
+    let mut db_client = get_db_client(&state).await;
     let requested_page = params.page_number.unwrap_or(1);
     let per_page = match params.per_page.unwrap_or(10) {
         n if n < 1 => 1,
@@ -30,8 +36,7 @@ pub async fn get_routes(
         n => n,
     };
 
-    let total_elements_row = match state
-        .db_client
+    let total_elements_row = match db_client
         .query_one("SELECT COUNT(*) FROM routes WHERE is_deleted = FALSE", &[])
         .await
     {
@@ -59,7 +64,7 @@ pub async fn get_routes(
 
     let offset = (page_number - 1) * per_page;
 
-    let rows = match state.db_client.query(
+    let rows = match db_client.query(
             "SELECT route_id FROM routes WHERE is_deleted = FALSE LIMIT $1 OFFSET $2",
             &[&per_page, &offset],
         )
@@ -102,7 +107,8 @@ pub async fn get_route_by_id(
         }
     };
 
-    match get_route_details(&state.db_client, route_id).await {
+    let mut db_client = get_db_client(&state).await;
+    match get_route_details(&mut db_client, route_id).await {
         Ok(route_details) => Json(route_details).into_response(),
         Err(MyError::NotFound) => {
             let error_body = json!({ "error": "Route not found" });
@@ -123,7 +129,7 @@ enum MyError {
 }
 
 async fn get_route_details(
-    db_client: &Client,
+    db_client: &mut Client,
     route_id: i32,
 ) -> Result<RouteDetails, MyError> {
     let route_row_opt = db_client
@@ -209,7 +215,7 @@ async fn get_route_details(
     Ok(RouteDetails { user, route, points })
 }
 
-async fn upload_image(image_data: &str) -> Result<String, reqwest::Error> {
+async fn upload_image(image_data: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
     let client = ReqwestClient::new();
     let response = client
         .post("http://image-service/api/media/image/upload")
@@ -220,10 +226,7 @@ async fn upload_image(image_data: &str) -> Result<String, reqwest::Error> {
     if let Some(url) = json_resp.get("image_url").and_then(|v| v.as_str()) {
         Ok(url.to_string())
     } else {
-        Err(reqwest::Error::new(
-            reqwest::ErrorKind::Decode,
-            "Missing image_url in response",
-        ))
+        Err("Missing image_url in response".into())
     }
 }
 
@@ -266,7 +269,8 @@ pub async fn create_route(
         None
     };
 
-    let transaction = match state.db_client.transaction().await {
+    let mut client = state.db_client.lock().await;
+    let transaction = match client.transaction().await {
         Ok(tx) => tx,
         Err(e) => {
             eprintln!("Ошибка начала транзакции: {}", e);
@@ -396,7 +400,8 @@ pub async fn update_route(
         }
     };
 
-    let route_exists = match state.db_client
+    let mut client = state.db_client.lock().await;
+    let route_exists = match client
         .query_one(
             "SELECT user_id FROM routes WHERE route_id = $1 AND NOT is_deleted",
             &[&route_id],
@@ -425,7 +430,7 @@ pub async fn update_route(
         .into_response();
     }
 
-    let transaction = match state.db_client.transaction().await {
+    let transaction = match client.transaction().await {
         Ok(tx) => tx,
         Err(e) => {
             eprintln!("Ошибка начала транзакции: {}", e);
@@ -439,6 +444,8 @@ pub async fn update_route(
 
     let mut update_fields = Vec::new();
     let mut params: Vec<&(dyn tokio_postgres::types::ToSql + Sync)> = vec![&route_id];
+
+    let mut images_val: Option<Option<Vec<String>>> = None;
 
     if let Some(name) = &payload.name {
         update_fields.push(format!("name = ${}", params.len() + 1));
@@ -479,8 +486,9 @@ pub async fn update_route(
                 }
             }
         }
+        images_val = Some(Some(uploaded));
         update_fields.push(format!("images = ${}", params.len() + 1));
-        params.push(&Some(uploaded));
+        params.push(images_val.as_ref().unwrap());
     }
 
     if !update_fields.is_empty() {

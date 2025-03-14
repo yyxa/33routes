@@ -1,11 +1,11 @@
-use serde::Serialize;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 use std::sync::Arc;
 use tokio_postgres::Client;
+use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub db_client: Arc<Client>,
+    pub db_client: Arc<Mutex<Client>>,
 }
 
 #[derive(Serialize)]
