@@ -43,6 +43,7 @@ async fn main() {
         .route("/api/route/route/:route_id", get(handlers::get_route_by_id))
         .route("/api/route/route/:route_id", put(handlers::update_route))
         .route("/api/route/route", post(handlers::create_route))
+        .route("/api/route/save", post(handlers::save_route))
         .with_state(app_state)
         .layer(cors);
 

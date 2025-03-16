@@ -574,3 +574,68 @@ pub async fn update_route(
 
     StatusCode::OK.into_response()
 }
+
+pub async fn save_route(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(payload): Json<SaveRouteRequest>,
+) -> impl IntoResponse {
+    let user_id = match headers.get("user-id")
+        .and_then(|id| id.to_str().ok())
+        .and_then(|id| id.parse::<i32>().ok())
+    {
+        Some(id) => id,
+        None => {
+            return (
+                StatusCode::UNAUTHORIZED,
+                Json(json!({"error": "Missing or invalid user-id header"}))
+            )
+            .into_response();
+        }
+    };
+
+    let mut client = state.db_client.lock().await;
+
+    let exists = match client
+        .query_one(
+            "SELECT EXISTS (SELECT 1 FROM saved_routes WHERE user_id = $1 AND route_id = $2)",
+            &[&user_id, &payload.route_id],
+        )
+        .await
+    {
+        Ok(row) => row.get::<_, bool>(0),
+        Err(e) => {
+            eprintln!("Ошибка при проверке сохранённого маршрута: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({"error": "Database error"}))
+            )
+            .into_response();
+        }
+    };
+
+    if exists {
+        return (
+            StatusCode::CONFLICT,
+            Json(json!({"error": "Route already saved"}))
+        )
+        .into_response();
+    }
+
+    if let Err(e) = client
+        .execute(
+            "INSERT INTO saved_routes (user_id, route_id) VALUES ($1, $2)",
+            &[&user_id, &payload.route_id],
+        )
+        .await
+    {
+        eprintln!("Ошибка сохранения маршрута: {}", e);
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": "Failed to save route"}))
+        )
+        .into_response();
+    }
+
+    StatusCode::CREATED.into_response()
+}

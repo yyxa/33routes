@@ -107,3 +107,8 @@ pub struct UpdatePointInfo {
     pub point_description: Option<String>,
     pub images: Option<Vec<String>>
 }
+
+#[derive(Deserialize)]
+pub struct SaveRouteRequest {
+    pub route_id: i32
+}
