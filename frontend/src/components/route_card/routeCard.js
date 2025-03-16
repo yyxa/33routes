@@ -1,6 +1,7 @@
 // src/components/route_card/routeCard.js
 
 import React, { useState, useRef } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import './routeCard.css';
 
 const RouteCard = ({
@@ -20,6 +21,13 @@ const RouteCard = ({
 }) => {
   const [scrollOffset, setScrollOffset] = useState(0);
   const imagesContainerRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false); // ✅ Состояние кнопки глазика
+  const { toggleRouteOnMap } = useOutletContext();
+
+  const handleToggleRoute = () => {
+    toggleRouteOnMap(id);  // Вызываем функцию отображения / скрытия маршрута
+    setIsVisible(!isVisible);
+  };
 
   const handleScrollLeft = () => {
     if (imagesContainerRef.current) {
@@ -92,7 +100,7 @@ const RouteCard = ({
         </div>
 
         <button
-          className="eye-button"
+          className={`eye-button ${isVisible ? 'active' : ''}`} // Меняем цвет кнопки
           style={{
             position: 'absolute',
             bottom: '15px',
@@ -100,14 +108,14 @@ const RouteCard = ({
             width: '25px',
             height: '25px',
             borderRadius: '50%',
-            backgroundColor: '#ffffff',
+            backgroundColor: isVisible ? '#ccc' : '#fff', // Серый, если маршрут включен
             border: '1px solid #ccc',
             cursor: 'pointer',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          onClick={() => onShowRoute && onShowRoute(id)}
+          onClick={handleToggleRoute}
         >
           👁
         </button>

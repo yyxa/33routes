@@ -40,36 +40,6 @@ VALUES
     (9, 'Lakeside Path', 'lakeside-path', 'A scenic path along the lake.', 7, 4200, ARRAY['near_water']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.7, ARRAY['image9.jpg']),
     (10, 'Countryside Walk', 'countryside-walk', 'Enjoy the beauty of the countryside.', 12, 7200, ARRAY['forest']::tag_type[], 'walking', EXTRACT(EPOCH FROM NOW())::BIGINT, 'approved', 4.4, ARRAY['image10.jpg']);
 
--- Вставка тестовых данных в таблицу route_points
-INSERT INTO route_points (route_id, coordinate, time_offset, elevation, speed)
-VALUES
-    (1, ST_SetSRID(ST_MakePoint(-73.9654, 40.7851), 4326), 0, 10, 3.5),
-    (1, ST_SetSRID(ST_MakePoint(-73.9733, 40.7829), 4326), 600, 12, 4.0),
-    (2, ST_SetSRID(ST_MakePoint(-79.3832, 43.6532), 4326), 0, 15, 2.5),
-    (3, ST_SetSRID(ST_MakePoint(-80.1342, 25.7617), 4326), 0, 5, 3.0),
-    (4, ST_SetSRID(ST_MakePoint(-105.2705, 40.0150), 4326), 0, 20, 4.5),
-    (5, ST_SetSRID(ST_MakePoint(-73.9352, 40.7306), 4326), 0, 8, 3.8),
-    (6, ST_SetSRID(ST_MakePoint(-79.3832, 43.6532), 4326), 0, 10, 2.0),
-    (7, ST_SetSRID(ST_MakePoint(-116.1659, 33.9925), 4326), 0, 30, 3.0),
-    (8, ST_SetSRID(ST_MakePoint(-73.9352, 40.7306), 4326), 0, 5, 4.0),
-    (9, ST_SetSRID(ST_MakePoint(-73.9683, 40.7851), 4326), 0, 12, 3.5),
-    (10, ST_SetSRID(ST_MakePoint(-73.9352, 40.7306), 4326), 0, 15, 4.0);
-
--- Вставка тестовых данных в таблицу route_points_info
-INSERT INTO route_points_info (point_id, route_id, point_description, images)
-VALUES
-    (1, 1, 'Start of the walk at Central Park', ARRAY['point_image1.jpg']),
-    (2, 1, 'Beautiful view of the lake', ARRAY['point_image2.jpg']),
-    (3, 2, 'Entering the forest trail', ARRAY['point_image3.jpg']),
-    (4, 3, 'Relaxing view of the beach', ARRAY['point_image4.jpg']),
-    (5, 4, 'Reaching the mountain summit', ARRAY['point_image5.jpg']),
-    (6, 5, 'City skyline view', ARRAY['point_image6.jpg']),
-    (7, 6, 'Calm river view', ARRAY['point_image7.jpg']),
-    (8, 7, 'Desert landscape', ARRAY['point_image8.jpg']),
-    (9, 8, 'Historical monument', ARRAY['point_image9.jpg']),
-    (10, 9, 'Lakeside view', ARRAY['point_image10.jpg']),
-    (11, 10, 'Countryside scenery', ARRAY['point_image11.jpg']);
-
 -- Вставка тестовых данных в таблицу collections
 INSERT INTO collections (user_id, name, rating, url, description, tags, created_at, is_deleted)
 VALUES
