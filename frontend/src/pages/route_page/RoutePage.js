@@ -4,6 +4,14 @@ import SearchBar from '../../components/search_bar/searchBar';
 import CommentCard from '../../components/comment_card/commentCard';
 import './RoutePage.css';
 
+const formatDuration = (minutes) => {
+  const mins = Math.round(minutes);
+  if (mins < 60) return `${mins} мин`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h} ч${m > 0 ? ` ${m} мин` : ''}`;
+};
+
 const getPluralForm = (n) => {
   if (n % 10 === 1 && n % 100 !== 11) return '';
   if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return 'а';
@@ -20,10 +28,8 @@ const RoutePage = () => {
       const response = await fetch(`http://localhost:8100/api/review/route/${routeId}/reviews`);
       const data = await response.json();
   
-      const comments = data?.comments || []; // <- если нет comments — делаем пустой массив
-      console.log("💬 Загруженные отзывы:", comments);
-  
-      setReviewCount(comments.length);
+      const reviews = data?.reviews || [];
+      setReviewCount(reviews.length);
     } catch (error) {
       console.error('Ошибка загрузки отзывов:', error);
       setReviewCount(0); // безопасно ставим 0, если запрос упал
@@ -37,19 +43,19 @@ const RoutePage = () => {
         const response = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
         const data = await response.json();
         setRouteData(data);
-        setReviewCount(data.comments.length);
       } catch (error) {
         console.error('Ошибка загрузки маршрута:', error);
       }
     };
 
     fetchRoute();
+    fetchReviews(); 
   }, [routeId]);
 
   if (!routeData) return <div>Загрузка...</div>;
 
   const { user, route, points } = routeData;
-  const { name, description, length, duration, rating, images } = route;
+  const { name, description, length, duration, rating, images, tags } = route;
 
   return (
     <div className="route-page">
@@ -59,31 +65,42 @@ const RoutePage = () => {
           <h2 className="route-name">{name}</h2>
           <div className="route-author">
             <span>{user.name}</span>
-            <img src={user.image_url} alt="Автор" className="author-avatar" />
+            <img
+              src={user.image_url ? `http://localhost:8100/api/media/image/${user.image_url}` : 'https://via.placeholder.com/32?text=👤'}
+              alt="Автор"
+              className="author-avatar"
+            />
           </div>
         </div>
-        <div className="route-stats">
-        <div className="route-stats">
-          <div className="row">
-            <span className="stat km">{(length/1000).toFixed(1)} км</span>
-            <span className="stat rating">{rating} ★</span>
+        <div className="route-tags">
+          {tags?.length > 0 &&
+            tags.map((tag) => (
+              <span key={tag} className="tag">#{tag}</span>
+            ))}
+        </div>
+
+        <div className="route-info-layout">
+          <div className="route-stats-block">
+            <div className="stat-row"><span className="stat-label">Протяженность:</span> {(length / 1000).toFixed(1)} км</div>
+            <div className="stat-row"><span className="stat-label">Длительность:</span> {formatDuration(duration / 60)}</div>
+            <div className="stat-row"><span className="stat-label">Оценка:</span> {rating}</div>
+            <div className="stat-row"><span className="stat-label">Отзывов:</span> {reviewCount ?? '...'}</div>
           </div>
-          <div className="row">
-            <span className="stat time">{(duration / 60).toFixed(1)} мин</span>
-            <span className="stat reviews">
-              {reviewCount !== null ? `${reviewCount} отзыв${getPluralForm(reviewCount)}` : '...'}
-            </span>
+
+          <div className="route-description-block">
+            <div className="description-label">Описание:</div>{description && <p className="route-description">{description}</p>}
           </div>
         </div>
 
-        </div>
-
-        <p className="description-label">Описание:<br /></p>
-        <p className="route-description">{description}</p>
   
         <div className="route-images">
           {images?.map((img, idx) => (
-            <img key={idx} src={img} alt={`img-${idx}`} className="route-image" />
+            <img
+              key={idx}
+              src={`http://localhost:8100/api/media/image/${img}`}
+              alt={`img-${idx}`}
+              className="route-image"
+            />
           ))}
         </div>
   

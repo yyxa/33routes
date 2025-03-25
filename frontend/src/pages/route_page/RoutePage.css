@@ -43,36 +43,25 @@
   object-fit: cover;
 }
 
-.route-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 60%;
-  font-weight: bold;
-  color: #771a12; /* или другой цвет */
-  font-size: 18px;
-}
-
-.route-stats .row {
-  display: flex;
-  justify-content: space-between;
-  width: 200px; /* можно адаптивно */
-}
-
-.stat.rating {
-  display: flex;
-  align-items: center;
-}
-
-.stat.reviews {
-  font-weight: 500;
-}
-
-
 .route-tags {
-  width: 40%;
-  font-weight: bold;
-  color: #8B0000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.tag-placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.tag {
+  background-color: #771a12;
+  color: #fff;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 0.85em;
+  font-weight: 500;
 }
 
 .route-meta {
@@ -86,9 +75,42 @@
   margin-bottom: 10px;
 }
 
+.route-info-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  min-width: 500px;
+  width: 100%;
+}
+
+.route-stats-block {
+  flex: 1;
+  min-width: 200px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.stat-label {
+  font-weight: bold;
+}
+
 .description-label {
   font-weight: bold;
-  margin-bottom: 6px; /* расстояние от заголовка до текста */
+  margin-bottom: 5px;
+}
+
+.route-description-block {
+  flex: 1;
+  min-width: 300px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .route-description {
@@ -99,8 +121,6 @@
   max-width: 100%;
   margin: 10px 0;
 }
-
-
 
 .route-images {
   display: flex;
@@ -139,4 +159,14 @@
   object-fit: cover;
   border-radius: 6px;
   margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+  .route-info-layout {
+    flex-direction: column;
+  }
+
+  .route-stats-block, .route-description-block {
+    flex: 1 1 100%;
+  }
 }
