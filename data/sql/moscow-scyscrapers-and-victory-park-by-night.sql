@@ -1,11 +1,14 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
-            ) VALUES (
-                'Moscow scyscrap', 'moscow-scyscrap', 5644, 5792,
-                'walking', 1741996736
-            );
+                    route_id, user_id, name, url, description,
+                    length, duration, tags, 
+                    category, created_at, status,
+                    images
+                ) VALUES (
+                    9, 1, 'Moscow scyscrap', 'moscow-skyscrap', 'Описание пока не добавлено',
+                    5644, 5792, ARRAY['park']::tag_type[],
+                    'walking', 1741996736, 'approved', ARRAY['skyscrap_1.png']
+                );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (

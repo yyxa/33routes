@@ -1,11 +1,14 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
-            ) VALUES (
-                'Лыткарино - Кот', 'лыткарино---кот', 18653, 0,
-                'walking', 1741996736
-            );
+                    route_id, user_id, name, url, description,
+                    length, duration, tags, 
+                    category, created_at, status,
+                    images
+                ) VALUES (
+                    8, 1, 'Лыткарино - Кот', 'lytkarino-kot', 'Описание пока не добавлено',
+                    18653, 0, ARRAY['forest']::tag_type[],
+                    'walking', 1741996736, 'approved', ARRAY['lytkarino-kot_1.png']
+                );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (

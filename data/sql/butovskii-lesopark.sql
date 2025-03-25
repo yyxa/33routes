@@ -1,10 +1,13 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
+                route_id, user_id, name, url, description,
+                length, duration, tags, 
+                category, created_at, status,
+                images
             ) VALUES (
-                'Бутовский лесоп', 'бутовский-лесоп', 9084, 16120,
-                'walking', 1741996736
+                5, 1, 'Бутовский лесоп', 'butovskii-lesopark', 'Прекрасный парк, по которому очень классно гулять',
+                9084, 16120, ARRAY['forest', 'near_water']::tag_type[],
+                'walking', 1741996736, 'approved', ARRAY['butovskii-lesopark_1.png', 'butovskii-lesopark_2.jpg']
             );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed

@@ -1,11 +1,14 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
-            ) VALUES (
-                'Челюскинская —', 'челюскинская-—', 23209, 0,
-                'walking', 1741996736
-            );
+                    route_id, user_id, name, url, description,
+                    length, duration, tags, 
+                    category, created_at, status,
+                    images
+                ) VALUES (
+                    6, 1, 'Челюскинская —', 'chelyuskinskaya', 'Описание пока не добавлено',
+                    23209, 0, ARRAY['park']::tag_type[],
+                    'walking', 1741996736, 'approved', ARRAY['chelyuskinskaya_1.png']
+                );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (

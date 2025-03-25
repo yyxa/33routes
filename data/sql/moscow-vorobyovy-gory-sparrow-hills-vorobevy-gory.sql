@@ -1,11 +1,15 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
-            ) VALUES (
-                'Moscow, Vorobyovy Gory (Sparrow Hills) - Воробьевы горы', 'moscow,-vorobyovy-gory-(sparrow-hills)---воробьевы-горы', 5795, 7195,
-                'walking', 1741996736
-            );
+                    route_id, user_id, name, url, description,
+                    length, duration, tags, 
+                    category, created_at, status,
+                    images
+                ) VALUES (
+                    4, 2, 'Moscow, Vorobyovy Gory (Sparrow Hills) - Воробьевы горы', 
+                    'moscow-vorobyovy-gory-sparrow-hills', 'Описание пока не добавлено',
+                    5795, 7195, ARRAY['forest', 'near_water']::tag_type[],
+                    'walking', 1741996736, 'approved', ARRAY['vorobyovy_1.png', 'vorobyovy_2.png']
+                );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (

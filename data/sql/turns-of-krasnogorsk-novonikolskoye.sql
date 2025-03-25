@@ -1,11 +1,14 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
-            ) VALUES (
-                'RU: Turns of Kr', 'ru:-turns-of-kr', 10806, 13910,
-                'walking', 1741996736
-            );
+                    route_id, user_id, name, url, description,
+                    length, duration, tags, 
+                    category, created_at, status,
+                    images
+                ) VALUES (
+                    2, 2, 'RU: Turns of Kr', 'ru-turns-of-kr', 'Описание пока не добавлено',
+                    10806, 13910, ARRAY['near_water']::tag_type[],
+                    'walking', 1741996736, 'approved', ARRAY['turns_1.png', 'turns_2.png']
+                );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (

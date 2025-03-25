@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 include .env
+export
 
 TRAEFIK := docker-compose.traefik.yml
 DATABASES := docker-compose.databases.yml
@@ -116,7 +117,17 @@ pg-seed-data:
 			docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < "$$file"; \
 		fi \
 	done
-	
+	@
+
+.PHONY: upload-images
+upload-images:
+	@for file in $$(find ./../data/images -type f); do \
+		AWS_ACCESS_KEY_ID=$(MINIO_ROOT_USER) \
+		AWS_SECRET_ACCESS_KEY=$(MINIO_ROOT_PASSWORD) \
+		aws --endpoint-url http://localhost:9000 \
+			s3 cp $$file s3://$(MINIO_BUCKET)/$$(basename $$file); \
+	done
+
 .PHONY: rm-pg-data
 rm-pg-data:
 	@rm -rf database/postgres/data

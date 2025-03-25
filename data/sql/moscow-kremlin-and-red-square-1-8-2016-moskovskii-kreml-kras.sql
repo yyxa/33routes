@@ -1,11 +1,15 @@
 BEGIN;
 INSERT INTO routes (
-                name, url, length, duration, 
-                category, created_at
-            ) VALUES (
-                'Moscow, Kremlin and Red square 1-8-2016 (Московский Кремль, Красная Площадь)', 'moscow,-kremlin-and-red-square-1-8-2016-(московский-кремль,-красная-площадь)', 8349, 10816,
-                'walking', 1741996736
-            );
+                    route_id, user_id, name, url, description,
+                    length, duration, tags, 
+                    category, created_at, status,
+                    images
+                ) VALUES (
+                    1, 2, 'Moscow, Kremlin and Red square 1-8-2016 (Московский Кремль, Красная Площадь)', 
+                    'moscow-kremlin-and-red-square-1-8-2016', 'Описание пока не добавлено',
+                    8349, 10816, ARRAY['park']::tag_type[],
+                    'walking', 1741996736, 'approved', ARRAY['kremlin_1.png', 'kremlin_2.png']
+                );
 INSERT INTO route_points (
                     route_id, coordinate, time_offset, elevation, speed
                 ) VALUES (
