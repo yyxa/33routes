@@ -13,8 +13,8 @@ const AuthModal = ({ onClose, onLogin }) => {
     setError('');
 
     const url = isRegistering
-      ? 'https://33routes.ru/api/auth/register'
-      : 'https://33routes.ru/api/auth/login';
+      ? 'http://localhost:8100/api/auth/register'
+      : 'http://localhost:8100/api/auth/login';
     const body = isRegistering
       ? JSON.stringify({ username, email, password })
       : JSON.stringify({ email, password });

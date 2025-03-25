@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import './routeCard.css';
+import showIcon from './images/show.svg';
 
 const RouteCard = ({
   id,
@@ -73,9 +74,22 @@ const RouteCard = ({
         <div className="route-card-left">
           <p className="route-description">{description}</p>
           <div className="route-card-info">
-            <span className="route-distance">{distance}</span>
-            <span className="route-duration">{duration}</span>
-            <span className="route-rating">{rating}★</span>
+            <span className="route-distance">
+              {(distance / 1000).toFixed(1)} км
+            </span>
+            <span className="route-duration">{
+              (duration > 3600 ? (
+                (duration / 3600).toFixed(0)
+              ) : (
+                (duration / 60).toFixed(0)
+              )
+            )} {duration > 3600 ? 'ч' : 'мин'}  {
+              (duration > 3600 && (
+                (duration % 3600 / 60).toFixed(0)
+              )
+            )} {duration > 3600 && 'мин'}
+            </span>
+          <span className="route-rating">{rating}★</span>
           </div>
         </div>
 
@@ -117,7 +131,7 @@ const RouteCard = ({
           }}
           onClick={handleToggleRoute}
         >
-          👁
+        <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
         </button>
 
         <button className="favorite-button">★</button>

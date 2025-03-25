@@ -16,7 +16,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 25px;
   position: relative;
 }
 
@@ -32,7 +31,7 @@
   overflow: hidden;
   flex-shrink: 0;
   border: 1px solid #bbbbbb;
-  background-color: #838383;
+  background-color: #e1e1e1;
   position: absolute;
   top: 0;
   right: 0;
