@@ -1,87 +1,142 @@
-/* Дополнения для RoutePage */
-.route-header h1 {
-  margin-top: 0;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #333;
-  /* padding: 20px; */
+.route-page {
+  font-family: sans-serif;
+  padding: 0 10px;
 }
 
-.route-info {
-  display: flex;
-  gap: 10px;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #555;
-  margin-bottom: 10px;
-}
-
-.route-description {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #666;
-}
-
-.route-points h2 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-}
-
-.points-list {
-  display: flex;
-  gap: 15px;
-  overflow-x: auto;
-}
-
-.point-card {
+.route-card-container {
   background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
-  width: 120px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
-  margin-right: 20px;
+  border-radius: 16px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 30px;
+  padding-right: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 10px;
+  max-width: 100%;
 }
 
-.point-image-wrapper {
-  width: 100px;
-  height: 100px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  overflow: hidden;
+.route-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  background-color: #f0f0f0;
+  margin-bottom: 10px;
 }
 
-.point-image {
-  width: 100%;
-  height: 100%;
+.route-name {
+  font-weight: normal;
+  font-size: 1.5em;
+  color: #8B0000;
+  margin: 0;
+}
+
+.route-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-style: italic;
+}
+
+.author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   object-fit: cover;
 }
 
-.point-placeholder {
-  color: #aaa;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.point-name {
-  font-size: 0.9rem;
+.route-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 60%;
   font-weight: bold;
-  color: #333;
-  text-align: center;
-  margin-top: 5px;
+  color: #771a12; /* или другой цвет */
+  font-size: 18px;
+}
+
+.route-stats .row {
+  display: flex;
+  justify-content: space-between;
+  width: 200px; /* можно адаптивно */
+}
+
+.stat.rating {
+  display: flex;
+  align-items: center;
+}
+
+.stat.reviews {
+  font-weight: 500;
 }
 
 
-.reviews-section h2 {
-  font-size: 1.2rem;
+.route-tags {
+  width: 40%;
+  font-weight: bold;
+  color: #8B0000;
+}
+
+.route-meta {
+  width: 60%;
+  display: flex;
+  font-size: larger;
+  gap: 10px;
+  align-items: flex-end;
+  font-weight: bold;
+  color: #8B0000;
   margin-bottom: 10px;
+}
+
+.description-label {
+  font-weight: bold;
+  margin-bottom: 6px; /* расстояние от заголовка до текста */
+}
+
+.route-description {
+  line-height:1.3;
+  hyphens: auto;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+
+
+.route-images {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.route-image {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.points-title {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.route-points {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.point-card {
+  min-width: 100px;
+  text-align: center;
+}
+
+.point-card img {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 4px;
 }

@@ -68,10 +68,13 @@ const SearchPage = () => {
                       id: r.route.route_id,
                       name: r.route.name,
                       description: r.route.description,
-                      distance: r.route.distance,
+                      distance: r.route.length,
                       duration: r.route.duration,
                       rating: r.route.rating,
-                      images: r.route.images || [],
+                      images: (r.route.images || []).map(name => `http://localhost:8100/api/media/image/${name}`),
+                      authorImage: r.user.image_url
+                      ? `http://localhost:8100/api/media/image/${r.user.image_url}`
+                      : 'http://localhost:8100/api/media/image/default-avatar.svg', // если пусто — подставляется заглушка
                     }))
       ]);
   
@@ -288,6 +291,7 @@ const SearchPage = () => {
                 duration={r.duration}
                 rating={r.rating}
                 images={r.images}
+                authorImage={r.authorImage} 
                 // при клике – переходим на /route/ID
                 onOpenRouteDetail={handleOpenRouteDetail}
               />
