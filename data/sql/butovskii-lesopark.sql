@@ -5,7 +5,7 @@ INSERT INTO routes (
                 category, created_at, status,
                 images
             ) VALUES (
-                5, 1, 'Бутовский лесоп', 'butovskii-lesopark', 'Прекрасный парк, по которому очень классно гулять',
+                5, 5, 'Бутовский лесоп', 'butovskii-lesopark', 'Прекрасный парк, по которому очень классно гулять',
                 9084, 16120, ARRAY['forest', 'near_water']::tag_type[],
                 'walking', 1741996736, 'approved', ARRAY['butovskii-lesopark_1.png', 'butovskii-lesopark_2.png']
             );

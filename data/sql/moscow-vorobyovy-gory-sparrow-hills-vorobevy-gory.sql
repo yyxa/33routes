@@ -5,7 +5,7 @@ INSERT INTO routes (
                     category, created_at, status,
                     images
                 ) VALUES (
-                    4, 2, 'Moscow, Vorobyovy Gory (Sparrow Hills) - Воробьевы горы', 
+                    4, 4, 'Moscow, Vorobyovy Gory (Sparrow Hills) - Воробьевы горы', 
                     'moscow-vorobyovy-gory-sparrow-hills', 'Описание пока не добавлено',
                     5795, 7195, ARRAY['forest', 'near_water']::tag_type[],
                     'walking', 1741996736, 'approved', ARRAY['vorobyovy_1.png', 'vorobyovy_2.png']

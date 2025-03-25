@@ -5,7 +5,7 @@ INSERT INTO routes (
                     category, created_at, status,
                     images
                 ) VALUES (
-                    3, 1, 'Троицк мск - По', 'troitsk-msk-po', 'Описание пока не добавлено',
+                    3, 3, 'Троицк мск - По', 'troitsk-msk-po', 'Описание пока не добавлено',
                     28270, 37292, ARRAY['forest']::tag_type[],
                     'walking', 1741996736, 'approved', ARRAY['troitsk_1.png']
                 );

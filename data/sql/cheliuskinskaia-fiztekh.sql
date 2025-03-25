@@ -5,7 +5,7 @@ INSERT INTO routes (
                     category, created_at, status,
                     images
                 ) VALUES (
-                    6, 1, 'Челюскинская —', 'chelyuskinskaya', 'Описание пока не добавлено',
+                    6, 6, 'Челюскинская —', 'chelyuskinskaya', 'Описание пока не добавлено',
                     23209, 0, ARRAY['park']::tag_type[],
                     'walking', 1741996736, 'approved', ARRAY['chelyuskinskaya_1.png']
                 );

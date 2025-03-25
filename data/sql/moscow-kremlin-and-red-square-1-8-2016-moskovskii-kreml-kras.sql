@@ -5,7 +5,7 @@ INSERT INTO routes (
                     category, created_at, status,
                     images
                 ) VALUES (
-                    1, 2, 'Moscow, Kremlin and Red square 1-8-2016 (Московский Кремль, Красная Площадь)', 
+                    1, 1, 'Moscow, Kremlin and Red square 1-8-2016 (Московский Кремль, Красная Площадь)', 
                     'moscow-kremlin-and-red-square-1-8-2016', 'Описание пока не добавлено',
                     8349, 10816, ARRAY['park']::tag_type[],
                     'walking', 1741996736, 'approved', ARRAY['kremlin_1.png', 'kremlin_2.png']
