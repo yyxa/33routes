@@ -143,12 +143,28 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
                   vectorSource.addFeature(routeFeature);
               }
 
+              if (mapRef.current && points.length > 0) {
+                mapRef.current.getView().animate({
+                  center: points[0],
+                  duration: 600,
+                  zoom: 15, 
+                });
+              }
+
               setVisibleRoutes(prevRoutes => [...prevRoutes, routeId]);
 
           } catch (error) {
               console.error('❌ Ошибка загрузки маршрута:', error);
           }
       }
+  };
+
+  const clearAllRoutes = () => {
+    if (vectorLayerRef.current) {
+      const source = vectorLayerRef.current.getSource();
+      source.clear();
+    }
+    setVisibleRoutes([]);
   };
 
   return (
@@ -163,7 +179,7 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
       {/* Две колонки ниже шапки */}
       <div className="content">
         <div className="left-block">
-          <Outlet context={{ toggleRouteOnMap }} /> {/* Передаём функцию в Outlet */}
+          <Outlet context={{ toggleRouteOnMap, clearAllRoutes }} /> {/* Передаём функцию в Outlet */}
         </div>
         <div className="right-block">
           <div ref={mapContainerRef} className="map-container" />

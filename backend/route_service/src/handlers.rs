@@ -580,19 +580,26 @@ pub async fn save_route(
     headers: HeaderMap,
     Json(payload): Json<SaveRouteRequest>,
 ) -> impl IntoResponse {
-    let user_id = match headers.get("user-id")
-        .and_then(|id| id.to_str().ok())
-        .and_then(|id| id.parse::<i32>().ok())
-    {
-        Some(id) => id,
-        None => {
-            return (
-                StatusCode::UNAUTHORIZED,
-                Json(json!({"error": "Missing or invalid user-id header"}))
-            )
-            .into_response();
-        }
-    };
+    let auth_token = headers.get("cookie")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|cookie_str| {
+            cookie_str.split(';')
+                .find(|s| s.trim_start().starts_with("auth_token="))
+                .map(|s| s.trim_start().trim_start_matches("auth_token="))
+        });
+
+    let user_id = match auth_token
+        .and_then(|token| token.split(':').next())
+        .and_then(|id| id.parse::<i32>().ok()) {
+            Some(id) => id,
+            None => {
+                return (
+                    StatusCode::UNAUTHORIZED,
+                    Json(json!({"error": "Missing or invalid auth token"}))
+                )
+                .into_response();
+            }
+        };
 
     let mut client = state.db_client.lock().await;
 
@@ -639,3 +646,11 @@ pub async fn save_route(
 
     StatusCode::CREATED.into_response()
 }
+
+// pub async fn saved_routes_list(
+//     State(state): State<AppState>,
+//     headers: HeaderMap,
+//     Json(payload): Json<SaveRouteRequest>,
+// ) -> impl IntoResponse {
+    
+// }

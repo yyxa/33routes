@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import _ from 'lodash';
+import { useOutletContext } from 'react-router-dom';
 
 import SearchBar from '../../components/search_bar/searchBar';
 import Button from '../../components/buttons/button';
@@ -27,6 +28,9 @@ const SearchPage = () => {
   // Добавляем новые состояния
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+
+  const { clearAllRoutes } = useOutletContext();
+
 
   const fetchRoutes = useCallback(async (page = 1, perPage = 5) => {
     console.log('Начало fetchRoutes, страница:', page);
@@ -158,6 +162,7 @@ const SearchPage = () => {
   }, [loading]);
 
   useEffect(() => {
+    clearAllRoutes?.();
     if (activeRouteButton === 'МАРШРУТЫ') {
       setRoutes([]);
       setCurrentPage(1);
@@ -231,6 +236,7 @@ const SearchPage = () => {
 
   // При клике на маршрут — переходим на /route/{id}
   const handleOpenRouteDetail = (routeId) => {
+    clearAllRoutes?.(); // сброс перед переходом на страницу маршрута
     navigate(`/route/${routeId}`);
   };
 

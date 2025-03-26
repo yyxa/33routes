@@ -24,6 +24,7 @@ const RouteCard = ({
   const imagesContainerRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false); // ✅ Состояние кнопки глазика
   const { toggleRouteOnMap } = useOutletContext();
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleToggleRoute = () => {
     toggleRouteOnMap(id);  // Вызываем функцию отображения / скрытия маршрута
@@ -60,6 +61,32 @@ const RouteCard = ({
       onOpenRouteDetail(id);
     }
   };
+
+  const handleToggleFavorite = async (e) => {
+    e.stopPropagation(); // чтобы не сработал переход по карточке
+  
+    try {
+      const res = await fetch('http://localhost:8100/api/route/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // ✅ важно: чтобы кука ушла на бэкенд
+        body: JSON.stringify({ route_id: id }),
+      });
+  
+      if (res.ok) {
+        setIsSaved(true);
+      } else if (res.status === 409) {
+        console.warn('Уже сохранено');
+        setIsSaved(true);
+      } else {
+        console.error('Не удалось сохранить маршрут');
+      }
+    } catch (err) {
+      console.error('Ошибка запроса:', err);
+    }
+  };  
 
   return (
     <div className="route-card" onClick={handleCardClick}>
@@ -134,7 +161,15 @@ const RouteCard = ({
         <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
         </button>
 
-        <button className="favorite-button">★</button>
+        <button
+          className="favorite-button"
+          onClick={handleToggleFavorite}
+          style={{
+            backgroundColor: isSaved ? '#ffe066' : '#fff',
+            borderColor: isSaved ? '#ffa500' : '#ccc',
+            color: isSaved ? '#d2691e' : '#333'
+          }}
+        >★</button>
       </div>
     </div>
   );
