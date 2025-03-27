@@ -1928,12 +1928,10 @@ paths:
 
   /api/auth/check_token:
     post:
-      summary: Check if the token is valid
-      security:
-        - SessionAuth: []  # 🔹 Используем аутентификацию через cookie
+      summary: Check if session token (cookie) and backend token (Authorization header) are valid
       parameters:
         - name: session_token
-          in: cookie  # 🔹 Передаем токен через cookie
+          in: cookie
           required: true
           schema:
             type: string
@@ -1942,7 +1940,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CheckTokenRequest'
+              type: object
+              properties:
+                backend_session_token:
+                  type: string
+                  description: "backend session token"
       responses:
         '200':
           description: Token is valid
@@ -1954,11 +1956,11 @@ paths:
                   user_id:
                     type: integer
         '400':
-          description: Invalid session_token
+          description: Токены отсутствуют или неверны
         '401':
-          description: Unauthorized
+          description: Токен не прошёл проверку или не найден
         '500':
-          description: Internal server error
+          description: Внутренняя ошибка сервиса
 
   /api/auth/vk:
     post:

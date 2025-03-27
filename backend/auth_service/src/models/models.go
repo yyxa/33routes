@@ -21,10 +21,6 @@ type UserLoginResponse struct {
 	Token string `json:"token"`
 }
 
-type TokenCheck struct {
-	User_id uint `json:"user_id"`
-}
-
-type TokenCheckResponse struct {
-	User_id uint `json:"user_id"`
+type CheckTokenRequest struct {
+	BackendSessionToken string `json:"backend_session_token"`
 }
