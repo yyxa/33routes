@@ -2,16 +2,12 @@ FROM rust:1.82.0 AS builder
 
 WORKDIR /usr/src/app
 
-RUN rustup target add x86_64-unknown-linux-musl
+COPY . .
 
-COPY Cargo.toml Cargo.lock ./
+RUN cargo build --release
 
-COPY src src
+FROM rust:1.82.0
 
-RUN cargo build --release --target x86_64-unknown-linux-musl
+COPY --from=builder /usr/src/app/target/release/route_service /usr/local/bin/route_service
 
-FROM scratch
-
-COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/user_service /usr/local/bin/user_service
-
-CMD ["user_service"]
+CMD ["route_service"]
