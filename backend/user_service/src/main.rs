@@ -10,6 +10,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
 mod models;
+mod auth;
 
 #[tokio::main]
 async fn main() {
@@ -30,8 +31,12 @@ async fn main() {
 
     let db_client = Arc::new(db_client);
 
+    let redis_url = std::env::var("REDIS_URL").expect("REDIS_URL not set");
+    let redis_client = redis::Client::open(redis_url).expect("Invalid Redis URL");
+
     let app_state = models::AppState {
         db_client: db_client.clone(),
+        redis_client,
     };
 
     let cors = CorsLayer::new()
@@ -40,12 +45,12 @@ async fn main() {
         .allow_headers(Any);
 
     let app = Router::new()
-        .route("/api/user/:username", get(handlers::get_user_profile))
-        // .route("/api/user/delete", delete(handlers::delete_user_profile))
-        // .route(
-        //     "/api/user/settings",
-        //     get(handlers::get_user_settings).put(handlers::update_user_settings),
-        // )
+        .route("/api/user/{username}", get(handlers::get_user_profile))
+        .route("/api/user/delete", delete(handlers::delete_user_profile))
+        .route(
+            "/api/user/settings",
+            get(handlers::get_user_settings).put(handlers::update_user_settings),
+        )
         .with_state(app_state)
         .layer(cors);
 

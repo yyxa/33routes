@@ -1,17 +1,26 @@
 use crate::models::*;
+use crate::auth::authenticate_request;
 use axum::{
-    extract::{Path, State, Json, Query},
+    extract::{Path, State, Json},
     response::IntoResponse,
 };
-use tokio_postgres::{error::SqlState, Client};
-use chrono::NaiveDateTime;
+use axum_extra::extract::CookieJar;
+use tokio_postgres::Client;
+use chrono::TimeZone;
+use redis::AsyncCommands;
+
+#[derive(Debug)]
+enum MyError {
+    NotFound,
+    DbError(tokio_postgres::Error),
+}
 
 pub async fn get_user_profile(
     State(state): State<AppState>,
     Path(username): Path<String>,
 ) -> impl IntoResponse {
     match fetch_public_user_profile(&state.db_client, &username).await {
-        Ok(profile) => Json(profile).into_response(),
+        Ok(profile) => axum::Json(profile).into_response(),
         Err(MyError::NotFound) => axum::http::StatusCode::NOT_FOUND.into_response(),
         Err(MyError::DbError(e)) => {
             eprintln!("Error fetching user profile: {}", e);
@@ -21,16 +30,40 @@ pub async fn get_user_profile(
 }
 
 pub async fn delete_user_profile(
+    cookies: CookieJar,
     State(state): State<AppState>,
-    Json(payload): Json<DeleteUserProfileRequest>,
 ) -> impl IntoResponse {
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
     let result = state.db_client.execute(
-        "UPDATE users SET is_deleted = TRUE WHERE username = $1",
-        &[&payload.username],
+        "UPDATE users SET is_deleted = TRUE WHERE user_id = $1",
+        &[&user_id],
     ).await;
+
     match result {
         Ok(updated) => {
             if updated == 1 {
+                let mut redis_conn = match state.redis_client.get_async_connection().await {
+                    Ok(conn) => conn,
+                    Err(e) => {
+                        eprintln!("Redis connection error: {}", e);
+                        return axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response();
+                    }
+                };
+
+                let redis_key = format!("user:{}", user_id);
+                if let Err(e) = redis_conn.del::<_, ()>(&redis_key).await {
+                    eprintln!("Failed to delete Redis key {}: {}", redis_key, e);
+                }
+
                 axum::http::StatusCode::OK.into_response()
             } else {
                 axum::http::StatusCode::NOT_FOUND.into_response()
@@ -43,52 +76,68 @@ pub async fn delete_user_profile(
     }
 }
 
-// pub async fn get_user_settings(
-//     State(state): State<AppState>,
-//     Query(query): Query<GetUserSettingsQuery>,
-// ) -> impl IntoResponse {
-//     let row_opt = state.db_client.query_opt(
-//         "SELECT show_phone, show_planned, show_visited FROM user_settings WHERE user_id = $1",
-//         &[&query.user_id],
-//     ).await;
-//     match row_opt {
-//         Ok(Some(row)) => {
-//             let settings = UserSettings {
-//                 show_phone: row.get("show_phone"),
-//                 show_planned: row.get("show_planned"),
-//                 show_visited: row.get("show_visited"),
-//             };
-//             Json(settings).into_response()
-//         },
-//         Ok(None) => axum::http::StatusCode::NOT_FOUND.into_response(),
-//         Err(e) => {
-//             eprintln!("Error fetching user settings: {}", e);
-//             axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
-//         }
-//     }
-// }
 
-// pub async fn update_user_settings(
-//     State(state): State<AppState>,
-//     Json(payload): Json<UserSettingsUpdate>,
-// ) -> impl IntoResponse {
-//     let result = state.db_client.execute(
-//         "UPDATE user_settings SET show_phone = COALESCE($1, show_phone), show_planned = COALESCE($2, show_planned), show_visited = COALESCE($3, show_visited) WHERE user_id = $4",
-//         &[&payload.show_phone, &payload.show_planned, &payload.show_visited, &payload.user_id],
-//     ).await;
-//     match result {
-//         Ok(_) => axum::http::StatusCode::OK.into_response(),
-//         Err(e) => {
-//             eprintln!("Error updating user settings: {}", e);
-//             axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
-//         }
-//     }
-// }
+pub async fn get_user_settings(
+    cookies: CookieJar,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
 
-#[derive(Debug)]
-enum MyError {
-    NotFound,
-    DbError(tokio_postgres::Error),
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let row_opt = state.db_client.query_opt(
+        "SELECT show_phone, show_planned, show_visited FROM user_settings WHERE user_id = $1",
+        &[&user_id],
+    ).await;
+    match row_opt {
+        Ok(Some(row)) => {
+            let settings = UserSettings {
+                show_phone: row.get("show_phone"),
+                show_planned: row.get("show_planned"),
+                show_visited: row.get("show_visited"),
+            };
+            axum::Json(settings).into_response()
+        },
+        Ok(None) => axum::http::StatusCode::NOT_FOUND.into_response(),
+        Err(e) => {
+            eprintln!("Error fetching user settings: {}", e);
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
+
+pub async fn update_user_settings(
+    cookies: CookieJar,
+    State(state): State<AppState>,
+    Json(payload): Json<UserSettingsUpdate>,
+) -> impl IntoResponse {
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let result = state.db_client.execute(
+        "UPDATE user_settings SET show_phone = COALESCE($1, show_phone), show_planned = COALESCE($2, show_planned), show_visited = COALESCE($3, show_visited) WHERE user_id = $4",
+        &[&payload.show_phone, &payload.show_planned, &payload.show_visited, &user_id],
+    ).await;
+    match result {
+        Ok(_) => axum::http::StatusCode::OK.into_response(),
+        Err(e) => {
+            eprintln!("Error updating user settings: {}", e);
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
 }
 
 async fn fetch_public_user_profile(
@@ -107,9 +156,8 @@ async fn fetch_public_user_profile(
         
     let user_id: i32 = user_row.get("user_id");
     let ts: i64 = user_row.get("created_at");
-    let created_at = NaiveDateTime::from_timestamp(ts, 0);
+    let created_at = chrono::Utc.timestamp_opt(ts, 0).single().unwrap().naive_utc();
 
-    // Определяем, показывать ли телефон (на основе user_settings)
     let phone_visible = match db_client
         .query_opt("SELECT show_phone FROM user_settings WHERE user_id = $1", &[&user_id])
         .await
@@ -129,7 +177,6 @@ async fn fetch_public_user_profile(
         None
     };
 
-    // Получаем маршруты пользователя
     let routes_rows = db_client
         .query(
             "SELECT route_id, name, url, description, length, duration, tags, category, created_at, status, rating, images 
@@ -141,11 +188,10 @@ async fn fetch_public_user_profile(
         .map_err(MyError::DbError)?;
     let mut routes = Vec::new();
     for row in routes_rows {
-        let route_id: i32 = row.get("route_id");
         let ts: i64 = row.get("created_at");
-        let created_at = NaiveDateTime::from_timestamp(ts, 0);
+        let created_at = chrono::Utc.timestamp_opt(ts, 0).single().unwrap().naive_utc();
         let route = Route {
-            route_id,
+            route_id: row.get("route_id"),
             name: row.get("name"),
             url: row.get("url"),
             description: row.get("description"),
@@ -161,7 +207,6 @@ async fn fetch_public_user_profile(
         routes.push(route);
     }
 
-    // Получаем подборки пользователя
     let collections_rows = db_client
         .query(
             "SELECT collection_id, name, rating, url, description, tags, created_at 
@@ -173,11 +218,10 @@ async fn fetch_public_user_profile(
         .map_err(MyError::DbError)?;
     let mut collections = Vec::new();
     for row in collections_rows {
-        let collection_id: i32 = row.get("collection_id");
         let ts: i64 = row.get("created_at");
-        let created_at = NaiveDateTime::from_timestamp(ts, 0);
+        let created_at = chrono::Utc.timestamp_opt(ts, 0).single().unwrap().naive_utc();
         let collection = Collection {
-            collection_id,
+            collection_id: row.get("collection_id"),
             name: row.get("name"),
             rating: row.get("rating"),
             url: row.get("url"),
@@ -188,7 +232,6 @@ async fn fetch_public_user_profile(
         collections.push(collection);
     }
 
-    // Получаем отзывы пользователя
     let reviews_rows = db_client
         .query(
             "SELECT review_id, route_id, rating, comment, created_at, images 
@@ -200,11 +243,10 @@ async fn fetch_public_user_profile(
         .map_err(MyError::DbError)?;
     let mut reviews = Vec::new();
     for row in reviews_rows {
-        let review_id: i32 = row.get("review_id");
         let ts: i64 = row.get("created_at");
-        let created_at = NaiveDateTime::from_timestamp(ts, 0);
+        let created_at = chrono::Utc.timestamp_opt(ts, 0).single().unwrap().naive_utc();
         let review = Review {
-            review_id,
+            review_id: row.get("review_id"),
             route_id: row.get("route_id"),
             rating: row.get("rating"),
             comment: row.get("comment"),
@@ -214,7 +256,6 @@ async fn fetch_public_user_profile(
         reviews.push(review);
     }
 
-    // Получаем завершённые маршруты пользователя
     let completed_rows = db_client
         .query(
             "SELECT route_id, completed_at 
@@ -227,7 +268,7 @@ async fn fetch_public_user_profile(
     let mut completed_routes = Vec::new();
     for row in completed_rows {
         let ts: i64 = row.get("completed_at");
-        let completed_at = NaiveDateTime::from_timestamp(ts, 0);
+        let completed_at = chrono::Utc.timestamp_opt(ts, 0).single().unwrap().naive_utc();
         let completed = CompletedRoute {
             route_id: row.get("route_id"),
             completed_at,
@@ -236,7 +277,6 @@ async fn fetch_public_user_profile(
     }
 
     Ok(PublicUserProfileResponse {
-        user_id,
         username: user_row.get("username"),
         name: user_row.get("name"),
         surname: user_row.get("surname"),

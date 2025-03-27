@@ -12,20 +12,6 @@ VALUES
     ('george_purple', 'George', 'Purple', 'USA', 'Miami', 'george@example.com', 'hashed_password_9', 'user_avatar_9.png', EXTRACT(EPOCH FROM NOW())::BIGINT),
     ('hannah_orange', 'Hannah', 'Orange', 'Australia', 'Brisbane', 'hannah@example.com', 'hashed_password_10', 'user_avatar_10.png', EXTRACT(EPOCH FROM NOW())::BIGINT);
 
--- Вставка тестовых данных в таблицу user_settings
-INSERT INTO user_settings (user_id, show_phone, show_planned, show_visited)
-VALUES
-    (1, TRUE, TRUE, TRUE),
-    (2, FALSE, TRUE, FALSE),
-    (3, TRUE, FALSE, TRUE),
-    (4, FALSE, TRUE, TRUE),
-    (5, TRUE, TRUE, FALSE),
-    (6, FALSE, FALSE, TRUE),
-    (7, TRUE, TRUE, TRUE),
-    (8, FALSE, TRUE, FALSE),
-    (9, TRUE, FALSE, TRUE),
-    (10, FALSE, TRUE, TRUE);
-
 -- -- Вставка тестовых данных в таблицу routes
 -- INSERT INTO routes (user_id, name, url, description, length, duration, tags, category, created_at, status, rating, images)
 -- VALUES

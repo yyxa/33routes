@@ -2184,60 +2184,86 @@ paths:
           description: Пользователь не найден.
         '500':
           description: Внутренняя ошибка сервера.
-  # /api/user/delete:
-  #   delete:
-  #     summary: Удалить профиль пользователя.
-  #     requestBody:
-  #       description: Данные для удаления профиля.
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/DeleteUserProfileRequest'
-  #     responses:
-  #       '200':
-  #         description: Профиль пользователя успешно удалён.
-  #       '404':
-  #         description: Пользователь не найден.
-  #       '500':
-  #         description: Внутренняя ошибка сервера.
-  # /api/user/settings:
-  #   get:
-  #     summary: Получить настройки пользователя.
-  #     parameters:
-  #       - name: user_id
-  #         in: query
-  #         description: Идентификатор пользователя.
-  #         required: true
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       '200':
-  #         description: Успешный ответ. Возвращает настройки пользователя.
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/UserSettings'
-  #       '404':
-  #         description: Настройки пользователя не найдены.
-  #       '500':
-  #         description: Внутренняя ошибка сервера.
-    # put:
-    #   summary: Обновить настройки пользователя.
-    #   requestBody:
-    #     description: Объект с данными для обновления настроек.
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: '#/components/schemas/UserSettingsUpdate'
-    #   responses:
-    #     '200':
-    #       description: Настройки пользователя успешно обновлены.
-    #     '500':
-    #       description: Внутренняя ошибка сервера.
+
+  /api/user/delete:
+    delete:
+      summary: Удалить профиль пользователя.
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: session_token
+          in: cookie
+          required: true
+          description: Токен сессии пользователя.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Профиль пользователя успешно удалён.
+        '401':
+          description: Не авторизован.
+        '404':
+          description: Пользователь не найден.
+        '500':
+          description: Внутренняя ошибка сервера.
+          
+  /api/user/settings:
+    get:
+      summary: Получить настройки пользователя.
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: session_token
+          in: cookie
+          required: true
+          description: Токен сессии пользователя.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ. Возвращает настройки пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          description: Не авторизован.
+        '404':
+          description: Настройки пользователя не найдены.
+        '500':
+          description: Внутренняя ошибка сервера.
+    put:
+      summary: Обновить настройки пользователя.
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: session_token
+          in: cookie
+          required: true
+          description: Токен сессии пользователя.
+          schema:
+            type: string
+      requestBody:
+        description: Объект с данными для обновления настроек.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSettingsUpdate'
+      responses:
+        '200':
+          description: Настройки пользователя успешно обновлены.
+        '401':
+          description: Не авторизован.
+        '500':
+          description: Внутренняя ошибка сервера.
         
 components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session_token
   schemas:
     PublicUserProfileResponse:
       type: object
@@ -2396,38 +2422,31 @@ components:
         completed_at:
           type: string
           format: date-time
-    DeleteUserProfileRequest:
+    UserSettings:
       type: object
       properties:
-        username:
-          type: string
+        user_id:
+          type: integer
+        show_phone:
+          type: boolean
+        show_planned:
+          type: boolean
+        show_visited:
+          type: boolean
       required:
-        - username
-    # UserSettings:
-    #   type: object
-    #   properties:
-    #     show_phone:
-    #       type: boolean
-    #     show_planned:
-    #       type: boolean
-    #     show_visited:
-    #       type: boolean
-    #   required:
-    #     - show_phone
-    #     - show_planned
-    #     - show_visited
-    # UserSettingsUpdate:
-    #   type: object
-    #   properties:
-    #     show_phone:
-    #       type: boolean
-    #     show_planned:
-    #       type: boolean
-    #     show_visited:
-    #       type: boolean
-    #   required:
-    #     - user_id
-
+        - user_id
+        - show_phone
+        - show_planned
+        - show_visited
+    UserSettingsUpdate:
+      type: object
+      properties:
+        show_phone:
+          type: boolean
+        show_planned:
+          type: boolean
+        show_visited:
+          type: boolean
 
 
 
@@ -2495,9 +2514,3 @@ components:
         email:
           type: string
           nullable: true
-
-  securitySchemes:
-    SessionAuth:
-      type: apiKey
-      in: cookie
-      name: session_token

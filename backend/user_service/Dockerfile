@@ -8,6 +8,6 @@ RUN cargo build --release
 
 FROM rust:1.82.0
 
-COPY --from=builder /usr/src/app/target/release/route_service /usr/local/bin/route_service
+COPY --from=builder /usr/src/app/target/release/user_service /usr/local/bin/user_service
 
-CMD ["route_service"]
+CMD ["user_service"]

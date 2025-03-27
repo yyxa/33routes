@@ -132,6 +132,10 @@ upload-images:
 rm-pg-data:
 	@rm -rf database/postgres/data
 
+.PHONY: rm-redis-data
+rm-redis-data:
+	@rm -rf database/redis/data
+
 .PHONY: clear-all
 clear-all: clear rm-pg-data
 

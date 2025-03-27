@@ -2,15 +2,16 @@ use serde::{Serialize, Deserialize};
 use std::sync::Arc;
 use tokio_postgres::Client;
 use chrono::NaiveDateTime;
+use redis::Client as RedisClient;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db_client: Arc<Client>,
+    pub redis_client: RedisClient,
 }
 
 #[derive(Debug, Serialize)]
 pub struct PublicUserProfileResponse {
-    pub user_id: i32,
     pub username: String,
     pub name: String,
     pub surname: Option<String>,
@@ -83,19 +84,14 @@ pub struct UserSettings {
     pub show_visited: bool,
 }
 
-// #[derive(Debug, Deserialize)]
-// pub struct UserSettingsUpdate {
-//     pub show_phone: Option<bool>,
-//     pub show_planned: Option<bool>,
-//     pub show_visited: Option<bool>,
-// }
+#[derive(Debug, Deserialize)]
+pub struct UserSettingsUpdate {
+    pub show_phone: Option<bool>,
+    pub show_planned: Option<bool>,
+    pub show_visited: Option<bool>,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct DeleteUserProfileRequest {
     pub username: String,
 }
-
-// #[derive(Debug, Deserialize)]
-// pub struct GetUserSettingsQuery {
-//     pub user_id: i32,
-// }

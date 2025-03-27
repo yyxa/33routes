@@ -185,3 +185,17 @@ CREATE TABLE IF NOT EXISTS bug_reports (
     status report_status DEFAULT 'opened',
     resolution TEXT
 );
+
+CREATE OR REPLACE FUNCTION create_user_settings_defaults()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO user_settings (user_id)
+  VALUES (NEW.user_id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_create_user_settings_defaults
+AFTER INSERT ON users
+FOR EACH ROW
+EXECUTE FUNCTION create_user_settings_defaults();
