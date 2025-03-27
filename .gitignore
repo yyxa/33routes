@@ -1,9 +1,8 @@
-data_example
 .env
 .DS_Store
-need_to_swagger.yml
 .vscode
 .venv
 __pycache__
 .pytest_cache
 1.html
+outdated

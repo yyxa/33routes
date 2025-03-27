@@ -1,4 +1,7 @@
-use axum::{routing::get, Router};
+use axum::{
+    routing::{get, delete},
+    Router,
+};
 use dotenv::dotenv;
 use std::sync::Arc;
 use tokio_postgres::NoTls;
@@ -38,6 +41,11 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/user/:username", get(handlers::get_user_profile))
+        // .route("/api/user/delete", delete(handlers::delete_user_profile))
+        // .route(
+        //     "/api/user/settings",
+        //     get(handlers::get_user_settings).put(handlers::update_user_settings),
+        // )
         .with_state(app_state)
         .layer(cors);
 

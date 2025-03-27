@@ -2161,8 +2161,278 @@ paths:
         500:
           description: "Внутренняя ошибка сервиса"
 
+  /api/user/{username}:
+    get:
+      summary: Получить публичный профиль пользователя по username.
+      parameters:
+        - name: username
+          in: path
+          description: Имя пользователя.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешный ответ. Возвращает публичный профиль пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicUserProfileResponse'
+        '404':
+          description: Пользователь не найден.
+        '500':
+          description: Внутренняя ошибка сервера.
+  # /api/user/delete:
+  #   delete:
+  #     summary: Удалить профиль пользователя.
+  #     requestBody:
+  #       description: Данные для удаления профиля.
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/DeleteUserProfileRequest'
+  #     responses:
+  #       '200':
+  #         description: Профиль пользователя успешно удалён.
+  #       '404':
+  #         description: Пользователь не найден.
+  #       '500':
+  #         description: Внутренняя ошибка сервера.
+  # /api/user/settings:
+  #   get:
+  #     summary: Получить настройки пользователя.
+  #     parameters:
+  #       - name: user_id
+  #         in: query
+  #         description: Идентификатор пользователя.
+  #         required: true
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '200':
+  #         description: Успешный ответ. Возвращает настройки пользователя.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/UserSettings'
+  #       '404':
+  #         description: Настройки пользователя не найдены.
+  #       '500':
+  #         description: Внутренняя ошибка сервера.
+    # put:
+    #   summary: Обновить настройки пользователя.
+    #   requestBody:
+    #     description: Объект с данными для обновления настроек.
+    #     required: true
+    #     content:
+    #       application/json:
+    #         schema:
+    #           $ref: '#/components/schemas/UserSettingsUpdate'
+    #   responses:
+    #     '200':
+    #       description: Настройки пользователя успешно обновлены.
+    #     '500':
+    #       description: Внутренняя ошибка сервера.
+        
 components:
   schemas:
+    PublicUserProfileResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        avatar_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        instagram:
+          type: string
+          nullable: true
+        facebook:
+          type: string
+          nullable: true
+        x:
+          type: string
+          nullable: true
+        vkontakte:
+          type: string
+          nullable: true
+        telegram:
+          type: string
+          nullable: true
+        youtube:
+          type: string
+          nullable: true
+        user_site:
+          type: string
+          nullable: true
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Route'
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collection'
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+        completed_routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompletedRoute'
+    Route:
+      type: object
+      properties:
+        route_id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+          nullable: true
+        length:
+          type: integer
+        duration:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+        category:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+        rating:
+          type: number
+          format: float
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+    Collection:
+      type: object
+      properties:
+        collection_id:
+          type: integer
+        name:
+          type: string
+        rating:
+          type: number
+          format: float
+          nullable: true
+        url:
+          type: string
+        description:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    Review:
+      type: object
+      properties:
+        review_id:
+          type: integer
+        route_id:
+          type: integer
+        rating:
+          type: number
+          format: float
+          nullable: true
+        comment:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+    CompletedRoute:
+      type: object
+      properties:
+        route_id:
+          type: integer
+        completed_at:
+          type: string
+          format: date-time
+    DeleteUserProfileRequest:
+      type: object
+      properties:
+        username:
+          type: string
+      required:
+        - username
+    # UserSettings:
+    #   type: object
+    #   properties:
+    #     show_phone:
+    #       type: boolean
+    #     show_planned:
+    #       type: boolean
+    #     show_visited:
+    #       type: boolean
+    #   required:
+    #     - show_phone
+    #     - show_planned
+    #     - show_visited
+    # UserSettingsUpdate:
+    #   type: object
+    #   properties:
+    #     show_phone:
+    #       type: boolean
+    #     show_planned:
+    #       type: boolean
+    #     show_visited:
+    #       type: boolean
+    #   required:
+    #     - user_id
+
+
+
+
+
+
+
+
     RegisterRequest:
       type: object
       properties:
