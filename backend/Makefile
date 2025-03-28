@@ -9,7 +9,13 @@ BACKEND := docker-compose.backend.yml
 BACKEND_PROD := docker-compose.backend-prod.yml
 
 ifeq ($(PROD),1)
+    export DOCKER_BUILDKIT = 1
     BACKEND := $(BACKEND_PROD)
+    BUILD_FLAGS := --no-cache --force-rm
+else ifeq ($(PROD),2)
+    export DOCKER_BUILDKIT = 1
+    BACKEND := $(BACKEND_PROD)
+    BUILD_FLAGS :=
 endif
 
 COMPOSE_FILES := -f $(TRAEFIK) -f $(DATABASES) -f $(BACKEND)
@@ -46,7 +52,7 @@ build-databases:
 
 .PHONY: build-backend
 build-backend:
-	@docker compose -f $(BACKEND) build
+	@docker compose -f $(BACKEND) build $(BUILD_FLAGS)
 
 .PHONY: rebuild-all
 rebuild-all: rebuild-traefik rebuild-databases rebuild-backend

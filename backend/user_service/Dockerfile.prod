@@ -2,16 +2,54 @@ FROM rust:1.82.0 AS builder
 
 WORKDIR /usr/src/app
 
+RUN apt-get update && apt-get install -y \
+    musl-tools \
+    pkg-config \
+    curl \
+    build-essential && \
+    curl -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1u/openssl-1.1.1u.tar.gz | tar xz && \
+    cd openssl-1.1.1u && \
+    ./Configure no-shared --prefix=/musl --openssldir=/musl/ssl linux-x86_64 -static && \
+    make -j"$(nproc)" && \
+    make install && \
+    cd .. && \
+    rm -rf openssl-1.1.1u && \
+    apt-get purge -y --auto-remove \
+    build-essential \
+    curl \
+    pkg-config && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN rustup target add x86_64-unknown-linux-musl
+
+ENV OPENSSL_DIR=/musl
+ENV OPENSSL_LIB_DIR=/musl/lib
+ENV OPENSSL_INCLUDE_DIR=/musl/include
+ENV PKG_CONFIG_PATH=/musl/lib/pkgconfig
 
 COPY Cargo.toml Cargo.lock ./
 
-COPY src src
+RUN --mount=type=cache,target=/usr/local/cargo/registry,id=registry-user \
+    --mount=type=cache,target=/usr/src/app/target,id=target-user \
+    sh -c "mkdir src && echo 'fn main() {}' > src/main.rs && \
+           cargo build --release --target x86_64-unknown-linux-musl --locked && \
+           rm -rf src"
 
-RUN cargo build --release --target x86_64-unknown-linux-musl
+COPY . .
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry,id=registry-user \
+   --mount=type=cache,target=/usr/src/app/target,id=target-user \
+   cargo build --release --target x86_64-unknown-linux-musl --locked && \
+   strip target/x86_64-unknown-linux-musl/release/user_service && \
+   cp target/x86_64-unknown-linux-musl/release/user_service /usr/local/bin/user_service && \
+   chmod +x /usr/local/bin/user_service && \
+   chown 1000:1000 /usr/local/bin/user_service
 
 FROM scratch
 
-COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/user_service /usr/local/bin/user_service
+COPY --from=builder /usr/local/bin/user_service /usr/local/bin/user_service
+COPY --from=builder /musl/ssl /etc/ssl
+
+USER 1000:1000
 
 CMD ["user_service"]

@@ -1,10 +1,18 @@
+
+x-build-common: &buildkit
+  cache_from:
+    - type=local,src=./.buildkit-cache
+  cache_to:
+    - type=local,dest=./.buildkit-cache,mode=max
+
 services:
 
   33routes_route_service:
-    container_name: 33routes_route_service
+    container_name: 33routes_route_service_prod
     build:
       context: ./route_service
       dockerfile: Dockerfile.prod
+      <<: *buildkit
     env_file:
       - .env
     restart: always
@@ -19,7 +27,7 @@ services:
       - 33routes_auth_service
 
   33routes_review_service:
-    container_name: 33routes_review_service
+    container_name: 33routes_review_service_prod
     build:
       context: ./review_service
       dockerfile: Dockerfile.prod
@@ -37,7 +45,7 @@ services:
       - 33routes_auth_service
 
   33routes_comment_service:
-    container_name: 33routes_comment_service
+    container_name: 33routes_comment_service_prod
     build:
       context: ./comment_service
       dockerfile: Dockerfile.prod
@@ -55,7 +63,7 @@ services:
       - 33routes_auth_service
 
   33routes_collection_service:
-    container_name: 33routes_collection_service
+    container_name: 33routes_collection_service_prod
     build:
       context: ./collection_service
       dockerfile: Dockerfile.prod
@@ -72,7 +80,7 @@ services:
     - 33routes_auth_service
 
   33routes_moderation_service:
-    container_name: 33routes_moderation_service
+    container_name: 33routes_moderation_service_prod
     build:
       context: ./moderation_service
       dockerfile: Dockerfile.prod
@@ -87,7 +95,7 @@ services:
       - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
 
   33routes_image_service:
-    container_name: 33routes_image_service
+    container_name: 33routes_image_service_prod
     build:
       context: ./image_service
       dockerfile: Dockerfile.prod
@@ -102,7 +110,7 @@ services:
       - "traefik.http.services.image_service.loadbalancer.server.port=8100"
 
   33routes_search_service:
-    container_name: 33routes_search_service
+    container_name: 33routes_search_service_prod
     build:
       context: ./search_service
       dockerfile: Dockerfile.prod
@@ -117,7 +125,7 @@ services:
       - "traefik.http.services.search_service.loadbalancer.server.port=8100"
 
   33routes_auth_service:
-    container_name: 33routes_auth_service
+    container_name: 33routes_auth_service_prod
     build:
       context: ./auth_service
       dockerfile: Dockerfile.prod
@@ -132,10 +140,11 @@ services:
       - "traefik.http.services.auth_service.loadbalancer.server.port=8100"
 
   33routes_user_service:
-    container_name: 33routes_user_service
+    container_name: 33routes_user_service_prod
     build:
       context: ./user_service
       dockerfile: Dockerfile.prod
+      <<: *buildkit
     env_file:
       - .env
     restart: always
@@ -147,7 +156,7 @@ services:
       - "traefik.http.services.user_service.loadbalancer.server.port=8100"
 
   # 33routes_like_service:
-  #   container_name: 33routes_like_service
+  #   container_name: 33routes_like_service_prod
   #   build:
   #     context: ./like_service
   #     dockerfile: Dockerfile.prod
