@@ -145,23 +145,26 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.user_service.rule=PathPrefix(`/api/user/`)"
       - "traefik.http.services.user_service.loadbalancer.server.port=8100"
+    depends_on:
+      - 33routes_image_service
+      - 33routes_auth_service
 
-  # 33routes_like_service:
-  #   container_name: 33routes_like_service
-  #   build:
-  #     context: ./like_service
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - .env
-  #   restart: always
-  #   networks:
-  #     - 33routes_backend_network
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.like_service.rule=PathPrefix(`/api/like/`)"
-  #     - "traefik.http.services.like_service.loadbalancer.server.port=8100"
-  #   depends_on:
-  #   - 33routes_auth_service
+  33routes_like_service:
+    container_name: 33routes_like_service
+    build:
+      context: ./like_service
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - 33routes_backend_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.like_service.rule=PathPrefix(`/api/like/`)"
+      - "traefik.http.services.like_service.loadbalancer.server.port=8100"
+    depends_on:
+    - 33routes_auth_service
     
 networks:
   33routes_backend_network:

@@ -1,7 +1,4 @@
 .env
 .gitignore
 tests
-build
-CMakeUserPresets.json
-Makefile
-.pytest_cache
+target

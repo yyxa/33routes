@@ -26,73 +26,74 @@ services:
       - 33routes_image_service
       - 33routes_auth_service
 
-  33routes_review_service:
-    container_name: 33routes_review_service_prod
-    build:
-      context: ./review_service
-      dockerfile: Dockerfile.prod
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - 33routes_backend_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.review_service.rule=PathPrefix(`/api/review/`)"
-      - "traefik.http.services.review_service.loadbalancer.server.port=8100"
-    depends_on:
-      - 33routes_image_service
-      - 33routes_auth_service
+  # 33routes_review_service:
+  #   container_name: 33routes_review_service_prod
+  #   build:
+  #     context: ./review_service
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.review_service.rule=PathPrefix(`/api/review/`)"
+  #     - "traefik.http.services.review_service.loadbalancer.server.port=8100"
+  #   depends_on:
+  #     - 33routes_image_service
+  #     - 33routes_auth_service
 
-  33routes_comment_service:
-    container_name: 33routes_comment_service_prod
-    build:
-      context: ./comment_service
-      dockerfile: Dockerfile.prod
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - 33routes_backend_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.comment_service.rule=PathPrefix(`/api/comment/`)"
-      - "traefik.http.services.comment_service.loadbalancer.server.port=8100"
-    depends_on:
-      - 33routes_image_service
-      - 33routes_auth_service
+  # 33routes_comment_service:
+  #   container_name: 33routes_comment_service_prod
+  #   build:
+  #     context: ./comment_service
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.comment_service.rule=PathPrefix(`/api/comment/`)"
+  #     - "traefik.http.services.comment_service.loadbalancer.server.port=8100"
+  #   depends_on:
+  #     - 33routes_image_service
+  #     - 33routes_auth_service
 
-  33routes_collection_service:
-    container_name: 33routes_collection_service_prod
-    build:
-      context: ./collection_service
-      dockerfile: Dockerfile.prod
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - 33routes_backend_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.collection_service.rule=PathPrefix(`/api/collection/`)"
-      - "traefik.http.services.collection_service.loadbalancer.server.port=8100"
-    depends_on:
-    - 33routes_auth_service
+  # 33routes_collection_service:
+  #   container_name: 33routes_collection_service_prod
+  #   build:
+  #     context: ./collection_service
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.collection_service.rule=PathPrefix(`/api/collection/`)"
+  #     - "traefik.http.services.collection_service.loadbalancer.server.port=8100"
+  #   depends_on:
+  #     - 33routes_image_service
+  #     - 33routes_auth_service
 
-  33routes_moderation_service:
-    container_name: 33routes_moderation_service_prod
-    build:
-      context: ./moderation_service
-      dockerfile: Dockerfile.prod
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - 33routes_backend_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.moderation_service.rule=PathPrefix(`/api/moderation/`)"
-      - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
+  # 33routes_moderation_service:
+  #   container_name: 33routes_moderation_service_prod
+  #   build:
+  #     context: ./moderation_service
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.moderation_service.rule=PathPrefix(`/api/moderation/`)"
+  #     - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
 
   33routes_image_service:
     container_name: 33routes_image_service_prod
@@ -109,20 +110,20 @@ services:
       - "traefik.http.routers.image_service.rule=PathPrefix(`/api/media/`)"
       - "traefik.http.services.image_service.loadbalancer.server.port=8100"
 
-  33routes_search_service:
-    container_name: 33routes_search_service_prod
-    build:
-      context: ./search_service
-      dockerfile: Dockerfile.prod
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - 33routes_backend_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.search_service.rule=PathPrefix(`/api/search/`)"
-      - "traefik.http.services.search_service.loadbalancer.server.port=8100"
+  # 33routes_search_service:
+  #   container_name: 33routes_search_service_prod
+  #   build:
+  #     context: ./search_service
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.search_service.rule=PathPrefix(`/api/search/`)"
+  #     - "traefik.http.services.search_service.loadbalancer.server.port=8100"
 
   33routes_auth_service:
     container_name: 33routes_auth_service_prod
@@ -139,21 +140,24 @@ services:
       - "traefik.http.routers.auth_service.rule=PathPrefix(`/api/auth/`)"
       - "traefik.http.services.auth_service.loadbalancer.server.port=8100"
 
-  33routes_user_service:
-    container_name: 33routes_user_service_prod
-    build:
-      context: ./user_service
-      dockerfile: Dockerfile.prod
-      <<: *buildkit
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - 33routes_backend_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.user_service.rule=PathPrefix(`/api/user/`)"
-      - "traefik.http.services.user_service.loadbalancer.server.port=8100"
+  # 33routes_user_service:
+  #   container_name: 33routes_user_service_prod
+  #   build:
+  #     context: ./user_service
+  #     dockerfile: Dockerfile.prod
+  #     <<: *buildkit
+  #   env_file:
+  #     - .env
+  #   restart: always
+  #   networks:
+  #     - 33routes_backend_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.user_service.rule=PathPrefix(`/api/user/`)"
+  #     - "traefik.http.services.user_service.loadbalancer.server.port=8100"
+  #   depends_on:
+  #     - 33routes_image_service
+  #     - 33routes_auth_service
 
   # 33routes_like_service:
   #   container_name: 33routes_like_service_prod

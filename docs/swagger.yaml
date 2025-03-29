@@ -51,13 +51,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RoutesResponse'
-  /api/route/route/{route_id}:
+  /api/route/route/{route-id}:
     get:
       summary: "Получить подробности маршрута"
       description: "Возвращает подробную информацию о маршруте, включая данные пользователя и точки маршрута."
       parameters:
         - in: path
-          name: route_id
+          name: route-id
           required: true
           description: "Идентификатор маршрута"
           schema:
@@ -88,7 +88,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: route_id
+          name: route-id
           required: true
           description: "Идентификатор маршрута"
           schema:
@@ -124,7 +124,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: route_id
+          name: route-id
           required: true
           description: "Идентификатор маршрута"
           schema:
@@ -695,27 +695,22 @@ paths:
   /api/like/comment/{comment-id}:
     post:
       summary: "Поставить лайк на комментарий"
-      description: "Позволяет пользователю поставить лайк на комментарий."
+      description: "Позволяет пользователю поставить лайк на комментарий. Требуется аутентификация через cookie session_token."
       security:
         - sessionCookie: []
       parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
         - in: path
           name: comment-id
           required: true
           description: "ID комментария"
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя, ставящего лайк"
-                  example: 1
       responses:
         '200':
           description: "Лайк успешно поставлен"
@@ -727,27 +722,22 @@ paths:
           description: "Внутренняя ошибка сервиса"
     delete:
       summary: "Убрать лайк с комментария"
-      description: "Позволяет пользователю убрать лайк с комментария."
+      description: "Позволяет пользователю убрать лайк с комментария. Требуется аутентификация через cookie session_token."
       security:
         - sessionCookie: []
       parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
         - in: path
           name: comment-id
           required: true
           description: "ID комментария"
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя, убирающего лайк"
-                  example: 1
       responses:
         '200':
           description: "Лайк успешно убран"
@@ -757,30 +747,26 @@ paths:
           description: "Пользователь не авторизован"
         '500':
           description: "Внутренняя ошибка сервиса"
+
   /api/like/review/{review-id}:
     post:
       summary: "Поставить лайк на рецензию"
-      description: "Позволяет пользователю поставить лайк на рецензию."
+      description: "Позволяет пользователю поставить лайк на рецензию. Требуется аутентификация через cookie session_token."
       security:
         - sessionCookie: []
       parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
         - in: path
           name: review-id
           required: true
           description: "ID рецензии"
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя, ставящего лайк"
-                  example: 1
       responses:
         '200':
           description: "Лайк успешно поставлен"
@@ -792,27 +778,22 @@ paths:
           description: "Внутренняя ошибка сервиса"
     delete:
       summary: "Убрать лайк с рецензии"
-      description: "Позволяет пользователю убрать лайк с рецензии."
+      description: "Позволяет пользователю убрать лайк с рецензии. Требуется аутентификация через cookie session_token."
       security:
         - sessionCookie: []
       parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
         - in: path
           name: review-id
           required: true
           description: "ID рецензии"
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя, убирающего лайк"
-                  example: 1
       responses:
         '200':
           description: "Лайк успешно убран"
