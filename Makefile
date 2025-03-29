@@ -18,9 +18,17 @@ frontend-admin:
 .PHONY: swagger
 swagger:
 	@docker run -d \
-	--name=33routes_swagger-ui \
-	--restart=always \
-	-p 127.0.0.1:8081:8080 \
-	-e SWAGGER_JSON=/api/swagger.yaml \
-	-v ./docs/swagger.yaml:/api/swagger.yaml \
-	swaggerapi/swagger-ui:v5.18.1
+		--name=33routes_swagger-ui \
+		--restart=always \
+		-p 127.0.0.1:8081:8080 \
+		-e SWAGGER_JSON=/api/swagger.yaml \
+		-v ./docs/swagger.yaml:/api/swagger.yaml \
+		swaggerapi/swagger-ui:v5.19.0
+
+.PHONY: swagger-stop
+swagger-stop:
+	@docker stop 33routes_swagger-ui || true && \
+	docker rm 33routes_swagger-ui || true
+
+.PHONY: swagger-restart
+swagger-restart: swagger-stop swagger

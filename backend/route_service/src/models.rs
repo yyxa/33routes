@@ -1,11 +1,10 @@
 use serde::{Serialize, Deserialize};
 use std::sync::Arc;
 use tokio_postgres::Client;
-use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub db_client: Arc<Mutex<Client>>,
+    pub db_client: Arc<Client>,
 }
 
 #[derive(Serialize)]
@@ -70,7 +69,7 @@ pub struct CreateRouteRequest {
     pub tags: Option<Vec<String>>,
     pub category: String,
     pub images: Option<Vec<String>>,
-    pub points: Vec<CreatePointInfo>
+    pub points: Vec<CreatePointInfo>,
 }
 
 #[derive(Deserialize)]
@@ -81,7 +80,7 @@ pub struct CreatePointInfo {
     pub elevation: Option<i32>,
     pub speed: Option<f64>,
     pub point_description: Option<String>,
-    pub images: Option<Vec<String>>
+    pub images: Option<Vec<String>>,
 }
 
 #[derive(Deserialize)]
@@ -93,7 +92,7 @@ pub struct UpdateRouteRequest {
     pub tags: Option<Vec<String>>,
     pub category: Option<String>,
     pub images: Option<Vec<String>>,
-    pub points: Option<Vec<UpdatePointInfo>>
+    pub points: Option<Vec<UpdatePointInfo>>,
 }
 
 #[derive(Deserialize)]
@@ -105,10 +104,5 @@ pub struct UpdatePointInfo {
     pub elevation: Option<i32>, 
     pub speed: Option<f64>,
     pub point_description: Option<String>,
-    pub images: Option<Vec<String>>
-}
-
-#[derive(Deserialize)]
-pub struct SaveRouteRequest {
-    pub route_id: i32
+    pub images: Option<Vec<String>>,
 }

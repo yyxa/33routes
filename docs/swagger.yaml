@@ -1,278 +1,200 @@
 openapi: "3.0.0"
 info:
   title: "33routes API Documentation"
-  description: "API for 33routes backend services."
+  description: "API для backend-сервисов 33routes."
   version: "1.0.0"
 servers:
   - url: http://localhost:8100
   - url: https://33routes.ru
 paths:
-
-
   /api/route/routes:
     get:
-      summary: "Получение списка маршрутов"
-      description: "Возвращает список id всех доступных маршрутов."
+      summary: "Получить список маршрутов"
+      description: "Возвращает список идентификаторов маршрутов с поддержкой пагинации."
       parameters:
         - in: query
           name: pagination-page-number
-          required: false
+          description: "Номер страницы (по умолчанию 1)"
           schema:
             type: integer
             minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
           example: 1
         - in: query
           name: pagination-per-page
-          required: false
+          description: "Количество маршрутов на странице (по умолчанию 10)"
           schema:
             type: integer
             minimum: 1
             maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
           example: 10
       responses:
-        200:
-          description: "Список id маршрутов"
+        '200':
+          description: "Список маршрутов успешно получен"
           headers:
             pagination-current-page:
-              description: "Текущая страница пагинации"
+              description: "Текущая страница"
               schema:
                 type: integer
-                example: 1
             pagination-total-elements:
+              description: "Общее количество маршрутов"
+              schema:
+                type: integer
+            pagination-per-page:
+              description: "Количество маршрутов на странице"
+              schema:
+                type: integer
+            pagination-total-pages:
               description: "Общее количество страниц"
               schema:
                 type: integer
-                example: 5
-            pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
-            pagination-total-pages:
-              description: "Количество страниц"
-              schema:
-                type: integer
-                example: 1
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  routes:
-                    type: array
-                    items:
-                      type: integer
-                    description: "ID маршрута"
-                example:
-                  routes: [ 
-                    1,
-                    2,
-                    3
-                  ]
-
-  /api/route/route/{route-id}:
+                $ref: '#/components/schemas/RoutesResponse'
+  /api/route/route/{route_id}:
     get:
-      summary: "Просмотр информации о маршруте"
-      description: "Возвращает подробную информацию о выбранном маршруте."
+      summary: "Получить подробности маршрута"
+      description: "Возвращает подробную информацию о маршруте, включая данные пользователя и точки маршрута."
       parameters:
-        - name: route-id
-          in: path
+        - in: path
+          name: route_id
           required: true
+          description: "Идентификатор маршрута"
           schema:
             type: integer
-            example: 123
       responses:
-        200:
-          description: "Детали маршрута"
+        '200':
+          description: "Детали маршрута успешно получены"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  user:
-                    type: object
-                    properties:
-                      user_id:
-                        type: integer
-                        description: "ID юзера"
-                        example: 1
-                      name:
-                        type: string
-                        description: "ID юзера"
-                        example: "Алла Иванова"
-                      image_url:
-                        type: string
-                        description: "url аватарки"
-                        example: "url"
-                  route:
-                    type: object
-                    properties:
-                      route_id:
-                        type: integer
-                        description: "ID маршрута"
-                        example: 123
-                      name:
-                        type: string
-                        description: "Название маршрута"
-                        example: "Mountain Trail"
-                      url:
-                        type: string
-                        description: "URL маршрута"
-                        example: "url"
-                      description:
-                        type: string
-                        description: "Описание маршрута"
-                        example: "A beautiful trail in the mountains"
-                      length:
-                        type: integer
-                        description: "Длина маршрута в метрах"
-                        example: 5000
-                      duration:
-                        type: integer
-                        description: "Продолжительность маршрута в секундах"
-                        example: 7200
-                      tags:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["forest", "park", "near_water"]
-                        description: "Теги маршрута"
-                        example: ["forest", "near_water"]
-                      category:
-                        type: string
-                        enum: ["walking"]
-                        description: "Категория маршрута"
-                        example: "walking"
-                      created_at:
-                        type: integer
-                        description: "Дата создания маршрута в формате Unix"
-                        example: 1616179200
-                      status:
-                        type: string
-                        enum: ["pending", "approved", "rejected"]
-                        description: "Статус маршрута"
-                        example: "approved"
-                      is_deleted:
-                        type: boolean
-                        description: "Флаг удаления маршрута"
-                        example: false
-                      rating:
-                        type: number
-                        format: float
-                        description: "Средний рейтинг маршрута"
-                        example: 3.5
-                      images:
-                        type: array
-                        items:
-                          type: string
-                        description: "Ссылки на изображения маршрута"
-                        example: ["url_to_image1", "url_to_image2"]
-                  points:
-                    type: array
-                    description: "Точки маршрута с координатами и дополнительной информацией"
-                    items:
-                      type: object
-                      properties:
-                        point_id:
-                          type: integer
-                          description: "ID точки маршрута"
-                          example: 1
-                        coordinate:
-                          type: object
-                          properties:
-                            latitude:
-                              type: number
-                              format: float
-                              description: "Широта"
-                              example: 45.12345
-                            longitude:
-                              type: number
-                              format: float
-                              description: "Долгота"
-                              example: 12.12345
-                        time_offset:
-                          type: integer
-                          description: "Время в секундах с начала маршрута"
-                          example: 300
-                        elevation:
-                          type: integer
-                          description: "Высота точки над уровнем моря в метрах"
-                          example: 200
-                        speed:
-                          type: number
-                          format: float
-                          description: "Скорость на этой точке маршрута"
-                          example: 2.5
-                        point_description:
-                          type: string
-                          description: "Описание точки маршрута"
-                          example: "Поворот у дерева"
-                        images:
-                          type: array
-                          items:
-                            type: string
-                          description: "Изображения, связанные с точкой маршрута"
-                          example: ["url_to_image1", "url_to_image2"]
-                example:
-                  user:
-                    user_id: 1
-                    name: "Алла Майонезова"
-                    image_url: "image"
-                  route:
-                    route_id: 123
-                    name: "Mountain Trail"
-                    url: "url"
-                    description: "A beautiful trail in the mountains"
-                    length: 5000
-                    duration: 7200
-                    tags: ["forest", "near_water"]
-                    category: "walking"
-                    created_at: 1616179200
-                    rating: 3.5
-                    images: ["url_to_image1", "url_to_image2"]
-                  points:
-                    - point_id: 1
-                      coordinate:
-                        latitude: 45.12345
-                        longitude: 12.12345
-                      time_offset: 300
-                      elevation: 200
-                      speed: 2.5
-                      point_description: "Поворот у дерева"
-                      images: ["url_to_image1", "url_to_image2"]
-
+                $ref: '#/components/schemas/RouteDetails'
+        '404':
+          description: "Маршрут не найден"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: "Обновить маршрут"
+      description: "Обновляет информацию о маршруте. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
+        - in: path
+          name: route_id
+          required: true
+          description: "Идентификатор маршрута"
+          schema:
+            type: integer
+      requestBody:
+        description: "Данные для обновления маршрута (передаются только изменённые поля)"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRouteRequest'
+      responses:
+        '200':
+          description: "Маршрут успешно обновлён"
+        '401':
+          description: "Неавторизованный запрос"
+        '403':
+          description: "Нет прав для обновления маршрута"
+        '404':
+          description: "Маршрут не найден"
+        '500':
+          description: "Ошибка сервера"
+    delete:
+      summary: "Удалить маршрут"
+      description: "Выполняет мягкое удаление маршрута (soft delete). Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
+        - in: path
+          name: route_id
+          required: true
+          description: "Идентификатор маршрута"
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Маршрут успешно удалён"
+        '401':
+          description: "Неавторизованный запрос"
+        '403':
+          description: "Нет прав для удаления маршрута"
+        '404':
+          description: "Маршрут не найден"
+        '500':
+          description: "Ошибка сервера"
+  /api/route/route:
+    post:
+      summary: "Создать маршрут"
+      description: "Создает новый маршрут с точками и изображениями. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - in: cookie
+          name: session_token
+          required: true
+          description: "Токен сессии пользователя"
+          schema:
+            type: string
+      requestBody:
+        description: "Данные нового маршрута"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRouteRequest'
+      responses:
+        '201':
+          description: "Маршрут успешно создан"
+        '401':
+          description: "Неавторизованный запрос"
+        '500':
+          description: "Ошибка сервера"
   /api/review/route/{route-id}/reviews:
     get:
       summary: "Получение списка рецензий маршрута"
-      description: "Возвращает список рецензий, связанных с указанным маршрутом."
+      description: "Возвращает список рецензий для указанного маршрута с поддержкой пагинации."
       parameters:
         - in: path
           name: route-id
           required: true
+          description: "ID маршрута"
           schema:
             type: integer
-          description: "ID маршрута"
         - in: query
           name: pagination-page-number
-          required: false
+          description: "Номер страницы (по умолчанию 1)"
           schema:
             type: integer
             minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
           example: 1
         - in: query
           name: pagination-per-page
-          required: false
+          description: "Количество элементов на странице (по умолчанию 10)"
           schema:
             type: integer
             minimum: 1
             maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
           example: 10
       responses:
-        200:
+        '200':
           description: "Список рецензий маршрута"
           headers:
             pagination-current-page:
@@ -281,7 +203,7 @@ paths:
                 type: integer
                 example: 1
             pagination-total-elements:
-              description: "Общее количество страниц"
+              description: "Общее количество рецензий"
               schema:
                 type: integer
                 example: 5
@@ -291,7 +213,7 @@ paths:
                 type: integer
                 example: 3
             pagination-total-pages:
-              description: "Количество страниц"
+              description: "Общее количество страниц"
               schema:
                 type: integer
                 example: 1
@@ -303,29 +225,7 @@ paths:
                   reviews:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        review_id:
-                          type: integer
-                          description: "ID рецензии"
-                        user_id:
-                          type: integer
-                          description: "ID пользователя, оставившего рецензию"
-                        rating:
-                          type: number
-                          format: float
-                          description: "Рейтинг, выставленный пользователем"
-                        comment:
-                          type: string
-                          description: "Текст рецензии"
-                        created_at:
-                          type: integer
-                          description: "Дата создания рецензии в формате Unix"
-                        images:
-                          type: array
-                          items:
-                            type: string
-                          description: "Ссылки на изображения"
+                      $ref: '#/components/schemas/Review'
                 example:
                   reviews:
                     - review_id: 1
@@ -334,25 +234,21 @@ paths:
                       comment: "Отличный маршрут!"
                       created_at: 1616179200
                       images: ["url_to_image1", "url_to_image2"]
-
   /api/review/route/{route-id}/review:
     post:
       summary: "Добавление рецензии"
-      description: "Позволяет пользователю добавить рецензию к указанному маршруту."
+      description: "Позволяет пользователю добавить рецензию к маршруту. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: route-id
           required: true
+          description: "ID маршрута"
           schema:
             type: integer
-          description: "ID маршрута"
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
       requestBody:
+        description: "Данные рецензии"
         required: true
         content:
           application/json:
@@ -361,44 +257,37 @@ paths:
               properties:
                 user_id:
                   type: integer
-                  description: "ID пользователя"
-                  example: 1
                 rating:
                   type: number
                   format: float
-                  description: "Рейтинг маршрута от 0 до 5"
-                  example: 4.5
                 comment:
                   type: string
-                  description: "Текст рецензии"
-                  example: "Amazing route, highly recommended!"
                 images:
                   type: array
                   items:
                     type: string
-                  description: "Ссылки на изображения рецензии"
-                  example: ["url_to_image1", "url_to_image2"]
+              example:
+                user_id: 1
+                rating: 4.5
+                comment: "Amazing route, highly recommended!"
+                images: ["url_to_image1", "url_to_image2"]
       responses:
-        200:
+        '200':
           description: "Рецензия успешно добавлена"
-
     delete:
       summary: "Удаление рецензии"
-      description: "Позволяет пользователю удалить свою рецензию для указанного маршрута."
+      description: "Позволяет пользователю удалить свою рецензию для маршрута. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: route-id
           required: true
+          description: "ID маршрута"
           schema:
             type: integer
-          description: "ID маршрута"
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
       requestBody:
+        description: "Данные для удаления рецензии"
         required: true
         content:
           application/json:
@@ -407,38 +296,51 @@ paths:
               properties:
                 user_id:
                   type: integer
-                  description: "ID пользователя"
-                  example: 1
                 review_id:
                   type: integer
-                  description: "ID рецензии"
-                  example: 1
+              example:
+                user_id: 1
+                review_id: 1
       responses:
-        200:
+        '200':
           description: "Рецензия успешно удалена"
-
   /api/comment/review/{review-id}/comments:
     get:
-      summary: "Получить комментарии к маршруту"
-      description: "Возвращает список комментариев, связанных с указанной рецензией."
+      summary: "Получить комментарии к рецензии"
+      description: "Возвращает список комментариев для указанной рецензии с поддержкой пагинации."
       parameters:
         - in: path
           name: review-id
           required: true
-          schema:
-            type: string
           description: "ID рецензии"
+          schema:
+            type: integer
+        - in: query
+          name: pagination-page-number
+          description: "Номер страницы (по умолчанию 1)"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+        - in: query
+          name: pagination-per-page
+          description: "Количество комментариев на странице (по умолчанию 10)"
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          example: 10
       responses:
-        200:
+        '200':
           description: "Список комментариев"
           headers:
             pagination-current-page:
-              description: "Текущая страница пагинации"
+              description: "Текущая страница"
               schema:
                 type: integer
                 example: 1
             pagination-total-elements:
-              description: "Общее количество страниц"
+              description: "Общее количество комментариев"
               schema:
                 type: integer
                 example: 5
@@ -448,7 +350,7 @@ paths:
                 type: integer
                 example: 3
             pagination-total-pages:
-              description: "Количество страниц"
+              description: "Общее количество страниц"
               schema:
                 type: integer
                 example: 1
@@ -460,170 +362,110 @@ paths:
                   comments:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: "ID комментария"
-                        user_id:
-                          type: integer
-                          description: "ID пользователя, оставившего комментарий"
-                        text:
-                          type: string
-                          description: "Текст комментария"
-                        created_at:
-                          type: integer
-                          description: "Дата и время создания комментария"
-                        images:
-                          type: array
-                          items:
-                            type: string
-                            description: "url изображения"
+                      $ref: '#/components/schemas/Comment'
                 example:
-                  comments: [ 
-                    { 
-                      id: 1, 
-                      user_id: 123, 
-                      text: "Great route!", 
-                      created_at: 1616179200, 
+                  comments:
+                    - id: 1
+                      user_id: 123
+                      text: "Great route!"
+                      created_at: 1616179200
                       images: ["url1", "url2"]
-                    } 
-                  ]
-
   /api/comment/review/{review-id}/comment:
     post:
       summary: "Добавление комментария"
-      description: "Позволяет пользователю добавить комментарий к рецензии."
+      description: "Позволяет пользователю добавить комментарий к рецензии. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: review-id
           required: true
-          schema:
-            type: string
           description: "ID рецензии"
-        - in: header
-          name: session-token
-          required: true
           schema:
-            type: string
-          description: "Токен сессии"
+            type: integer
       requestBody:
+        description: "Данные комментария"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                  example: 1
-                text:
-                  type: string
-                  description: "Текст комментария"
-                  example: "This is an amazing route!"
+              $ref: '#/components/schemas/CreateCommentRequest'
       responses:
-        200:
+        '200':
           description: "Комментарий успешно добавлен"
-
     delete:
       summary: "Удаление комментария"
-      description: "Позволяет пользователю удалить комментарий к рецензии."
+      description: "Позволяет пользователю удалить комментарий к рецензии. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: review-id
           required: true
-          schema:
-            type: string
           description: "ID рецензии"
-        - in: header
-          name: session-token
-          required: true
           schema:
-            type: string
-          description: "Токен сессии"
+            type: integer
       requestBody:
+        description: "Данные для удаления комментария"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                  example: 1
-                comment_id:
-                  type: integer
-                  description: "ID комментария"
-                  example: 1
+              $ref: '#/components/schemas/DeleteCommentRequest'
       responses:
-        200:
+        '200':
           description: "Комментарий успешно удалён"
-
   /api/collection/collections:
     get:
       summary: "Получение списка подборок"
-      description: "Возвращает список id всех доступных подборок."
+      description: "Возвращает список идентификаторов подборок с поддержкой пагинации."
       parameters:
         - in: query
           name: pagination-page-number
-          required: false
+          description: "Номер страницы (по умолчанию 1)"
           schema:
             type: integer
             minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
           example: 1
         - in: query
           name: pagination-per-page
-          required: false
+          description: "Количество элементов на странице (по умолчанию 10)"
           schema:
             type: integer
             minimum: 1
             maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
           example: 10
       responses:
-        200:
-          description: "Список id подборок"
+        '200':
+          description: "Список подборок успешно получен"
           headers:
             pagination-current-page:
-              description: "Текущая страница пагинации"
+              description: "Текущая страница"
               schema:
                 type: integer
-                example: 1
             pagination-total-elements:
+              description: "Общее количество подборок"
+              schema:
+                type: integer
+            pagination-per-page:
+              description: "Количество подборок на странице"
+              schema:
+                type: integer
+            pagination-total-pages:
               description: "Общее количество страниц"
               schema:
                 type: integer
-                example: 5
-            pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
-            pagination-total-pages:
-              description: "Количество страниц"
-              schema:
-                type: integer
-                example: 1
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  collections:
+                  results:
                     type: array
                     items:
                       type: integer
-                    description: "ID подборки"
                 example:
-                  collections: [ 
-                    1,
-                    2,
-                    3
-                  ]
-
+                  results: [1, 2, 3]
   /api/collection/collection/{collection-id}:
     get:
       summary: "Получение информации о подборке"
@@ -632,228 +474,101 @@ paths:
         - in: path
           name: collection-id
           required: true
+          description: "ID подборки"
           schema:
             type: integer
-          description: "ID подборки"
       responses:
-        200:
-          description: "Информация о подборке"
+        '200':
+          description: "Информация о подборке получена"
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  user:
-                    type: object
-                    properties:
-                      user_id:
-                        type: integer
-                        description: "ID пользователя"
-                      name:
-                        type: string
-                        description: "Имя пользователя"
-                      image_url:
-                        type: string
-                        description: "URL аватара пользователя"
-                  collection:
-                    type: object
-                    properties:
-                      collection_id:
-                        type: integer
-                        description: "ID подборки"
-                      name:
-                        type: string
-                        description: "Название подборки"
-                      url:
-                        type: string
-                        description: "URL подборки"
-                      description:
-                        type: string
-                        description: "Описание подборки"
-                      tags:
-                        type: array
-                        items:
-                          type: string
-                          enum: ["forest", "park", "near_water"]
-                        description: "Теги подборки"
-                      rating:
-                        type: number
-                        format: float
-                        description: "Средний рейтинг подборки"
-                      created_at:
-                        type: integer
-                        description: "Дата создания подборки в формате Unix"
-                      routes:
-                        type: object
-                        properties:
-                          amount:
-                            type: integer
-                            description: "Количество маршрутов в подборке"
-                          ids:
-                            type: array
-                            items:
-                              type: integer
-                            description: "Список id маршрутов в подборке"
-                example:
-                  user: 
-                    user_id: 1
-                    name: "Алла Майонезова"
-                    image_url: "image"
-                  collection: 
-                    collection_id: 1 
-                    name: "Best Mountain Trails" 
-                    url: "url"
-                    description: "adasasdassd"
-                    tags: ["forest", "park"]
-                    rating: 4.5
-                    created_at: 1616179200
-                    routes: 
-                      amount: 2
-                      ids: [1, 2]
-
+                $ref: '#/components/schemas/CollectionDetail'
+        '404':
+          description: "Подборка не найдена"
   /api/collection/collection:
     post:
       summary: "Создание новой подборки"
-      description: "Позволяет пользователю создать новую подборку."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
+      description: "Позволяет пользователю создать новую подборку. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       requestBody:
+        description: "Данные для создания новой подборки"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                name:
-                  type: string
-                  description: "Название подборки"
-                description:
-                  type: string
-                  description: "Описание подборки"
-                tags:
-                  type: array
-                  items:
-                    type: string
-                    enum: ["forest", "park", "near_water"]
-                  description: "Список тегов"
-              example:
-                user_id: 1
-                name: "Favorite Trails"
-                description: "Something about route"
-                tags: ["forest", "park"]
+              $ref: '#/components/schemas/CreateCollectionRequest'
       responses:
-        201:
+        '201':
           description: "Подборка успешно создана"
-
+        '500':
+          description: "Ошибка сервера"
     put:
       summary: "Обновление подборки"
-      description: "Позволяет пользователю обновить существующую подборку. (Добавлять только измененные, то есть если name изменен, то его и добавлять в тело, а остальные - нет)"
+      description: "Позволяет пользователю обновить существующую подборку. Передаются только изменённые поля. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
         - in: header
           name: collection-id
           required: true
+          description: "ID подборки"
           schema:
             type: integer
-          description: "ID подборки"
       requestBody:
+        description: "Данные для обновления подборки"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                name:
-                  type: string
-                  description: "Название подборки"
-                description:
-                  type: string
-                  description: "Описание подборки"
-                tags:
-                  type: array
-                  items:
-                    type: string
-                    enum: ["forest", "park", "near_water"]
-                  description: "Список тегов"
-              example:
-                user_id: 1
-                description: "A beautiful trail in the mountains" 
+              $ref: '#/components/schemas/UpdateCollectionRequest'
       responses:
-        200:
+        '200':
           description: "Подборка успешно обновлена"
-
     delete:
       summary: "Удаление подборки"
-      description: "Позволяет пользователю удалить существующую подборку."
+      description: "Позволяет пользователю удалить существующую подборку. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
         - in: header
           name: collection-id
           required: true
+          description: "ID подборки"
           schema:
             type: integer
-          description: "ID подборки"
       requestBody:
+        description: "Данные для удаления подборки"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                  example: 1
-
+              $ref: '#/components/schemas/DeleteCollectionRequest'
       responses:
-        200:
+        '200':
           description: "Подборка успешно удалена"
-
   /api/collection/collection/{collection-id}/add/{route-id}:
     put:
       summary: "Добавление маршрута в подборку"
-      description: "Позволяет пользователю добавить маршрут в указанную подборку."
+      description: "Позволяет пользователю добавить маршрут в указанную подборку. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
         - in: path
           name: collection-id
           required: true
+          description: "ID подборки"
           schema:
             type: integer
-          description: "ID подборки"
         - in: path
           name: route-id
           required: true
+          description: "ID маршрута"
           schema:
             type: integer
-          description: "ID маршрута"
       requestBody:
+        description: "Данные для добавления маршрута в подборку"
         required: true
         content:
           application/json:
@@ -862,36 +577,31 @@ paths:
               properties:
                 user_id:
                   type: integer
-                  description: "ID пользователя"
                   example: 1
       responses:
-        200:
+        '200':
           description: "Маршрут успешно добавлен в подборку"
-
   /api/collection/collection/{collection-id}/remove/{route-id}:
     delete:
       summary: "Удаление маршрута из подборки"
-      description: "Позволяет пользователю удалить маршрут из указанной подборки."
+      description: "Позволяет пользователю удалить маршрут из указанной подборки. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
       parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
         - in: path
           name: collection-id
           required: true
+          description: "ID подборки"
           schema:
             type: integer
-          description: "ID подборки"
         - in: path
           name: route-id
           required: true
+          description: "ID маршрута"
           schema:
             type: integer
-          description: "ID маршрута"
       requestBody:
+        description: "Данные для удаления маршрута из подборки"
         required: true
         content:
           application/json:
@@ -900,993 +610,13 @@ paths:
               properties:
                 user_id:
                   type: integer
-                  description: "ID пользователя"
                   example: 1
       responses:
-        200:
+        '200':
           description: "Маршрут успешно удален из подборки"
-  
-  /api/media/image/upload:
-    post:
-      summary: "Загрузка изображения"
-      description: "Позволяет загрузить изображение в MinIO. Возвращает JSON с уникальным именем изображения."
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: "Файл изображения"
-              required:
-                - file
-      responses:
-        "200":
-          description: "Изображение успешно загружено"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  image_url:
-                    type: string
-                    description: "Уникальное имя изображения (ключ), которое используется для получения изображения"
-                    example: "ee8ae9b6-8d0f-42c5-8581-fa75df64fc07_2.jpg"
-        "400":
-          description: "Ошибка запроса – файл не предоставлен"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "No file provided"
-        "500":
-          description: "Внутренняя ошибка сервиса при загрузке изображения"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Upload failed"
-                    
-  /api/media/image/{image_name}:
-    get:
-      summary: "Получение изображения"
-      description: "Позволяет получить изображение по его уникальному имени, загруженному в MinIO."
-      parameters:
-        - in: path
-          name: image_name
-          required: true
-          schema:
-            type: string
-          description: "Уникальное имя изображения (ключ), возвращенное при загрузке"
-      responses:
-        "200":
-          description: "Изображение успешно получено"
-          content:
-            image/jpeg:
-              schema:
-                type: string
-                format: binary
-            image/png:
-              schema:
-                type: string
-                format: binary
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-        "404":
-          description: "Изображение не найдено"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Image not found"
-        "500":
-          description: "Внутренняя ошибка сервиса при получении изображения"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Failed to collect object body"
-  
-  /api/moderation/entity/report:
-    post:
-      summary: "Жалоба"
-      description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                object_type:
-                  type: string
-                  enum: ["user", "review", "route", "comment"]
-                object_id:
-                  type: integer
-                reason:
-                  type: string
-                  enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
-                details:
-                  type: string
-              example:
-                user_id: 1
-                object_type: "route"
-                object_id: 1
-                reason: "inappropriate content"
-                details: "This route contains inappropriate language."
-      responses:
-        200:
-          description: "Жалоба успешно отправлена"
-
-  /api/moderation/entity/reports:
-    get:
-      summary: "Получение списка всех жалоб для модерации"
-      description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: pagination-page-number
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
-          example: 1
-        - in: query
-          name: pagination-per-page
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
-          example: 10
-        - in: query
-          name: status
-          required: true
-          schema:
-            type: string
-            enum: ["opened", "closed"]
-          description: "Статус репорта"
-          example: "opened"
-      responses:
-        200:
-          description: "Список жалоб"
-          headers:
-            pagination-current-page:
-              description: "Текущая страница пагинации"
-              schema:
-                type: integer
-                example: 1
-            pagination-total-elements:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
-                example: 5
-            pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
-            pagination-total-pages:
-              description: "Количество страниц"
-              schema:
-                type: integer
-                example: 1
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  reports:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        report_id:
-                          type: integer
-                        user_id:
-                          type: integer
-                        object_type:
-                          type: string
-                          enum: ["user", "review", "route", "comment"]
-                        object_id:
-                          type: integer
-                        reason:
-                          type: string
-                          enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
-                        details:
-                          type: string
-                        created_at:
-                          type: integer
-                          format: int64
-                        closed_at:
-                          type: integer
-                          format: int64
-                        status:
-                          type: string
-                          enum: ["opened", "closed"]
-                example:
-                  {
-                    "reports": [
-                      { 
-                        "report_id": 1, 
-                        "user_id": 1,
-                        "object_type": "route", 
-                        "object_id": 1, 
-                        "reason": "inappropriate content", 
-                        "details": "This route contains inappropriate language.", 
-                        "status": "closed", 
-                        "created_at": 1616179200,
-                        "closed_at": 1616179200
-                      }
-                    ]
-                  }
-
-  /api/moderation/entity/report/resolve:
-    post:
-      summary: "Закрытие жалобы после рассмотрения"
-      description: "Отметка жалобы как решённой после рассмотрения модератором"
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                report_id:
-                  type: integer
-                resolution:
-                  type: string
-              example:
-                user_id: 1
-                report_id: 1
-                resolution: "The issue has been resolved, and the content has been edited."
-      responses:
-        200:
-          description: "Жалоба успешно закрыта"
-
-  /api/moderation/bug/report:
-    post:
-      summary: "Отправка отчёта об ошибке"
-      description: "Отправка отчёта о найденной ошибке для её дальнейшего рассмотрения."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                description:
-                  type: string
-              example:
-                user_id: 1
-                description: "The app crashes when trying to upload a large file."
-      responses:
-        200:
-          description: "Отчёт об ошибке успешно отправлен"
-
-  /api/moderation/bug/reports:
-    get:
-      summary: "Получение списка баг-репортов"
-      description: "Получение всех отправленных отчётов об ошибках для модераторов или разработчиков."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
-        - in: query
-          name: pagination-page-number
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
-          example: 1
-        - in: query
-          name: pagination-per-page
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
-          example: 10
-      responses:
-        200:
-          description: "Список баг-репортов"
-          headers:
-            pagination-current-page:
-              description: "Текущая страница пагинации"
-              schema:
-                type: integer
-                example: 1
-            pagination-total-elements:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
-                example: 5
-            pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
-            pagination-total-pages:
-              description: "Количество страниц"
-              schema:
-                type: integer
-                example: 1
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  bug_reports:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        report_id:
-                          type: integer
-                        user_id:
-                          type: integer
-                        description:
-                          type: string
-                        status:
-                          type: string
-                          enum: ["opened", "closed"]
-                        created_at:
-                          type: integer
-                        closed_at:
-                          type: integer
-                      example:
-                        report_id: 1
-                        user_id: 1
-                        description: "The app crashes when trying to upload a large file."
-                        status: "opened"
-                        created_at: 1616179200
-                        closed_at: 1616179200
-
-  /api/moderation/bug/report/resolve:
-    post:
-      summary: "Закрытие баг-репорта"
-      description: "Отметка баг-репорта как решённого после исправления."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                report_id:
-                  type: string
-                resolution:
-                  type: string
-              example:
-                user_id: 1
-                report_id: 1
-                resolution: "Fixed the file upload issue by optimizing memory handling."
-      responses:
-        200:
-          description: "Баг-репорт успешно закрыт"
-
-  /api/moderation/routes:
-    get:
-      summary: "Получение списка маршрутов, ожидающих модерации"
-      description: "Получение маршрутов, которые требуют одобрения перед публикацией."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: pagination-page-number
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-          description: "Номер страницы для отображения (по умолчанию 1)"
-          example: 1
-        - in: query
-          name: pagination-per-page
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          description: "Количество элементов на странице (по умолчанию 10)"
-          example: 10
-        - in: query
-          name: status
-          required: true
-          schema:
-            type: string
-            enum: ["pending", "approved", "rejected"]
-          description: "Статус репорта"
-          example: "approved"
-      responses:
-        200:
-          description: "Список маршрутов, ожидающих модерации"
-          headers:
-            pagination-current-page:
-              description: "Текущая страница пагинации"
-              schema:
-                type: integer
-                example: 1
-            pagination-total-elements:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
-                example: 5
-            pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
-            pagination-total-pages:
-              description: "Количество страниц"
-              schema:
-                type: integer
-                example: 1
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  routes:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        user:
-                          type: object
-                          properties:
-                            user_id:
-                              type: integer
-                              description: "ID юзера"
-                              example: 1
-                            name:
-                              type: string
-                              description: "ID юзера"
-                              example: "Алла Иванова"
-                            image_url:
-                              type: string
-                              description: "url аватарки"
-                              example: "url"
-                        route:
-                          type: object
-                          properties:
-                            route_id:
-                              type: integer
-                              description: "ID маршрута"
-                              example: 123
-                            name:
-                              type: string
-                              description: "Название маршрута"
-                              example: "Mountain Trail"
-                            url:
-                              type: string
-                              description: "URL маршрута"
-                              example: "url"
-                            description:
-                              type: string
-                              description: "Описание маршрута"
-                              example: "A beautiful trail in the mountains"
-                            length:
-                              type: integer
-                              description: "Длина маршрута в метрах"
-                              example: 5000
-                            duration:
-                              type: integer
-                              description: "Продолжительность маршрута в секундах"
-                              example: 7200
-                            tags:
-                              type: array
-                              items:
-                                type: string
-                                enum: ["forest", "park", "near_water"]
-                              description: "Теги маршрута"
-                              example: ["forest", "near_water"]
-                            category:
-                              type: string
-                              enum: ["walking"]
-                              description: "Категория маршрута"
-                              example: "walking"
-                            created_at:
-                              type: integer
-                              description: "Дата создания маршрута в формате Unix"
-                              example: 1616179200
-                            status:
-                              type: string
-                              enum: ["pending", "approved", "rejected"]
-                              description: "Статус маршрута"
-                              example: "approved"
-                            is_deleted:
-                              type: boolean
-                              description: "Флаг удаления маршрута"
-                              example: false
-                            rating:
-                              type: number
-                              format: float
-                              description: "Средний рейтинг маршрута"
-                              example: 3.5
-                            images:
-                              type: array
-                              items:
-                                type: string
-                              description: "Ссылки на изображения маршрута"
-                              example: ["url_to_image1", "url_to_image2"]
-                        points:
-                          type: array
-                          description: "Точки маршрута с координатами и дополнительной информацией"
-                          items:
-                            type: object
-                            properties:
-                              point_id:
-                                type: integer
-                                description: "ID точки маршрута"
-                                example: 1
-                              coordinate:
-                                type: object
-                                properties:
-                                  latitude:
-                                    type: number
-                                    format: float
-                                    description: "Широта"
-                                    example: 45.12345
-                                  longitude:
-                                    type: number
-                                    format: float
-                                    description: "Долгота"
-                                    example: 12.12345
-                              time_offset:
-                                type: integer
-                                description: "Время в секундах с начала маршрута"
-                                example: 300
-                              elevation:
-                                type: integer
-                                description: "Высота точки над уровнем моря в метрах"
-                                example: 200
-                              speed:
-                                type: number
-                                format: float
-                                description: "Скорость на этой точке маршрута"
-                                example: 2.5
-                              point_description:
-                                type: string
-                                description: "Описание точки маршрута"
-                                example: "Поворот у дерева"
-                              images:
-                                type: array
-                                items:
-                                  type: string
-                                description: "Изображения, связанные с точкой маршрута"
-                                example: ["url_to_image1", "url_to_image2"]
-                      example:
-                        user:
-                          user_id: 1
-                          name: "Алла Майонезова"
-                          image_url: "image"
-                        route:
-                          route_id: 123
-                          name: "Mountain Trail"
-                          url: "url"
-                          description: "A beautiful trail in the mountains"
-                          length: 5000
-                          duration: 7200
-                          tags: ["forest", "near_water"]
-                          category: "walking"
-                          created_at: 1616179200
-                          rating: 3.5
-                          images: ["url_to_image1", "url_to_image2"]
-                        points:
-                          - point_id: 1
-                            coordinate:
-                              latitude: 45.12345
-                              longitude: 12.12345
-                            time_offset: 300
-                            elevation: 200
-                            speed: 2.5
-                            point_description: "Поворот у дерева"
-                            images: ["url_to_image1", "url_to_image2"]
-
-  /api/moderation/route/approve:
-    post:
-      summary: "Одобрение маршрута"
-      description: "Позволяет модератору одобрить маршрут."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                object_type:
-                  type: string
-                  enum: ["route", "post", "comment", "collection"]
-                object_id:
-                  type: integer
-              example:
-                user_id: 1
-                object_type: "route"
-                object_id: 1
-      responses:
-        200:
-          description: "Маршрут успешно одобрен"
-
-  /api/moderation/route/reject:
-    post:
-      summary: "Отклонение маршрута"
-      description: "Позволяет модератору отклонить маршрут."
-      parameters:
-        - in: header
-          name: session-token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  description: "ID пользователя"
-                object_type:
-                  type: string
-                  enum: ["route", "post", "comment", "collection"]
-                object_id:
-                  type: integer
-                reason:
-                  type: string
-              example:
-                user_id: 1
-                object_type: "route"
-                object_id: 1
-                reason: "The route description is incomplete."
-      responses:
-        200:
-          description: "Маршрут отклонён"
-
-  /api/search/users:
-    get:
-      summary: "Поиск пользователей"
-      description: "Поиск пользователей по имени, фамилии, username и пагинации."
-      parameters:
-        - name: q
-          in: query
-          description: "Строка поиска (имя, фамилия, username)"
-          required: false
-          schema:
-            type: string
-        - name: pagination-page-number
-          in: query
-          description: "Номер страницы (>=1)"
-          required: false
-          schema:
-            type: integer
-        - name: pagination-per-page
-          in: query
-          description: "Количество элементов на странице (1..100)"
-          required: false
-          schema:
-            type: integer
-        - name: extra
-          in: query
-          description: "Дополнительные неиспользуемые параметры"
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "Список найденных пользователей (id) с заголовками пагинации."
-          headers:
-            pagination-current-page:
-              schema:
-                type: integer
-            pagination-total-elements:
-              schema:
-                type: integer
-            pagination-per-page:
-              schema:
-                type: integer
-            pagination-total-pages:
-              schema:
-                type: integer
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: integer
-        "400":
-          description: "Некорректные параметры (ошибка десериализации)."
-        "500":
-          description: "Внутренняя ошибка сервера."
-
-  /api/search/routes:
-    get:
-      summary: "Поиск маршрутов"
-      description: "Поиск маршрутов по названию, фильтрам (длина, длительность, рейтинг, теги, категория), пагинации, а также сортировка и поиск по геолокации."
-      parameters:
-        - name: q
-          in: query
-          description: "Строка поиска (название маршрута)"
-          schema:
-            type: string
-        - name: min_length
-          in: query
-          description: "Минимальная длина маршрута (м)"
-          schema:
-            type: integer
-        - name: max_length
-          in: query
-          description: "Максимальная длина маршрута (м)"
-          schema:
-            type: integer
-        - name: min_duration
-          in: query
-          description: "Минимальная длительность (секунды)"
-          schema:
-            type: integer
-        - name: max_duration
-          in: query
-          description: "Максимальная длительность (секунды)"
-          schema:
-            type: integer
-        - name: tags
-          in: query
-          description: "Теги, разделённые запятой (например, forest,near_water)."
-          schema:
-            type: string
-        - name: category
-          in: query
-          description: "Категория маршрута (например, walking)."
-          schema:
-            type: string
-        - name: min_rating
-          in: query
-          description: "Минимальный рейтинг (0..5)"
-          schema:
-            type: number
-            format: float
-        - name: max_rating
-          in: query
-          description: "Максимальный рейтинг (0..5)"
-          schema:
-            type: number
-            format: float
-        - name: pagination-page-number
-          in: query
-          description: "Номер страницы (>=1)"
-          schema:
-            type: integer
-        - name: pagination-per-page
-          in: query
-          description: "Количество элементов на странице (1..100)"
-          schema:
-            type: integer
-        - name: order
-          in: query
-          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc, distance, between."
-          schema:
-            type: string
-        - name: lat
-          in: query
-          description: "Широта для сортировки по distance"
-          schema:
-            type: number
-            format: float
-        - name: lon
-          in: query
-          description: "Долгота для сортировки по distance"
-          schema:
-            type: number
-            format: float
-        - name: start_lat
-          in: query
-          description: "Широта начальной точки для order=between"
-          schema:
-            type: number
-            format: float
-        - name: start_lon
-          in: query
-          description: "Долгота начальной точки для order=between"
-          schema:
-            type: number
-            format: float
-        - name: end_lat
-          in: query
-          description: "Широта конечной точки для order=between"
-          schema:
-            type: number
-            format: float
-        - name: end_lon
-          in: query
-          description: "Долгота конечной точки для order=between"
-          schema:
-            type: number
-            format: float
-      responses:
-        "200":
-          description: "Список найденных маршрутов (id) с заголовками пагинации."
-          headers:
-            pagination-current-page:
-              schema:
-                type: integer
-            pagination-total-elements:
-              schema:
-                type: integer
-            pagination-per-page:
-              schema:
-                type: integer
-            pagination-total-pages:
-              schema:
-                type: integer
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: integer
-        "400":
-          description: "Некорректные параметры (ошибка десериализации). Например, неправильные координаты или рейтинги."
-        "500":
-          description: "Внутренняя ошибка сервера."
-
-  /api/search/collections:
-    get:
-      summary: "Поиск подборок"
-      description: "Поиск подборок по названию, рейтингу, тегам, пагинации и сортировке."
-      parameters:
-        - name: q
-          in: query
-          description: "Поисковая строка (название подборки)."
-          schema:
-            type: string
-        - name: min_rating
-          in: query
-          description: "Минимальный рейтинг (0..5)"
-          schema:
-            type: number
-            format: float
-        - name: max_rating
-          in: query
-          description: "Максимальный рейтинг (0..5)"
-          schema:
-            type: number
-            format: float
-        - name: tags
-          in: query
-          description: "Теги, разделённые запятой (например, park,forest)."
-          schema:
-            type: string
-        - name: pagination-page-number
-          in: query
-          description: "Номер страницы (>=1)"
-          schema:
-            type: integer
-        - name: pagination-per-page
-          in: query
-          description: "Количество элементов на странице (1..100)"
-          schema:
-            type: integer
-        - name: order
-          in: query
-          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc."
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "Список найденных подборок (id) с заголовками пагинации."
-          headers:
-            pagination-current-page:
-              schema:
-                type: integer
-            pagination-total-elements:
-              schema:
-                type: integer
-            pagination-per-page:
-              schema:
-                type: integer
-            pagination-total-pages:
-              schema:
-                type: integer
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: integer
-        "400":
-          description: "Некорректные параметры (ошибка десериализации). Например, неправильный формат рейтинга."
-        "500":
-          description: "Внутренняя ошибка сервера."
-
   /api/auth/register:
     post:
-      summary: Register a new user
+      summary: "Регистрация пользователя"
       requestBody:
         required: true
         content:
@@ -1895,19 +625,18 @@ paths:
               $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
-          description: User registered successfully
+          description: "Пользователь успешно зарегистрирован"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegisterResponse'
         '409':
-          description: User may already exist
+          description: "Пользователь уже существует"
         '500':
-          description: Internal server error
-
+          description: "Внутренняя ошибка сервера"
   /api/auth/login:
     post:
-      summary: Log in a user
+      summary: "Авторизация пользователя"
       requestBody:
         required: true
         content:
@@ -1916,23 +645,25 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: User logged in successfully
+          description: "Пользователь успешно авторизован"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
         '401':
-          description: Unauthorized
+          description: "Неавторизованный запрос"
         '500':
-          description: Internal server error
-
+          description: "Внутренняя ошибка сервера"
   /api/auth/check_token:
     post:
-      summary: Check if session token (cookie) and backend token (Authorization header) are valid
+      summary: "Проверка валидности токена сессии"
+      security:
+        - sessionCookie: []
       parameters:
-        - name: session_token
-          in: cookie
+        - in: cookie
+          name: session_token
           required: true
+          description: "Токен сессии"
           schema:
             type: string
       requestBody:
@@ -1944,10 +675,10 @@ paths:
               properties:
                 backend_session_token:
                   type: string
-                  description: "backend session token"
+                  description: "Backend session token"
       responses:
         '200':
-          description: Token is valid
+          description: "Токен валиден"
           content:
             application/json:
               schema:
@@ -1956,50 +687,24 @@ paths:
                   user_id:
                     type: integer
         '400':
-          description: Токены отсутствуют или неверны
+          description: "Отсутствуют или неверны токены"
         '401':
-          description: Токен не прошёл проверку или не найден
+          description: "Токен не прошёл проверку или не найден"
         '500':
-          description: Внутренняя ошибка сервиса
-
-  /api/auth/vk:
-    post:
-      summary: Log in a user via VK
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VkAuthParams'
-      responses:
-        '200':
-          description: User logged in via VK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal server error
-
+          description: "Внутренняя ошибка сервиса"
   /api/like/comment/{comment-id}:
     post:
       summary: "Поставить лайк на комментарий"
       description: "Позволяет пользователю поставить лайк на комментарий."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: comment-id
           required: true
+          description: "ID комментария"
           schema:
             type: integer
-          description: "ID комментария"
-        - in: header
-          name: session_token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
       requestBody:
         required: true
         content:
@@ -2012,38 +717,26 @@ paths:
                   description: "ID пользователя, ставящего лайк"
                   example: 1
       responses:
-        200:
+        '200':
           description: "Лайк успешно поставлен"
-        400:
+        '400':
           description: "Некорректный запрос"
-        401:
-          description: "Пользователь не авторизован (неправильный session_token)"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Unauthorized"
-        500:
+        '401':
+          description: "Пользователь не авторизован"
+        '500':
           description: "Внутренняя ошибка сервиса"
     delete:
       summary: "Убрать лайк с комментария"
-      description: "Позволяет пользователю убрать поставленный лайк с комментария."
+      description: "Позволяет пользователю убрать лайк с комментария."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: comment-id
           required: true
+          description: "ID комментария"
           schema:
             type: integer
-          description: "ID комментария"
-        - in: header
-          name: session_token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
       requestBody:
         required: true
         content:
@@ -2056,40 +749,27 @@ paths:
                   description: "ID пользователя, убирающего лайк"
                   example: 1
       responses:
-        200:
+        '200':
           description: "Лайк успешно убран"
-        400:
+        '400':
           description: "Некорректный запрос"
-        401:
-          description: "Пользователь не авторизован (неправильный session_token)"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Unauthorized"
-        500:
+        '401':
+          description: "Пользователь не авторизован"
+        '500':
           description: "Внутренняя ошибка сервиса"
-
   /api/like/review/{review-id}:
     post:
       summary: "Поставить лайк на рецензию"
       description: "Позволяет пользователю поставить лайк на рецензию."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: review-id
           required: true
+          description: "ID рецензии"
           schema:
             type: integer
-          description: "ID рецензии"
-        - in: header
-          name: session_token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
       requestBody:
         required: true
         content:
@@ -2102,38 +782,26 @@ paths:
                   description: "ID пользователя, ставящего лайк"
                   example: 1
       responses:
-        200:
+        '200':
           description: "Лайк успешно поставлен"
-        400:
+        '400':
           description: "Некорректный запрос"
-        401:
-          description: "Пользователь не авторизован (неправильный session_token)"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Unauthorized"
-        500:
+        '401':
+          description: "Пользователь не авторизован"
+        '500':
           description: "Внутренняя ошибка сервиса"
     delete:
       summary: "Убрать лайк с рецензии"
-      description: "Позволяет пользователю убрать поставленный лайк с рецензии."
+      description: "Позволяет пользователю убрать лайк с рецензии."
+      security:
+        - sessionCookie: []
       parameters:
         - in: path
           name: review-id
           required: true
+          description: "ID рецензии"
           schema:
             type: integer
-          description: "ID рецензии"
-        - in: header
-          name: session_token
-          required: true
-          schema:
-            type: string
-          description: "Токен сессии"
       requestBody:
         required: true
         content:
@@ -2146,105 +814,95 @@ paths:
                   description: "ID пользователя, убирающего лайк"
                   example: 1
       responses:
-        200:
+        '200':
           description: "Лайк успешно убран"
-        400:
+        '400':
           description: "Некорректный запрос"
-        401:
-          description: "Пользователь не авторизован (неправильный session_token)"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Unauthorized"
-        500:
+        '401':
+          description: "Пользователь не авторизован"
+        '500':
           description: "Внутренняя ошибка сервиса"
-
   /api/user/{username}:
     get:
-      summary: Получить публичный профиль пользователя по username.
+      summary: "Получить публичный профиль пользователя"
+      description: "Возвращает публичный профиль пользователя по username."
       parameters:
-        - name: username
-          in: path
-          description: Имя пользователя.
+        - in: path
+          name: username
           required: true
+          description: "Имя пользователя"
           schema:
             type: string
       responses:
         '200':
-          description: Успешный ответ. Возвращает публичный профиль пользователя.
+          description: "Публичный профиль успешно получен"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PublicUserProfileResponse'
         '404':
-          description: Пользователь не найден.
+          description: "Пользователь не найден"
         '500':
-          description: Внутренняя ошибка сервера.
-
+          description: "Внутренняя ошибка сервера"
   /api/user/delete:
     delete:
-      summary: Удалить профиль пользователя.
+      summary: "Удалить профиль пользователя"
       security:
         - sessionCookie: []
       parameters:
-        - name: session_token
-          in: cookie
+        - in: cookie
+          name: session_token
           required: true
-          description: Токен сессии пользователя.
+          description: "Токен сессии пользователя"
           schema:
             type: string
       responses:
         '200':
-          description: Профиль пользователя успешно удалён.
+          description: "Профиль пользователя успешно удалён"
         '401':
-          description: Не авторизован.
+          description: "Не авторизован"
         '404':
-          description: Пользователь не найден.
+          description: "Пользователь не найден"
         '500':
-          description: Внутренняя ошибка сервера.
-          
+          description: "Внутренняя ошибка сервера"
   /api/user/settings:
     get:
-      summary: Получить настройки пользователя.
+      summary: "Получить настройки пользователя"
       security:
         - sessionCookie: []
       parameters:
-        - name: session_token
-          in: cookie
+        - in: cookie
+          name: session_token
           required: true
-          description: Токен сессии пользователя.
+          description: "Токен сессии пользователя"
           schema:
             type: string
       responses:
         '200':
-          description: Успешный ответ. Возвращает настройки пользователя.
+          description: "Настройки пользователя успешно получены"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserSettings'
         '401':
-          description: Не авторизован.
+          description: "Не авторизован"
         '404':
-          description: Настройки пользователя не найдены.
+          description: "Настройки пользователя не найдены"
         '500':
-          description: Внутренняя ошибка сервера.
+          description: "Внутренняя ошибка сервера"
     put:
-      summary: Обновить настройки пользователя.
+      summary: "Обновить настройки пользователя"
       security:
         - sessionCookie: []
       parameters:
-        - name: session_token
-          in: cookie
+        - in: cookie
+          name: session_token
           required: true
-          description: Токен сессии пользователя.
+          description: "Токен сессии пользователя"
           schema:
             type: string
       requestBody:
-        description: Объект с данными для обновления настроек.
+        description: "Объект с данными для обновления настроек"
         required: true
         content:
           application/json:
@@ -2252,12 +910,11 @@ paths:
               $ref: '#/components/schemas/UserSettingsUpdate'
       responses:
         '200':
-          description: Настройки пользователя успешно обновлены.
+          description: "Настройки пользователя успешно обновлены"
         '401':
-          description: Не авторизован.
+          description: "Не авторизован"
         '500':
-          description: Внутренняя ошибка сервера.
-        
+          description: "Внутренняя ошибка сервера"
 components:
   securitySchemes:
     sessionCookie:
@@ -2392,6 +1049,22 @@ components:
         created_at:
           type: string
           format: date-time
+    CollectionDetail:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserDetails'
+        collection:
+          $ref: '#/components/schemas/Collection'
+        routes:
+          type: object
+          properties:
+            amount:
+              type: integer
+            ids:
+              type: array
+              items:
+                type: integer
     Review:
       type: object
       properties:
@@ -2422,11 +1095,237 @@ components:
         completed_at:
           type: string
           format: date-time
-    UserSettings:
+    RoutesResponse:
+      type: object
+      properties:
+        routes:
+          type: array
+          items:
+            type: integer
+          description: "Список идентификаторов маршрутов"
+    RouteDetails:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserDetails'
+        route:
+          $ref: '#/components/schemas/Route'
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/PointInfo'
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    UserDetails:
       type: object
       properties:
         user_id:
           type: integer
+        name:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+    RouteInfo:
+      type: object
+      properties:
+        route_id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+          nullable: true
+        length:
+          type: integer
+        duration:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+        category:
+          type: string
+        created_at:
+          type: integer
+          description: "Unix timestamp"
+        status:
+          type: string
+        is_deleted:
+          type: boolean
+        rating:
+          type: number
+          format: float
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+    PointInfo:
+      type: object
+      properties:
+        point_id:
+          type: integer
+        coordinate:
+          $ref: '#/components/schemas/Coordinate'
+        time_offset:
+          type: integer
+          nullable: true
+        elevation:
+          type: integer
+          nullable: true
+        speed:
+          type: number
+          format: float
+          nullable: true
+        point_description:
+          type: string
+          nullable: true
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+    Coordinate:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+    CreateRouteRequest:
+      type: object
+      required:
+        - name
+        - length
+        - duration
+        - category
+        - points
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        length:
+          type: integer
+        duration:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+        category:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreatePointInfo'
+    CreatePointInfo:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        time_offset:
+          type: integer
+          nullable: true
+        elevation:
+          type: integer
+          nullable: true
+        speed:
+          type: number
+          format: float
+          nullable: true
+        point_description:
+          type: string
+          nullable: true
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+    UpdateRouteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        length:
+          type: integer
+        duration:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+          nullable: true
+        category:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdatePointInfo'
+    UpdatePointInfo:
+      type: object
+      properties:
+        point_id:
+          type: integer
+          nullable: true
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        time_offset:
+          type: integer
+          nullable: true
+        elevation:
+          type: integer
+          nullable: true
+        speed:
+          type: number
+          format: float
+          nullable: true
+        point_description:
+          type: string
+          nullable: true
+        images:
+          type: array
+          items:
+            type: string
+          nullable: true
+    UserSettings:
+      type: object
+      properties:
         show_phone:
           type: boolean
         show_planned:
@@ -2434,7 +1333,6 @@ components:
         show_visited:
           type: boolean
       required:
-        - user_id
         - show_phone
         - show_planned
         - show_visited
@@ -2447,13 +1345,6 @@ components:
           type: boolean
         show_visited:
           type: boolean
-
-
-
-
-
-
-
     RegisterRequest:
       type: object
       properties:
@@ -2466,7 +1357,6 @@ components:
           type: string
         name:
           type: string
-
     RegisterResponse:
       type: object
       properties:
@@ -2474,7 +1364,6 @@ components:
           type: integer
         token:
           type: string
-
     LoginRequest:
       type: object
       properties:
@@ -2483,34 +1372,8 @@ components:
           format: email
         password:
           type: string
-
     LoginResponse:
       type: object
       properties:
         token:
           type: string
-    
-    CheckTokenRequest:
-      type: object
-      properties:
-        user_id: 
-          type: integer
-
-    VkAuthParams:
-      type: object
-      properties:
-        code:
-          type: string
-
-    VkTokenResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-        expires_in:
-          type: integer
-        user_id:
-          type: integer
-        email:
-          type: string
-          nullable: true
