@@ -6,4 +6,5 @@ __pycache__
 .pytest_cache
 1.html
 outdated
-old_swagger.yaml
+swagger_v0.yaml
+swagger_v1.yaml

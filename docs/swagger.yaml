@@ -12,41 +12,20 @@ paths:
       summary: "Получить список маршрутов"
       description: "Возвращает список идентификаторов маршрутов с поддержкой пагинации."
       parameters:
-        - in: query
-          name: pagination-page-number
-          description: "Номер страницы (по умолчанию 1)"
-          schema:
-            type: integer
-            minimum: 1
-          example: 1
-        - in: query
-          name: pagination-per-page
-          description: "Количество маршрутов на странице (по умолчанию 10)"
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          example: 10
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
       responses:
         '200':
           description: "Список маршрутов успешно получен"
           headers:
             pagination-current-page:
-              description: "Текущая страница"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationCurrentPage'
             pagination-total-elements:
-              description: "Общее количество маршрутов"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationTotalElements'
             pagination-per-page:
-              description: "Количество маршрутов на странице"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationPerPage'
             pagination-total-pages:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationTotalPages'
           content:
             application/json:
               schema:
@@ -56,12 +35,7 @@ paths:
       summary: "Получить подробности маршрута"
       description: "Возвращает подробную информацию о маршруте, включая данные пользователя и точки маршрута."
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          description: "Идентификатор маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/RouteIdParam'
       responses:
         '200':
           description: "Детали маршрута успешно получены"
@@ -81,18 +55,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
-        - in: path
-          name: route-id
-          required: true
-          description: "Идентификатор маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные для обновления маршрута (передаются только изменённые поля)"
         required: true
@@ -117,18 +81,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
-        - in: path
-          name: route-id
-          required: true
-          description: "Идентификатор маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/RouteIdParam'
       responses:
         '200':
           description: "Маршрут успешно удалён"
@@ -147,12 +101,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
+        - $ref: '#/components/parameters/SessionTokenCookie'
       requestBody:
         description: "Данные нового маршрута"
         required: true
@@ -172,51 +121,21 @@ paths:
       summary: "Получение списка рецензий маршрута"
       description: "Возвращает список рецензий для указанного маршрута с поддержкой пагинации."
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          description: "ID маршрута"
-          schema:
-            type: integer
-        - in: query
-          name: pagination-page-number
-          description: "Номер страницы (по умолчанию 1)"
-          schema:
-            type: integer
-            minimum: 1
-          example: 1
-        - in: query
-          name: pagination-per-page
-          description: "Количество элементов на странице (по умолчанию 10)"
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          example: 10
+        - $ref: '#/components/parameters/RouteIdParam'
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
       responses:
         '200':
           description: "Список рецензий маршрута"
           headers:
             pagination-current-page:
-              description: "Текущая страница пагинации"
-              schema:
-                type: integer
-                example: 1
+              $ref: '#/components/headers/PaginationCurrentPage'
             pagination-total-elements:
-              description: "Общее количество рецензий"
-              schema:
-                type: integer
-                example: 5
+              $ref: '#/components/headers/PaginationTotalElements'
             pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
+              $ref: '#/components/headers/PaginationPerPage'
             pagination-total-pages:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
-                example: 1
+              $ref: '#/components/headers/PaginationTotalPages'
           content:
             application/json:
               schema:
@@ -241,12 +160,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          description: "ID маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные рецензии"
         required: true
@@ -280,12 +194,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: path
-          name: route-id
-          required: true
-          description: "ID маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные для удаления рецензии"
         required: true
@@ -309,51 +218,21 @@ paths:
       summary: "Получить комментарии к рецензии"
       description: "Возвращает список комментариев для указанной рецензии с поддержкой пагинации."
       parameters:
-        - in: path
-          name: review-id
-          required: true
-          description: "ID рецензии"
-          schema:
-            type: integer
-        - in: query
-          name: pagination-page-number
-          description: "Номер страницы (по умолчанию 1)"
-          schema:
-            type: integer
-            minimum: 1
-          example: 1
-        - in: query
-          name: pagination-per-page
-          description: "Количество комментариев на странице (по умолчанию 10)"
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          example: 10
+        - $ref: '#/components/parameters/ReviewIdParam'
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
       responses:
         '200':
           description: "Список комментариев"
           headers:
             pagination-current-page:
-              description: "Текущая страница"
-              schema:
-                type: integer
-                example: 1
+              $ref: '#/components/headers/PaginationCurrentPage'
             pagination-total-elements:
-              description: "Общее количество комментариев"
-              schema:
-                type: integer
-                example: 5
+              $ref: '#/components/headers/PaginationTotalElements'
             pagination-per-page:
-              description: "Количество элементов на странице"
-              schema:
-                type: integer
-                example: 3
+              $ref: '#/components/headers/PaginationPerPage'
             pagination-total-pages:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
-                example: 1
+              $ref: '#/components/headers/PaginationTotalPages'
           content:
             application/json:
               schema:
@@ -377,12 +256,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: path
-          name: review-id
-          required: true
-          description: "ID рецензии"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/ReviewIdParam'
       requestBody:
         description: "Данные комментария"
         required: true
@@ -399,12 +273,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: path
-          name: review-id
-          required: true
-          description: "ID рецензии"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/ReviewIdParam'
       requestBody:
         description: "Данные для удаления комментария"
         required: true
@@ -420,41 +289,20 @@ paths:
       summary: "Получение списка подборок"
       description: "Возвращает список идентификаторов подборок с поддержкой пагинации."
       parameters:
-        - in: query
-          name: pagination-page-number
-          description: "Номер страницы (по умолчанию 1)"
-          schema:
-            type: integer
-            minimum: 1
-          example: 1
-        - in: query
-          name: pagination-per-page
-          description: "Количество элементов на странице (по умолчанию 10)"
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-          example: 10
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
       responses:
         '200':
           description: "Список подборок успешно получен"
           headers:
             pagination-current-page:
-              description: "Текущая страница"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationCurrentPage'
             pagination-total-elements:
-              description: "Общее количество подборок"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationTotalElements'
             pagination-per-page:
-              description: "Количество подборок на странице"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationPerPage'
             pagination-total-pages:
-              description: "Общее количество страниц"
-              schema:
-                type: integer
+              $ref: '#/components/headers/PaginationTotalPages'
           content:
             application/json:
               schema:
@@ -471,12 +319,7 @@ paths:
       summary: "Получение информации о подборке"
       description: "Возвращает подробную информацию о выбранной подборке."
       parameters:
-        - in: path
-          name: collection-id
-          required: true
-          description: "ID подборки"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/CollectionIdParam'
       responses:
         '200':
           description: "Информация о подборке получена"
@@ -510,12 +353,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: header
-          name: collection-id
-          required: true
-          description: "ID подборки"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/CollectionIdHeader'
       requestBody:
         description: "Данные для обновления подборки"
         required: true
@@ -532,12 +370,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: header
-          name: collection-id
-          required: true
-          description: "ID подборки"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/CollectionIdHeader'
       requestBody:
         description: "Данные для удаления подборки"
         required: true
@@ -555,18 +388,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: path
-          name: collection-id
-          required: true
-          description: "ID подборки"
-          schema:
-            type: integer
-        - in: path
-          name: route-id
-          required: true
-          description: "ID маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/CollectionIdParam'
+        - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные для добавления маршрута в подборку"
         required: true
@@ -588,18 +411,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: path
-          name: collection-id
-          required: true
-          description: "ID подборки"
-          schema:
-            type: integer
-        - in: path
-          name: route-id
-          required: true
-          description: "ID маршрута"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/CollectionIdParam'
+        - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные для удаления маршрута из подборки"
         required: true
@@ -660,12 +473,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии"
-          schema:
-            type: string
+        - $ref: '#/components/parameters/SessionTokenCookie'
       requestBody:
         required: true
         content:
@@ -699,18 +507,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
-        - in: path
-          name: comment-id
-          required: true
-          description: "ID комментария"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/CommentIdParam'
       responses:
         '200':
           description: "Лайк успешно поставлен"
@@ -726,18 +524,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
-        - in: path
-          name: comment-id
-          required: true
-          description: "ID комментария"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/CommentIdParam'
       responses:
         '200':
           description: "Лайк успешно убран"
@@ -747,7 +535,6 @@ paths:
           description: "Пользователь не авторизован"
         '500':
           description: "Внутренняя ошибка сервиса"
-
   /api/like/review/{review-id}:
     post:
       summary: "Поставить лайк на рецензию"
@@ -755,18 +542,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
-        - in: path
-          name: review-id
-          required: true
-          description: "ID рецензии"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/ReviewIdParam'
       responses:
         '200':
           description: "Лайк успешно поставлен"
@@ -782,18 +559,8 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
-        - in: path
-          name: review-id
-          required: true
-          description: "ID рецензии"
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/ReviewIdParam'
       responses:
         '200':
           description: "Лайк успешно убран"
@@ -808,12 +575,7 @@ paths:
       summary: "Получить публичный профиль пользователя"
       description: "Возвращает публичный профиль пользователя по username."
       parameters:
-        - in: path
-          name: username
-          required: true
-          description: "Имя пользователя"
-          schema:
-            type: string
+        - $ref: '#/components/parameters/UsernameParam'
       responses:
         '200':
           description: "Публичный профиль успешно получен"
@@ -831,12 +593,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
+        - $ref: '#/components/parameters/SessionTokenCookie'
       responses:
         '200':
           description: "Профиль пользователя успешно удалён"
@@ -852,12 +609,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
+        - $ref: '#/components/parameters/SessionTokenCookie'
       responses:
         '200':
           description: "Настройки пользователя успешно получены"
@@ -876,12 +628,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - in: cookie
-          name: session_token
-          required: true
-          description: "Токен сессии пользователя"
-          schema:
-            type: string
+        - $ref: '#/components/parameters/SessionTokenCookie'
       requestBody:
         description: "Объект с данными для обновления настроек"
         required: true
@@ -896,12 +643,914 @@ paths:
           description: "Не авторизован"
         '500':
           description: "Внутренняя ошибка сервера"
+  /api/search/users:
+    get:
+      summary: "Поиск пользователей"
+      description: "Поиск пользователей по имени, фамилии, username и пагинации."
+      parameters:
+        - name: q
+          in: query
+          description: "Строка поиска (имя, фамилия, username)"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
+        - name: extra
+          in: query
+          description: "Дополнительные неиспользуемые параметры"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Список найденных пользователей (id) с заголовками пагинации."
+          headers:
+            pagination-current-page:
+              $ref: '#/components/headers/PaginationCurrentPage'
+            pagination-total-elements:
+              $ref: '#/components/headers/PaginationTotalElements'
+            pagination-per-page:
+              $ref: '#/components/headers/PaginationPerPage'
+            pagination-total-pages:
+              $ref: '#/components/headers/PaginationTotalPages'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: integer
+        "400":
+          description: "Некорректные параметры (ошибка десериализации)."
+        "500":
+          description: "Внутренняя ошибка сервера."
+  /api/search/routes:
+    get:
+      summary: "Поиск маршрутов"
+      description: "Поиск маршрутов по названию, фильтрам (длина, длительность, рейтинг, теги, категория), пагинации, а также сортировка и поиск по геолокации."
+      parameters:
+        - name: q
+          in: query
+          description: "Строка поиска (название маршрута)"
+          schema:
+            type: string
+        - name: min_length
+          in: query
+          description: "Минимальная длина маршрута (м)"
+          schema:
+            type: integer
+        - name: max_length
+          in: query
+          description: "Максимальная длина маршрута (м)"
+          schema:
+            type: integer
+        - name: min_duration
+          in: query
+          description: "Минимальная длительность (секунды)"
+          schema:
+            type: integer
+        - name: max_duration
+          in: query
+          description: "Максимальная длительность (секунды)"
+          schema:
+            type: integer
+        - name: tags
+          in: query
+          description: "Теги, разделённые запятой (например, forest,near_water)."
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: "Категория маршрута (например, walking)."
+          schema:
+            type: string
+        - name: min_rating
+          in: query
+          description: "Минимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: max_rating
+          in: query
+          description: "Максимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
+        - name: order
+          in: query
+          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc, distance, between."
+          schema:
+            type: string
+        - name: lat
+          in: query
+          description: "Широта для сортировки по distance"
+          schema:
+            type: number
+            format: float
+        - name: lon
+          in: query
+          description: "Долгота для сортировки по distance"
+          schema:
+            type: number
+            format: float
+        - name: start_lat
+          in: query
+          description: "Широта начальной точки для order=between"
+          schema:
+            type: number
+            format: float
+        - name: start_lon
+          in: query
+          description: "Долгота начальной точки для order=between"
+          schema:
+            type: number
+            format: float
+        - name: end_lat
+          in: query
+          description: "Широта конечной точки для order=between"
+          schema:
+            type: number
+            format: float
+        - name: end_lon
+          in: query
+          description: "Долгота конечной точки для order=between"
+          schema:
+            type: number
+            format: float
+      responses:
+        "200":
+          description: "Список найденных маршрутов (id) с заголовками пагинации."
+          headers:
+            pagination-current-page:
+              $ref: '#/components/headers/PaginationCurrentPage'
+            pagination-total-elements:
+              $ref: '#/components/headers/PaginationTotalElements'
+            pagination-per-page:
+              $ref: '#/components/headers/PaginationPerPage'
+            pagination-total-pages:
+              $ref: '#/components/headers/PaginationTotalPages'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: integer
+        "400":
+          description: "Некорректные параметры (ошибка десериализации). Например, неправильные координаты или рейтинги."
+        "500":
+          description: "Внутренняя ошибка сервера."
+  /api/search/collections:
+    get:
+      summary: "Поиск подборок"
+      description: "Поиск подборок по названию, рейтингу, тегам, пагинации и сортировке."
+      parameters:
+        - name: q
+          in: query
+          description: "Поисковая строка (название подборки)."
+          schema:
+            type: string
+        - name: min_rating
+          in: query
+          description: "Минимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: max_rating
+          in: query
+          description: "Максимальный рейтинг (0..5)"
+          schema:
+            type: number
+            format: float
+        - name: tags
+          in: query
+          description: "Теги, разделённые запятой (например, park,forest)."
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
+        - name: order
+          in: query
+          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Список найденных подборок (id) с заголовками пагинации."
+          headers:
+            pagination-current-page:
+              $ref: '#/components/headers/PaginationCurrentPage'
+            pagination-total-elements:
+              $ref: '#/components/headers/PaginationTotalElements'
+            pagination-per-page:
+              $ref: '#/components/headers/PaginationPerPage'
+            pagination-total-pages:
+              $ref: '#/components/headers/PaginationTotalPages'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: integer
+        "400":
+          description: "Некорректные параметры (ошибка десериализации). Например, неправильный формат рейтинга."
+        "500":
+          description: "Внутренняя ошибка сервера."
+  /api/moderation/entity/report:
+    post:
+      summary: "Жалоба"
+      description: "Отправка жалобы на объект, такой как пользователь, комментарий, рецензия, пост или маршрут"
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                object_type:
+                  type: string
+                  enum: ["user", "review", "route", "comment"]
+                object_id:
+                  type: integer
+                reason:
+                  type: string
+                  enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
+                details:
+                  type: string
+              example:
+                user_id: 1
+                object_type: "route"
+                object_id: 1
+                reason: "inappropriate content"
+                details: "This route contains inappropriate language."
+      responses:
+        200:
+          description: "Жалоба успешно отправлена"
+  /api/moderation/entity/reports:
+    get:
+      summary: "Получение списка всех жалоб для модерации"
+      description: "Получение всех отправленных жалоб, которые нуждаются в модерации"
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: ["opened", "closed"]
+          description: "Статус репорта"
+          example: "opened"
+      responses:
+        200:
+          description: "Список жалоб"
+          headers:
+            pagination-current-page:
+              $ref: '#/components/headers/PaginationCurrentPage'
+            pagination-total-elements:
+              $ref: '#/components/headers/PaginationTotalElements'
+            pagination-per-page:
+              $ref: '#/components/headers/PaginationPerPage'
+            pagination-total-pages:
+              $ref: '#/components/headers/PaginationTotalPages'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        report_id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        object_type:
+                          type: string
+                          enum: ["user", "review", "route", "comment"]
+                        object_id:
+                          type: integer
+                        reason:
+                          type: string
+                          enum: ["spam or advertising", "inappropriate content", "violation of community rules", "offensive content"]
+                        details:
+                          type: string
+                        created_at:
+                          type: integer
+                          format: int64
+                        closed_at:
+                          type: integer
+                          format: int64
+                        status:
+                          type: string
+                          enum: ["opened", "closed"]
+                example:
+                  reports:
+                    - report_id: 1
+                      user_id: 1
+                      object_type: "route"
+                      object_id: 1
+                      reason: "inappropriate content"
+                      details: "This route contains inappropriate language."
+                      status: "closed"
+                      created_at: 1616179200
+                      closed_at: 1616179200
+  /api/moderation/entity/report/resolve:
+    post:
+      summary: "Закрытие жалобы после рассмотрения"
+      description: "Отметка жалобы как решённой после рассмотрения модератором"
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                report_id:
+                  type: integer
+                resolution:
+                  type: string
+              example:
+                user_id: 1
+                report_id: 1
+                resolution: "The issue has been resolved, and the content has been edited."
+      responses:
+        200:
+          description: "Жалоба успешно закрыта"
+  /api/moderation/bug/report:
+    post:
+      summary: "Отправка отчёта об ошибке"
+      description: "Отправка отчёта о найденной ошибке для её дальнейшего рассмотрения."
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                description:
+                  type: string
+              example:
+                user_id: 1
+                description: "The app crashes when trying to upload a large file."
+      responses:
+        200:
+          description: "Отчёт об ошибке успешно отправлен"
+  /api/moderation/bug/reports:
+    get:
+      summary: "Получение списка баг-репортов"
+      description: "Получение всех отправленных отчётов об ошибках для модераторов или разработчиков."
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
+      responses:
+        200:
+          description: "Список баг-репортов"
+          headers:
+            pagination-current-page:
+              $ref: '#/components/headers/PaginationCurrentPage'
+            pagination-total-elements:
+              $ref: '#/components/headers/PaginationTotalElements'
+            pagination-per-page:
+              $ref: '#/components/headers/PaginationPerPage'
+            pagination-total-pages:
+              $ref: '#/components/headers/PaginationTotalPages'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bug_reports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        report_id:
+                          type: integer
+                        user_id:
+                          type: integer
+                        description:
+                          type: string
+                        status:
+                          type: string
+                          enum: ["opened", "closed"]
+                        created_at:
+                          type: integer
+                        closed_at:
+                          type: integer
+                      example:
+                        report_id: 1
+                        user_id: 1
+                        description: "The app crashes when trying to upload a large file."
+                        status: "opened"
+                        created_at: 1616179200
+                        closed_at: 1616179200
+  /api/moderation/bug/report/resolve:
+    post:
+      summary: "Закрытие баг-репорта"
+      description: "Отметка баг-репорта как решённого после исправления."
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                report_id:
+                  type: string
+                resolution:
+                  type: string
+              example:
+                user_id: 1
+                report_id: 1
+                resolution: "Fixed the file upload issue by optimizing memory handling."
+      responses:
+        200:
+          description: "Баг-репорт успешно закрыт"
+  /api/moderation/routes:
+    get:
+      summary: "Получение списка маршрутов, ожидающих модерации"
+      description: "Получение маршрутов, которые требуют одобрения перед публикацией."
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+        - $ref: '#/components/parameters/PaginationPageNumber'
+        - $ref: '#/components/parameters/PaginationPerPage'
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: ["pending", "approved", "rejected"]
+          description: "Статус репорта"
+          example: "approved"
+      responses:
+        200:
+          description: "Список маршрутов, ожидающих модерации"
+          headers:
+            pagination-current-page:
+              $ref: '#/components/headers/PaginationCurrentPage'
+            pagination-total-elements:
+              $ref: '#/components/headers/PaginationTotalElements'
+            pagination-per-page:
+              $ref: '#/components/headers/PaginationPerPage'
+            pagination-total-pages:
+              $ref: '#/components/headers/PaginationTotalPages'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                              description: "ID юзера"
+                              example: 1
+                            name:
+                              type: string
+                              description: "Имя пользователя"
+                              example: "Алла Иванова"
+                            image_url:
+                              type: string
+                              description: "URL аватарки"
+                              example: "url"
+                        route:
+                          type: object
+                          properties:
+                            route_id:
+                              type: integer
+                              description: "ID маршрута"
+                              example: 123
+                            name:
+                              type: string
+                              description: "Название маршрута"
+                              example: "Mountain Trail"
+                            url:
+                              type: string
+                              description: "URL маршрута"
+                              example: "url"
+                            description:
+                              type: string
+                              description: "Описание маршрута"
+                              example: "A beautiful trail in the mountains"
+                            length:
+                              type: integer
+                              description: "Длина маршрута в метрах"
+                              example: 5000
+                            duration:
+                              type: integer
+                              description: "Продолжительность маршрута в секундах"
+                              example: 7200
+                            tags:
+                              type: array
+                              items:
+                                type: string
+                                enum: ["forest", "park", "near_water"]
+                              description: "Теги маршрута"
+                              example: ["forest", "near_water"]
+                            category:
+                              type: string
+                              enum: ["walking"]
+                              description: "Категория маршрута"
+                              example: "walking"
+                            created_at:
+                              type: integer
+                              description: "Дата создания маршрута в формате Unix"
+                              example: 1616179200
+                            status:
+                              type: string
+                              enum: ["pending", "approved", "rejected"]
+                              description: "Статус маршрута"
+                              example: "approved"
+                            is_deleted:
+                              type: boolean
+                              description: "Флаг удаления маршрута"
+                              example: false
+                            rating:
+                              type: number
+                              format: float
+                              description: "Средний рейтинг маршрута"
+                              example: 3.5
+                            images:
+                              type: array
+                              items:
+                                type: string
+                              description: "Ссылки на изображения маршрута"
+                              example: ["url_to_image1", "url_to_image2"]
+                        points:
+                          type: array
+                          description: "Точки маршрута с координатами и дополнительной информацией"
+                          items:
+                            type: object
+                            properties:
+                              point_id:
+                                type: integer
+                                description: "ID точки маршрута"
+                                example: 1
+                              coordinate:
+                                $ref: '#/components/schemas/Coordinate'
+                              time_offset:
+                                type: integer
+                                description: "Время в секундах с начала маршрута"
+                                example: 300
+                              elevation:
+                                type: integer
+                                description: "Высота точки над уровнем моря в метрах"
+                                example: 200
+                              speed:
+                                type: number
+                                format: float
+                                description: "Скорость на этой точке маршрута"
+                                example: 2.5
+                              point_description:
+                                type: string
+                                description: "Описание точки маршрута"
+                                example: "Поворот у дерева"
+                              images:
+                                type: array
+                                items:
+                                  type: string
+                                description: "Изображения, связанные с точкой маршрута"
+                                example: ["url_to_image1", "url_to_image2"]
+                      example:
+                        user:
+                          user_id: 1
+                          name: "Алла Майонезова"
+                          image_url: "image"
+                        route:
+                          route_id: 123
+                          name: "Mountain Trail"
+                          url: "url"
+                          description: "A beautiful trail in the mountains"
+                          length: 5000
+                          duration: 7200
+                          tags: ["forest", "near_water"]
+                          category: "walking"
+                          created_at: 1616179200
+                          rating: 3.5
+                          images: ["url_to_image1", "url_to_image2"]
+                        points:
+                          - point_id: 1
+                            coordinate:
+                              latitude: 45.12345
+                              longitude: 12.12345
+                            time_offset: 300
+                            elevation: 200
+                            speed: 2.5
+                            point_description: "Поворот у дерева"
+                            images: ["url_to_image1", "url_to_image2"]
+  /api/moderation/route/approve:
+    post:
+      summary: "Одобрение маршрута"
+      description: "Позволяет модератору одобрить маршрут."
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                object_type:
+                  type: string
+                  enum: ["route", "post", "comment", "collection"]
+                object_id:
+                  type: integer
+              example:
+                user_id: 1
+                object_type: "route"
+                object_id: 1
+      responses:
+        200:
+          description: "Маршрут успешно одобрен"
+  /api/moderation/route/reject:
+    post:
+      summary: "Отклонение маршрута"
+      description: "Позволяет модератору отклонить маршрут."
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: "ID пользователя"
+                object_type:
+                  type: string
+                  enum: ["route", "post", "comment", "collection"]
+                object_id:
+                  type: integer
+                reason:
+                  type: string
+              example:
+                user_id: 1
+                object_type: "route"
+                object_id: 1
+                reason: "The route description is incomplete."
+      responses:
+        200:
+          description: "Маршрут отклонён"
+  /api/media/image/upload:
+    post:
+      summary: "Загрузка изображения"
+      description: "Позволяет загрузить изображение в MinIO. Возвращает JSON с уникальным именем изображения."
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Файл изображения"
+              required:
+                - file
+      responses:
+        "200":
+          description: "Изображение успешно загружено"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  image_url:
+                    type: string
+                    description: "Уникальное имя изображения (ключ), которое используется для получения изображения"
+                    example: "ee8ae9b6-8d0f-42c5-8581-fa75df64fc07_2.jpg"
+        "400":
+          description: "Ошибка запроса – файл не предоставлен"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "No file provided"
+        "500":
+          description: "Внутренняя ошибка сервиса при загрузке изображения"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Upload failed"
+  /api/media/image/{image-name}:
+    get:
+      summary: "Получение изображения"
+      description: "Позволяет получить изображение по его уникальному имени, загруженному в MinIO."
+      parameters:
+        - $ref: '#/components/parameters/ImageNameParam'
+      responses:
+        "200":
+          description: "Изображение успешно получено"
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: "Изображение не найдено"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Image not found"
+        "500":
+          description: "Внутренняя ошибка сервиса при получении изображения"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to collect object body"
+    delete:
+      summary: "Удаление изображения"
+      description: "Удаляет изображение по его уникальному имени из MinIO."
+      parameters:
+        - $ref: '#/components/parameters/ImageNameParam'
+      responses:
+        '200':
+          description: "Изображение успешно удалено"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: "Внутренняя ошибка сервиса при удалении изображения"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     sessionCookie:
       type: apiKey
       in: cookie
       name: session_token
+  headers:
+    PaginationCurrentPage:
+      description: "Текущая страница"
+      schema:
+        type: integer
+        example: 1
+    PaginationTotalElements:
+      description: "Общее количество элементов"
+      schema:
+        type: integer
+    PaginationPerPage:
+      description: "Количество элементов на странице"
+      schema:
+        type: integer
+        example: 10
+    PaginationTotalPages:
+      description: "Общее количество страниц"
+      schema:
+        type: integer
+        example: 1
+  parameters:
+    ImageNameParam:
+      name: image-name
+      in: path
+      required: true
+      description: "Уникальное имя изображения (ключ), возвращенное при загрузке"
+      schema:
+        type: string
+    PaginationPageNumber:
+      name: pagination-page-number
+      in: query
+      description: "Номер страницы (по умолчанию 1)"
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    PaginationPerPage:
+      name: pagination-per-page
+      in: query
+      description: "Количество элементов на странице (по умолчанию 10)"
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        example: 10
+    RouteIdParam:
+      name: route-id
+      in: path
+      required: true
+      description: "Идентификатор маршрута"
+      schema:
+        type: integer
+    ReviewIdParam:
+      name: review-id
+      in: path
+      required: true
+      description: "Идентификатор рецензии"
+      schema:
+        type: integer
+    CollectionIdParam:
+      name: collection-id
+      in: path
+      required: true
+      description: "Идентификатор подборки"
+      schema:
+        type: integer
+    CollectionIdHeader:
+      name: collection-id
+      in: header
+      required: true
+      description: "ID подборки"
+      schema:
+        type: integer
+    CommentIdParam:
+      name: comment-id
+      in: path
+      required: true
+      description: "Идентификатор комментария"
+      schema:
+        type: integer
+    UsernameParam:
+      name: username
+      in: path
+      required: true
+      description: "Имя пользователя"
+      schema:
+        type: string
+    SessionTokenCookie:
+      name: session_token
+      in: cookie
+      required: true
+      description: "Токен сессии пользователя"
+      schema:
+        type: string
+    SessionTokenHeader:
+      name: session-token
+      in: header
+      required: true
+      description: "Токен сессии"
+      schema:
+        type: string
   schemas:
     PublicUserProfileResponse:
       type: object
@@ -1358,3 +2007,30 @@ components:
       properties:
         token:
           type: string
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Image deleted successfully"
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Идентификатор комментария"
+        user_id:
+          type: integer
+          description: "ID пользователя, оставившего комментарий"
+        text:
+          type: string
+          description: "Текст комментария"
+        created_at:
+          type: string
+          format: date-time
+          description: "Дата создания комментария"
+        images:
+          type: array
+          items:
+            type: string
+          description: "Ссылки на изображения комментария"
