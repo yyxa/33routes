@@ -81,3 +81,28 @@ pub async fn get_image(
         }
     }
 }
+
+pub async fn delete_image(
+    Path(image_name): Path<String>,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let result = state
+        .s3_client
+        .delete_object()
+        .bucket(&state.bucket_name)
+        .key(&image_name)
+        .send()
+        .await;
+
+    match result {
+        Ok(_) => {
+            let response_body = json!({ "message": "Image deleted successfully" });
+            (StatusCode::OK, Json(response_body)).into_response()
+        }
+        Err(e) => {
+            eprintln!("S3 DeleteObject Error: {}", e);
+            let response_body = json!({ "error": "Failed to delete image" });
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(response_body)).into_response()
+        }
+    }
+}

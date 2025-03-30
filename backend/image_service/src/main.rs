@@ -36,7 +36,10 @@ async fn main() {
     let cors = CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any);
 
     let app = Router::new()
-        .route("/api/media/image/:image_name", get(handlers::get_image))
+        .route(
+            "/api/media/image/:image_name",
+            get(handlers::get_image).delete(handlers::delete_image),
+        )
         .route("/api/media/image/upload", post(handlers::upload_image))
         .with_state(app_state)
         .layer(cors);
