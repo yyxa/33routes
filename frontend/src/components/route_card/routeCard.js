@@ -122,9 +122,12 @@ const RouteCard = ({
 
         <div className="route-card-right">
           <div className="route-card-images-container">
-            <button className="arrow-button left" onClick={handleScrollLeft}>
-              &#8249;
-            </button>
+            <div className="left-button-container">
+              <button className="arrow-button left" onClick={handleScrollLeft}>
+                &#8249;
+              </button>
+            </div>
+
             <div className="route-card-images" ref={imagesContainerRef}>
               {images.length > 0 ? (
                 images.map((img, index) => (
@@ -134,42 +137,45 @@ const RouteCard = ({
                 <div className="no-image-placeholder">Нет изображений</div>
               )}
             </div>
-            <button className="arrow-button right" onClick={handleScrollRight}>
-              &#8250;
+
+            <div className="right-button-container">
+              <button className="arrow-button right" onClick={handleScrollRight}>
+                &#8250;
+              </button>
+            </div>
+          </div>
+          <div className="route-interaction-container">
+            <button
+              className={`eye-button ${isVisible ? 'active' : ''}`} // Меняем цвет кнопки
+              style={{
+                width: '25px',
+                height: '25px',
+                borderRadius: '50%',
+                position: 'relative',
+                bottom: '0px',
+                right: '0px',
+                backgroundColor: isVisible ? '#ccc' : '#fff', // Серый, если маршрут включен
+                border: '1px solid #ccc',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onClick={handleToggleRoute}
+              > <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
             </button>
+
+            <button
+              className="favorite-button"
+              onClick={handleToggleFavorite}
+              style={{
+                backgroundColor: isSaved ? '#ffe066' : '#fff',
+                borderColor: isSaved ? '#ffa500' : '#ccc',
+                color: isSaved ? '#d2691e' : '#333'
+              }}
+            >★</button>
           </div>
         </div>
-
-        <button
-          className={`eye-button ${isVisible ? 'active' : ''}`} // Меняем цвет кнопки
-          style={{
-            position: 'absolute',
-            bottom: '15px',
-            right: '60px',
-            width: '25px',
-            height: '25px',
-            borderRadius: '50%',
-            backgroundColor: isVisible ? '#ccc' : '#fff', // Серый, если маршрут включен
-            border: '1px solid #ccc',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          onClick={handleToggleRoute}
-        >
-        <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
-        </button>
-
-        <button
-          className="favorite-button"
-          onClick={handleToggleFavorite}
-          style={{
-            backgroundColor: isSaved ? '#ffe066' : '#fff',
-            borderColor: isSaved ? '#ffa500' : '#ccc',
-            color: isSaved ? '#d2691e' : '#333'
-          }}
-        >★</button>
       </div>
     </div>
   );
