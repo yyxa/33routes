@@ -74,89 +74,103 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
       routeFeature.setStyle(new Style({}));
       vectorSource.addFeature(routeFeature);
     }
-
     vectorLayerRef.current.setSource(vectorSource);
   }, [selectedRoute]);
 
   const toggleRouteOnMap = async (routeId) => {
 
-      if (!vectorLayerRef.current) return;
+    if (!vectorLayerRef.current) return;
 
-      const vectorSource = vectorLayerRef.current.getSource();
+    const vectorSource = vectorLayerRef.current.getSource();
 
-      if (visibleRoutes.includes(routeId)) {
+    if (visibleRoutes.includes(routeId)) {
+      vectorSource.getFeatures().forEach(feature => {
+        if (feature.get('routeId') === routeId) {
+          vectorSource.removeFeature(feature);
+        }
+      });
+      setVisibleRoutes(prevRoutes => prevRoutes.filter(id => id !== routeId));
+    } else {
+      try {
+        const response = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
+        const data = await response.json();
 
-          vectorSource.getFeatures().forEach(feature => {
-              if (feature.get('routeId') === routeId) {
-                  vectorSource.removeFeature(feature);
-              }
+        if (!data.points || data.points.length < 2) {
+          console.error(`⚠️ Ошибка: маршрут ${routeId} содержит ${data.points.length} точку(и). Нужны минимум 2!`);
+          return;
+        }
+
+        const filteredPoints = data.points.filter(p =>
+          p.coordinate.latitude > 50 && p.coordinate.latitude < 60 &&
+          p.coordinate.longitude > 30 && p.coordinate.longitude < 40
+        );
+
+        const sortedPoints = filteredPoints.sort((a, b) => a.time_offset - b.time_offset);
+
+        const points = sortedPoints.map(p =>
+          fromLonLat([p.coordinate.longitude, p.coordinate.latitude])
+        );
+
+        const startMarker = new Feature(new Point(points[0]));
+        startMarker.setStyle(new Style({
+          image: new Icon({
+            src: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+            scale: 1,
+          }),
+        }));
+        startMarker.set('routeId', routeId);
+        vectorSource.addFeature(startMarker);
+
+        const endMarker = new Feature(new Point(points[points.length - 1]));
+        endMarker.setStyle(new Style({
+          image: new Icon({
+            src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+            scale: 1,
+          }),
+        }));
+        endMarker.set('routeId', routeId);
+        vectorSource.addFeature(endMarker);
+
+        if (points.length > 1) {
+          const routeFeature = new Feature(new LineString(points));
+          routeFeature.setStyle(new Style({
+            stroke: new Stroke({ color: 'orange', width: 7 }),
+          }));
+          routeFeature.set('routeId', routeId);
+          vectorSource.addFeature(routeFeature);
+        }
+
+        if (mapRef.current && points.length > 0) {
+          mapRef.current.getView().animate({
+            center: points[0],
+            duration: 600,
+            zoom: 15, 
           });
+        }
 
-          setVisibleRoutes(prevRoutes => prevRoutes.filter(id => id !== routeId));
-      } else {
-          try {
-              const response = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
-              const data = await response.json();
+        setVisibleRoutes(prevRoutes => [...prevRoutes, routeId]);
 
-              if (!data.points || data.points.length < 2) {
-                  console.error(`⚠️ Ошибка: маршрут ${routeId} содержит ${data.points.length} точку(и). Нужны минимум 2!`);
-                  return;
-              }
+        data.points
+          .filter(p => p.images && p.images.length > 0)
+          .forEach(p => {
+            const coord = fromLonLat([p.coordinate.longitude, p.coordinate.latitude]);
+            const feature = new Feature(new Point(coord));
+            feature.setStyle(
+              new Style({
+                image: new Icon({
+                  src: 'https://openlayers.org/en/v4.6.5/examples/data/icon.png', // или своя иконка
+                  scale: 1,
+                }),
+              })
+            );
+            feature.set('routeId', routeId);
+            vectorSource.addFeature(feature);
+        });
 
-              const filteredPoints = data.points.filter(p =>
-                  p.coordinate.latitude > 50 && p.coordinate.latitude < 60 &&
-                  p.coordinate.longitude > 30 && p.coordinate.longitude < 40
-              );
-
-              const sortedPoints = filteredPoints.sort((a, b) => a.time_offset - b.time_offset);
-
-              const points = sortedPoints.map(p =>
-                  fromLonLat([p.coordinate.longitude, p.coordinate.latitude])
-              );
-
-              const startMarker = new Feature(new Point(points[0]));
-              startMarker.setStyle(new Style({
-                  image: new Icon({
-                      src: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                      scale: 1,
-                  }),
-              }));
-              startMarker.set('routeId', routeId);
-              vectorSource.addFeature(startMarker);
-
-              const endMarker = new Feature(new Point(points[points.length - 1]));
-              endMarker.setStyle(new Style({
-                  image: new Icon({
-                      src: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                      scale: 1,
-                  }),
-              }));
-              endMarker.set('routeId', routeId);
-              vectorSource.addFeature(endMarker);
-
-              if (points.length > 1) {
-                  const routeFeature = new Feature(new LineString(points));
-                  routeFeature.setStyle(new Style({
-                      stroke: new Stroke({ color: 'orange', width: 7 }),
-                  }));
-                  routeFeature.set('routeId', routeId);
-                  vectorSource.addFeature(routeFeature);
-              }
-
-              if (mapRef.current && points.length > 0) {
-                mapRef.current.getView().animate({
-                  center: points[0],
-                  duration: 600,
-                  zoom: 15, 
-                });
-              }
-
-              setVisibleRoutes(prevRoutes => [...prevRoutes, routeId]);
-
-          } catch (error) {
-              console.error('❌ Ошибка загрузки маршрута:', error);
-          }
+      } catch (error) {
+        console.error('❌ Ошибка загрузки маршрута:', error);
       }
+    }
   };
 
   const clearAllRoutes = () => {
