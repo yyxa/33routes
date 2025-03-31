@@ -603,6 +603,25 @@ paths:
           description: "Пользователь не найден"
         '500':
           description: "Внутренняя ошибка сервера"
+  /api/user/me:
+    get:
+      summary: "Получить свой юзернейм"
+      description: "Возвращает юзернейм текущего аутентифицированного пользователя. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
+      responses:
+        '200':
+          description: "Юзернейм успешно получен"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsernameResponse'
+        '401':
+          description: "Не авторизован"
+        '500':
+          description: "Ошибка сервера"
   /api/user/settings:
     get:
       summary: "Получить настройки пользователя"
@@ -2034,3 +2053,9 @@ components:
           items:
             type: string
           description: "Ссылки на изображения комментария"
+    UsernameResponse:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "john_doe"
