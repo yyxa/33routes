@@ -15,6 +15,35 @@ enum MyError {
     DbError(tokio_postgres::Error),
 }
 
+pub async fn get_my_username(
+    cookies: CookieJar,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    match state.db_client.query_one(
+        "SELECT username FROM users WHERE user_id = $1 AND is_deleted = FALSE",
+        &[&user_id],
+    ).await {
+        Ok(row) => {
+            let username: String = row.get("username");
+            axum::Json(serde_json::json!({ "username": username })).into_response()
+        },
+        Err(e) => {
+            eprintln!("Error fetching username: {}", e);
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
+
 pub async fn get_user_profile(
     State(state): State<AppState>,
     Path(username): Path<String>,
@@ -234,9 +263,12 @@ async fn fetch_public_user_profile(
 
     let reviews_rows = db_client
         .query(
-            "SELECT review_id, route_id, rating, comment, created_at, images 
-             FROM reviews 
-             WHERE user_id = $1 AND is_deleted = FALSE",
+            "SELECT r.review_id, r.route_id, r.rating, r.comment, r.created_at, r.images 
+             FROM reviews r
+             INNER JOIN routes rt ON r.route_id = rt.route_id
+             WHERE r.user_id = $1 
+             AND r.is_deleted = FALSE 
+             AND rt.is_deleted = FALSE",
             &[&user_id],
         )
         .await
