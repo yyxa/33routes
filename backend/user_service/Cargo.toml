@@ -16,3 +16,4 @@ tower-http = { version = "0.6.1", features = ["cors"] }
 chrono = { version = "0.4", features = ["serde"] }
 reqwest = { version = "0.11", features = ["json", "cookies"] }
 redis = { version = "0.24", features = ["tokio-comp"] }
+postgres-types = { version = "0.2.8", features = ["derive"] }

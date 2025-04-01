@@ -3,6 +3,39 @@ use std::sync::Arc;
 use tokio_postgres::Client;
 use chrono::NaiveDateTime;
 use redis::Client as RedisClient;
+use postgres_types::{ToSql, FromSql};
+
+#[derive(Debug, Serialize, Deserialize, ToSql, FromSql)]
+#[postgres(name = "tag_type")]
+#[serde(rename_all = "lowercase")]
+pub enum TagType {
+    #[postgres(name = "forest")]
+    Forest,
+    #[postgres(name = "park")]
+    Park,
+    #[postgres(name = "near_water")]
+    NearWater,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSql, FromSql)]
+#[postgres(name = "category_type")]
+#[serde(rename_all = "lowercase")]
+pub enum CategoryType {
+    #[postgres(name = "walking")]
+    Walking,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSql, FromSql)]
+#[postgres(name = "route_status_type")]
+#[serde(rename_all = "lowercase")]
+pub enum RouteStatus {
+    #[postgres(name = "pending")]
+    Pending,
+    #[postgres(name = "approved")]
+    Approved,
+    #[postgres(name = "rejected")]
+    Rejected,
+}
 
 #[derive(Clone)]
 pub struct AppState {
@@ -42,11 +75,11 @@ pub struct Route {
     pub description: Option<String>,
     pub length: i32,
     pub duration: i64,
-    pub tags: Option<Vec<String>>,
-    pub category: String,
+    pub tags: Option<Vec<TagType>>,
+    pub category: CategoryType,
     pub created_at: NaiveDateTime,
-    pub status: String,
-    pub rating: f32,
+    pub status: RouteStatus,
+    pub rating: f64,
     pub images: Option<Vec<String>>,
 }
 
@@ -54,10 +87,10 @@ pub struct Route {
 pub struct Collection {
     pub collection_id: i32,
     pub name: String,
-    pub rating: Option<f32>,
+    pub rating: Option<f64>,
     pub url: String,
     pub description: Option<String>,
-    pub tags: Option<Vec<String>>,
+    pub tags: Option<Vec<TagType>>,
     pub created_at: NaiveDateTime,
 }
 
@@ -65,7 +98,7 @@ pub struct Collection {
 pub struct Review {
     pub review_id: i32,
     pub route_id: i32,
-    pub rating: Option<f32>,
+    pub rating: Option<f64>,
     pub comment: Option<String>,
     pub created_at: NaiveDateTime,
     pub images: Option<Vec<String>>,
@@ -77,7 +110,7 @@ pub struct CompletedRoute {
     pub completed_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct UserSettings {
     pub show_phone: bool,
     pub show_planned: bool,

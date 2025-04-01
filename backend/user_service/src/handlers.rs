@@ -105,7 +105,6 @@ pub async fn delete_user_profile(
     }
 }
 
-
 pub async fn get_user_settings(
     cookies: CookieJar,
     State(state): State<AppState>,
