@@ -95,3 +95,12 @@ pub struct UserSettingsUpdate {
 pub struct DeleteUserProfileRequest {
     pub username: String,
 }
+
+#[derive(Debug, Serialize)]
+pub struct UserBriefResponse {
+    pub user_id: i32,
+    pub username: String,
+    pub name: String,
+    pub surname: Option<String>,
+    pub avatar_url: Option<String>,
+}

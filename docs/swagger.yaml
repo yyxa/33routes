@@ -594,6 +594,28 @@ paths:
           description: "Пользователь не найден"
         '500':
           description: "Внутренняя ошибка сервера"
+  /api/user/{user-id}/brief:
+    get:
+      summary: "Получить краткую информацию о пользователе"
+      description: "Возвращает краткое представление профиля пользователя: user_id, username, name, surname и avatar_url."
+      parameters:
+        - name: user-id
+          in: path
+          required: true
+          description: "Уникальный идентификатор пользователя"
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: "Краткая информация о пользователе успешно получена"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBriefResponse'
+        '404':
+          description: "Пользователь не найден"
+        '500':
+          description: "Внутренняя ошибка сервера"
   /api/user/delete:
     delete:
       summary: "Удалить профиль пользователя"
@@ -2096,3 +2118,23 @@ components:
         username:
           type: string
           example: "john_doe"
+    UserBriefResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: "Уникальный идентификатор пользователя"
+        username:
+          type: string
+          description: "Логин или псевдоним пользователя"
+        name:
+          type: string
+          description: "Имя пользователя"
+        surname:
+          type: string
+          nullable: true
+          description: "Фамилия пользователя (если указана)"
+        avatar_url:
+          type: string
+          nullable: true
+          description: "Ссылка на фотографию профиля пользователя"

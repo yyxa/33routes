@@ -331,3 +331,28 @@ async fn fetch_public_user_profile(
         completed_routes,
     })
 }
+
+pub async fn get_user_brief(
+    State(state): State<AppState>,
+    Path(user_id): Path<i32>,
+) -> impl IntoResponse {
+    match state.db_client.query_one(
+        "SELECT user_id, username, name, surname, avatar_url FROM users WHERE user_id = $1 AND is_deleted = FALSE",
+        &[&user_id],
+    ).await {
+        Ok(row) => {
+            let brief = UserBriefResponse {
+                user_id: row.get("user_id"),
+                username: row.get("username"),
+                name: row.get("name"),
+                surname: row.get("surname"),
+                avatar_url: row.get("avatar_url"),
+            };
+            axum::Json(brief).into_response()
+        },
+        Err(e) => {
+            eprintln!("Error fetching user brief: {}", e);
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
