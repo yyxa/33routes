@@ -1,12 +1,23 @@
 SHELL := /bin/bash
 
-.PadfasHONY: all
-all: build run
+.PHONY: all 
+all: build up
 
-.PHONY: build
+.PHONY: build 
 build:
-	docker build -t 33routes_frontend .
+	@docker-compose build
 
-.PHONY: run
-run: 
-	docker run -d -p 3000:3000 33routes_frontend
+.PHONY: up
+up:
+	@docker-compose up -d
+
+.PHONY: down
+down:
+	@docker-compose down
+
+.PHONY: restart
+restart: down all
+
+.PHONY: logs
+logs:
+	@docker-compose logs -f  --tail 100

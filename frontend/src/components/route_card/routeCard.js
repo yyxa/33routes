@@ -1,7 +1,5 @@
-// src/components/route_card/routeCard.js
-
-import React, { useState, useRef } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useOutletContext, useNavigate, useLocation } from 'react-router-dom';
 import './routeCard.css';
 import showIcon from './images/show.svg';
 
@@ -14,71 +12,89 @@ const RouteCard = ({
   rating,
   images = [],
   authorImage,
-
-  user,                // <-- добавлено: текущий пользователь (null, если не авторизован)
-  onOpenAuthModal,     // <-- добавлено: открыть окно авторизации
+  user,
+  onOpenAuthModal,
   onShowRoute,
   onOpenRouteDetail,
 }) => {
-  const [scrollOffset, setScrollOffset] = useState(0);
   const imagesContainerRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false); // ✅ Состояние кнопки глазика
-  const { toggleRouteOnMap } = useOutletContext();
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleToggleRoute = () => {
-    toggleRouteOnMap(id);  // Вызываем функцию отображения / скрытия маршрута
-    setIsVisible(!isVisible);
+  const { toggleRouteOnMap } = useOutletContext();
+  const navigate = useNavigate();
+  const location = useLocation(); // <== for backgroundLocation
+
+  const IMAGE_WIDTH = 140;
+  const GAP = 15;
+  const VISIBLE_WIDTH = IMAGE_WIDTH * 2.5;
+
+  const updateGradient = (offset) => {
+    const maxOffset = Math.max(0, images.length * (IMAGE_WIDTH + GAP) - GAP - VISIBLE_WIDTH);
+    const wrapper = imagesContainerRef.current?.parentElement;
+    if (!wrapper) return;
+
+    let mask = '';
+
+    if (offset > 0 && offset < maxOffset) {
+      mask = 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 10%, rgba(255,255,255,1) 90%, rgba(255,255,255,0) 100%)';
+    } else if (offset === 0 && offset < maxOffset) {
+      mask = 'linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 90%, rgba(255,255,255,0) 100%)';
+    } else if (offset > 0 && offset === maxOffset) {
+      mask = 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 10%, rgba(255,255,255,1) 100%)';
+    } else {
+      mask = 'none';
+    }
+
+    wrapper.style.maskImage = mask;
+    wrapper.style.webkitMaskImage = mask;
+    wrapper.style.maskSize = '100% 100%';
+    wrapper.style.maskRepeat = 'no-repeat';
+    wrapper.style.transition = 'mask-image 0.5s ease';
   };
 
-  const handleScrollLeft = () => {
+  useEffect(() => {
+    const maxOffset = Math.max(0, images.length * (IMAGE_WIDTH + GAP) - GAP - VISIBLE_WIDTH);
+    setShowLeftArrow(scrollOffset > 0);
+    setShowRightArrow(scrollOffset < maxOffset);
+    updateGradient(scrollOffset);
+  }, [scrollOffset, images]);
+
+  useEffect(() => {
     if (imagesContainerRef.current) {
-      const newOffset = Math.max(scrollOffset - 140, 0);
-      setScrollOffset(newOffset);
-      imagesContainerRef.current.style.transform = `translateX(-${newOffset}px)`;
+      imagesContainerRef.current.style.transform = `translateX(-${scrollOffset}px)`;
     }
+  }, [scrollOffset]);
+
+  const handleScrollLeft = () => {
+    const newOffset = Math.max(scrollOffset - (IMAGE_WIDTH + GAP), 0);
+    setScrollOffset(newOffset);
   };
 
   const handleScrollRight = () => {
-    if (imagesContainerRef.current) {
-      const newOffset = Math.min(
-        scrollOffset + 140,
-        images.length * 140 - imagesContainerRef.current.clientWidth
-      );
-      setScrollOffset(newOffset);
-      imagesContainerRef.current.style.transform = `translateX(-${newOffset}px)`;
-    }
+    const maxOffset = Math.max(0, images.length * (IMAGE_WIDTH + GAP) - GAP - VISIBLE_WIDTH);
+    const newOffset = Math.min(scrollOffset + (IMAGE_WIDTH + GAP), maxOffset);
+    setScrollOffset(newOffset);
   };
 
-  // Клик по карточке (кроме кнопок)
-  const handleCardClick = (e) => {
-    if (e.target.closest('.eye-button') || e.target.closest('.favorite-button')) {
-      // Клик был по кнопкам – не переходим
-      return;
-    }
-    // Иначе открываем детальную инфу
-    if (onOpenRouteDetail) {
-      onOpenRouteDetail(id);
-    }
+  const handleToggleRoute = () => {
+    toggleRouteOnMap(id);
+    setIsVisible(!isVisible);
   };
 
   const handleToggleFavorite = async (e) => {
-    e.stopPropagation(); // чтобы не сработал переход по карточке
-  
+    e.stopPropagation();
     try {
       const res = await fetch('http://localhost:8100/api/route/save', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // ✅ важно: чтобы кука ушла на бэкенд
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ route_id: id }),
       });
-  
-      if (res.ok) {
-        setIsSaved(true);
-      } else if (res.status === 409) {
-        console.warn('Уже сохранено');
+      if (res.ok || res.status === 409) {
         setIsSaved(true);
       } else {
         console.error('Не удалось сохранить маршрут');
@@ -86,12 +102,67 @@ const RouteCard = ({
     } catch (err) {
       console.error('Ошибка запроса:', err);
     }
-  };  
+  };
+
+  const handleImageClick = (imgUrl) => {
+    const imageName = imgUrl.split('/').pop();
+    navigate(`/image/${imageName}`, { state: { backgroundLocation: location } });
+  };
+
+  const renderImageBlock = () => {
+    const containerStyle = {
+      width: `${VISIBLE_WIDTH}px`,
+      justifyContent: images.length <= 2 ? 'flex-end' : 'flex-start',
+    };
+
+    return (
+      <div className="route-card-right">
+        <div className="route-card-images-wrapper" style={containerStyle}>
+          <div className="route-card-images-container">
+            {images.length > 2 && (
+              <div className={`left-button-container ${showLeftArrow ? 'arrow-visible' : 'arrow-fade'}`}>
+                <button className="arrow-button left" onClick={handleScrollLeft}>
+                  &#8249;
+                </button>
+              </div>
+            )}
+
+            <div className="route-card-images" ref={imagesContainerRef}>
+              {images.length > 0 ? (
+                images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`route-img-${index}`}
+                    className="route-image"
+                    onClick={() => handleImageClick(img)}
+                    style={{ cursor: 'zoom-in' }}
+                  />
+                ))
+              ) : (
+                <div className="no-image-placeholder">Нет изображений</div>
+              )}
+            </div>
+
+            {images.length > 2 && (
+              <div className={`right-button-container ${showRightArrow ? 'arrow-visible' : 'arrow-fade'}`}>
+                <button className="arrow-button right" onClick={handleScrollRight}>
+                  &#8250;
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="route-card" onClick={handleCardClick}>
+    <div className="route-card">
       <div className="route-card-header">
-        <h3 className="route-name">{name}</h3>
+        <Link to={`/route/${id}`} className="route-name route-name-link">
+          {name}
+        </Link>
         <div className="route-author-avatar">
           <img src={authorImage} alt="Автор маршрута" className="author-image" />
         </div>
@@ -100,81 +171,51 @@ const RouteCard = ({
       <div className="route-card-body">
         <div className="route-card-left">
           <p className="route-description">{description}</p>
-          <div className="route-card-info">
-            <span className="route-distance">
-              {(distance / 1000).toFixed(1)} км
-            </span>
-            <span className="route-duration">{
-              (duration > 3600 ? (
-                (duration / 3600).toFixed(0)
-              ) : (
-                (duration / 60).toFixed(0)
-              )
-            )} {duration > 3600 ? 'ч' : 'мин'}  {
-              (duration > 3600 && (
-                (duration % 3600 / 60).toFixed(0)
-              )
-            )} {duration > 3600 && 'мин'}
-            </span>
-          <span className="route-rating">{rating}★</span>
-          </div>
+        </div>
+        {images.length > 0 && renderImageBlock()}
+      </div>
+
+      <div className="route-bottom-bar">
+        <div className="route-card-info">
+          <span>{(distance / 1000).toFixed(1)} км</span>
+          <span>
+            {(duration > 3600
+              ? Math.floor(duration / 3600) + ' ч ' + Math.round((duration % 3600) / 60)
+              : Math.round(duration / 60)) + ' мин'}
+          </span>
+          <span>{rating}★</span>
         </div>
 
-        <div className="route-card-right">
-          <div className="route-card-images-container">
-            <div className="left-button-container">
-              <button className="arrow-button left" onClick={handleScrollLeft}>
-                &#8249;
-              </button>
-            </div>
+        <div className="route-interaction-container">
+          <button
+            className="eye-button"
+            style={{
+              width: '25px',
+              height: '25px',
+              borderRadius: '50%',
+              backgroundColor: isVisible ? '#ccc' : '#fff',
+              border: '1px solid #ccc',
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onClick={handleToggleRoute}
+          >
+            <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
+          </button>
 
-            <div className="route-card-images" ref={imagesContainerRef}>
-              {images.length > 0 ? (
-                images.map((img, index) => (
-                  <img key={index} src={img} alt={`route-img-${index}`} className="route-image" />
-                ))
-              ) : (
-                <div className="no-image-placeholder">Нет изображений</div>
-              )}
-            </div>
-
-            <div className="right-button-container">
-              <button className="arrow-button right" onClick={handleScrollRight}>
-                &#8250;
-              </button>
-            </div>
-          </div>
-          <div className="route-interaction-container">
-            <button
-              className={`eye-button ${isVisible ? 'active' : ''}`} // Меняем цвет кнопки
-              style={{
-                width: '25px',
-                height: '25px',
-                borderRadius: '50%',
-                position: 'relative',
-                bottom: '0px',
-                right: '0px',
-                backgroundColor: isVisible ? '#ccc' : '#fff', // Серый, если маршрут включен
-                border: '1px solid #ccc',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              onClick={handleToggleRoute}
-              > <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
-            </button>
-
-            <button
-              className="favorite-button"
-              onClick={handleToggleFavorite}
-              style={{
-                backgroundColor: isSaved ? '#ffe066' : '#fff',
-                borderColor: isSaved ? '#ffa500' : '#ccc',
-                color: isSaved ? '#d2691e' : '#333'
-              }}
-            >★</button>
-          </div>
+          <button
+            className="favorite-button"
+            onClick={handleToggleFavorite}
+            style={{
+              backgroundColor: isSaved ? '#ffe066' : '#fff',
+              borderColor: isSaved ? '#ffa500' : '#ccc',
+              color: isSaved ? '#d2691e' : '#333',
+            }}
+          >
+            ★
+          </button>
         </div>
       </div>
     </div>

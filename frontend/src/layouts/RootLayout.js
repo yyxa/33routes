@@ -202,13 +202,14 @@ vectorLayerRef.current = vectorLayer;
           vectorSource.addFeature(routeFeature);
         }
 
-        if (mapRef.current && points.length > 0) {
-          mapRef.current.getView().animate({
-            center: points[0],
-            duration: 600,
-            zoom: 15, 
+        if (mapRef.current && points.length > 1) {
+          const extent = new LineString(points).getExtent();
+          mapRef.current.getView().fit(extent, {
+            padding: [50, 50, 50, 50], // отступы от краёв
+            duration: 600,            // анимация
+            maxZoom: 17               // чтобы не зазумить слишком близко
           });
-        }
+        }        
 
         setVisibleRoutes(prevRoutes => [...prevRoutes, routeId]);
 

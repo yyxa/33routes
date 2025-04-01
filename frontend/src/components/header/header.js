@@ -3,13 +3,13 @@ import './header.css';
 
 const Header = ({ onLoginClick, user }) => {
   const handleAvatarClick = () => {
-    if (!user) { // Проверяем, авторизован ли пользователь
-      console.log("Opening AuthModal..."); // Отладочное сообщение
+    if (!user) {
+      console.log("Opening AuthModal...");
       if (onLoginClick) {
-        onLoginClick(); // Вызываем функцию для открытия модального окна
+        onLoginClick();
       }
     } else {
-      console.log("User is already logged in."); // Здесь можно добавить логику для авторизованного пользователя
+      console.log("User is already logged in.");
     }
   };
 
@@ -21,11 +21,13 @@ const Header = ({ onLoginClick, user }) => {
     <div className="header-container">
       <header className="header">
         <div className="logo">
-          <div className="logo-icon"></div>
+          <a href="/" style={{ textDecoration: 'none' }}>
+            <div className="logo-icon" />
+          </a>
         </div>
         <div className="header-actions">
           <div className="avatar-placeholder" onClick={handleAvatarClick}>
-            <span>{user ? user.name : 'Login'}</span> {/* Показываем имя пользователя, если он авторизован */}
+            <span>{user ? user.name : 'Login'}</span>
           </div>
           <button className="menu-button" onClick={handleMenuClick}>
             ...

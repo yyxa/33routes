@@ -134,6 +134,9 @@ upload-images:
 			s3 cp $$file s3://$(MINIO_BUCKET)/$$(basename $$file); \
 	done
 
+.PHONY: add-data
+add-data: pg-seed-data upload-images
+
 .PHONY: rm-pg-data
 rm-pg-data:
 	@rm -rf database/postgres/data
@@ -142,8 +145,15 @@ rm-pg-data:
 rm-redis-data:
 	@rm -rf database/redis/data
 
+.PHONY: rm-minio-data
+rm-minio-data:
+	@rm -rf database/minio/.minio.sys database/minio/33routes-media
+
+.PHONY: drop-data
+drop-data: rm-pg-data rm-redis-data rm-minio-data
+
 .PHONY: clear-all
-clear-all: clear rm-pg-data
+clear-all: clear drop-data
 
 .PHONY: clear
 clear:
