@@ -12,7 +12,7 @@ const RouteCard = ({
   rating,
   images = [],
   authorImage,
-  user,
+  authorUsername,
   onOpenAuthModal,
   onShowRoute,
   onOpenRouteDetail,
@@ -26,7 +26,7 @@ const RouteCard = ({
 
   const { toggleRouteOnMap } = useOutletContext();
   const navigate = useNavigate();
-  const location = useLocation(); // <== for backgroundLocation
+  const location = useLocation();
 
   const IMAGE_WIDTH = 140;
   const GAP = 15;
@@ -70,14 +70,12 @@ const RouteCard = ({
   }, [scrollOffset]);
 
   const handleScrollLeft = () => {
-    const newOffset = Math.max(scrollOffset - (IMAGE_WIDTH + GAP), 0);
-    setScrollOffset(newOffset);
+    setScrollOffset(Math.max(scrollOffset - (IMAGE_WIDTH + GAP), 0));
   };
 
   const handleScrollRight = () => {
     const maxOffset = Math.max(0, images.length * (IMAGE_WIDTH + GAP) - GAP - VISIBLE_WIDTH);
-    const newOffset = Math.min(scrollOffset + (IMAGE_WIDTH + GAP), maxOffset);
-    setScrollOffset(newOffset);
+    setScrollOffset(Math.min(scrollOffset + (IMAGE_WIDTH + GAP), maxOffset));
   };
 
   const handleToggleRoute = () => {
@@ -96,8 +94,6 @@ const RouteCard = ({
       });
       if (res.ok || res.status === 409) {
         setIsSaved(true);
-      } else {
-        console.error('Не удалось сохранить маршрут');
       }
     } catch (err) {
       console.error('Ошибка запроса:', err);
@@ -109,53 +105,35 @@ const RouteCard = ({
     navigate(`/image/${imageName}`, { state: { backgroundLocation: location } });
   };
 
-  const renderImageBlock = () => {
-    const containerStyle = {
-      width: `${VISIBLE_WIDTH}px`,
-      justifyContent: images.length <= 2 ? 'flex-end' : 'flex-start',
-    };
-
-    return (
-      <div className="route-card-right">
-        <div className="route-card-images-wrapper" style={containerStyle}>
-          <div className="route-card-images-container">
-            {images.length > 2 && (
-              <div className={`left-button-container ${showLeftArrow ? 'arrow-visible' : 'arrow-fade'}`}>
-                <button className="arrow-button left" onClick={handleScrollLeft}>
-                  &#8249;
-                </button>
-              </div>
-            )}
-
-            <div className="route-card-images" ref={imagesContainerRef}>
-              {images.length > 0 ? (
-                images.map((img, index) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`route-img-${index}`}
-                    className="route-image"
-                    onClick={() => handleImageClick(img)}
-                    style={{ cursor: 'zoom-in' }}
-                  />
-                ))
-              ) : (
-                <div className="no-image-placeholder">Нет изображений</div>
-              )}
+  const renderImageBlock = () => (
+    <div className="route-card-right">
+      <div className="route-card-images-wrapper" style={{ width: `${VISIBLE_WIDTH}px`, justifyContent: images.length <= 2 ? 'flex-end' : 'flex-start' }}>
+        <div className="route-card-images-container">
+          {images.length > 2 && (
+            <div className={`left-button-container ${showLeftArrow ? 'arrow-visible' : 'arrow-fade'}`}>
+              <button className="arrow-button left" onClick={handleScrollLeft}>&#8249;</button>
             </div>
+          )}
 
-            {images.length > 2 && (
-              <div className={`right-button-container ${showRightArrow ? 'arrow-visible' : 'arrow-fade'}`}>
-                <button className="arrow-button right" onClick={handleScrollRight}>
-                  &#8250;
-                </button>
-              </div>
+          <div className="route-card-images" ref={imagesContainerRef}>
+            {images.length > 0 ? (
+              images.map((img, index) => (
+                <img key={index} src={img} alt={`route-img-${index}`} className="route-image" onClick={() => handleImageClick(img)} />
+              ))
+            ) : (
+              <div className="no-image-placeholder">Нет изображений</div>
             )}
           </div>
+
+          {images.length > 2 && (
+            <div className={`right-button-container ${showRightArrow ? 'arrow-visible' : 'arrow-fade'}`}>
+              <button className="arrow-button right" onClick={handleScrollRight}>&#8250;</button>
+            </div>
+          )}
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   return (
     <div className="route-card">
@@ -163,9 +141,9 @@ const RouteCard = ({
         <Link to={`/route/${id}`} className="route-name route-name-link">
           {name}
         </Link>
-        <div className="route-author-avatar">
+        <Link to={`/user/${authorUsername}`} className="route-author-avatar">
           <img src={authorImage} alt="Автор маршрута" className="author-image" />
-        </div>
+        </Link>
       </div>
 
       <div className="route-card-body">
@@ -178,16 +156,12 @@ const RouteCard = ({
       <div className="route-bottom-bar">
         <div className="route-card-info">
           <span>{(distance / 1000).toFixed(1)} км</span>
-          <span>
-            {(duration > 3600
-              ? Math.floor(duration / 3600) + ' ч ' + Math.round((duration % 3600) / 60)
-              : Math.round(duration / 60)) + ' мин'}
-          </span>
+          <span>{(duration > 3600 ? Math.floor(duration / 3600) + ' ч ' + Math.round((duration % 3600) / 60) : Math.round(duration / 60)) + ' мин'}</span>
           <span>{rating}★</span>
         </div>
 
         <div className="route-interaction-container">
-          <button
+        <button
             className="eye-button"
             style={{
               width: '25px',

@@ -8,6 +8,7 @@ import RoutePage from './pages/route_page/RoutePage';
 import CollectionPage from './pages/collection_page/CollectionPage';
 import AuthModal from './components/auth_modal/AuthModal';
 import ImageViewer from './components/image_viewer/ImageViewer';
+import UserPage from './pages/user_page/UserPage';
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -64,10 +65,7 @@ function AppContent() {
   return (
     <>
       {showAuthModal && (
-        <AuthModal
-          onClose={closeAuthModal}
-          onLogin={handleLogin}
-        />
+        <AuthModal onClose={closeAuthModal} onLogin={handleLogin} />
       )}
 
       <Routes location={backgroundLocation}>
@@ -84,6 +82,7 @@ function AppContent() {
           <Route index element={<SearchPage />} />
           <Route path="route/:routeId" element={<RoutePage />} />
           <Route path="collection/:collectionId" element={<CollectionPage />} />
+          <Route path="user/:username" element={<UserPage />} />
         </Route>
       </Routes>
 

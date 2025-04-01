@@ -1,5 +1,3 @@
-// src/pages/search_page/SearchPage.jsx
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
@@ -11,12 +9,10 @@ import Button from '../../components/buttons/button';
 import RouteCard from '../../components/route_card/routeCard';
 import CollectionCard from '../../components/collection_card/collectionCard';
 
-import './SearchPage.css'; // Стили, если нужно
+import './SearchPage.css';
 
 const SearchPage = () => {
   const navigate = useNavigate();
-
-  // По дефолту показываем "МАРШРУТЫ"
   const [activeRouteButton, setActiveRouteButton] = useState('МАРШРУТЫ');
   const [activeSortButton, setActiveSortButton] = useState('');
 
@@ -24,75 +20,64 @@ const SearchPage = () => {
   const [collections, setCollections] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // Добавляем новые состояния
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   const { clearAllRoutes } = useOutletContext();
 
-
   const fetchRoutes = useCallback(async (page = 1, perPage = 5) => {
-    console.log('Начало fetchRoutes, страница:', page);
-    
-    if (loading) {
-      console.log('Загрузка остановлена - идёт предыдущая загрузка');
-      return;
-    }
-    
+    if (loading) return;
     setLoading(true);
-    
+
     try {
-      console.log('Отправка запроса для страницы:', page);
       const res = await fetch(`http://localhost:8100/api/route/routes?pagination-page-number=${page}&pagination-per-page=${perPage}`);
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      console.log('Получены данные:', data);
-      
+
       const currentPage = parseInt(res.headers.get('pagination-current-page')) || 1;
       const totalPages = parseInt(res.headers.get('pagination-total-pages')) || 1;
-      
-      console.log('Заголовки пагинации:', { currentPage, totalPages });
-      
+
       const routePromises = data.routes.map(async (id) => {
         const detailRes = await fetch(`http://localhost:8100/api/route/route/${id}`);
-        return detailRes.json();
+        const detailData = await detailRes.json();
+
+        const route = detailData.route;
+        const user = detailData.user;
+
+        const briefRes = await fetch(`http://localhost:8100/api/user/${user.user_id}/brief`);
+        const brief = await briefRes.json();
+
+        return {
+          id: route.route_id,
+          name: route.name,
+          description: route.description,
+          distance: route.length,
+          duration: route.duration,
+          rating: route.rating,
+          images: (route.images || []).map(name => `http://localhost:8100/api/media/image/${name}`),
+          authorImage: user.image_url
+            ? `http://localhost:8100/api/media/image/${user.image_url}`
+            : 'http://localhost:8100/api/media/image/default-avatar.svg',
+          authorUsername: brief.username,
+        };
       });
-  
+
       const newRoutes = await Promise.all(routePromises);
-      
+
       setRoutes(prev => [
-        ...prev, 
-        ...newRoutes.filter(r => !prev.some(existing => existing.id === r.route.route_id))
-                   .map(r => ({
-                      id: r.route.route_id,
-                      name: r.route.name,
-                      description: r.route.description,
-                      distance: r.route.length,
-                      duration: r.route.duration,
-                      rating: r.route.rating,
-                      images: (r.route.images || []).map(name => `http://localhost:8100/api/media/image/${name}`),
-                      authorImage: r.user.image_url
-                      ? `http://localhost:8100/api/media/image/${r.user.image_url}`
-                      : 'http://localhost:8100/api/media/image/default-avatar.svg', // если пусто — подставляется заглушка
-                    }))
+        ...prev,
+        ...newRoutes.filter(r => !prev.some(existing => existing.id === r.id)),
       ]);
-  
+
       setCurrentPage(currentPage);
       setTotalPages(totalPages);
       setHasMore(data.routes.length > 0);
-      
     } catch (err) {
       console.error('Ошибка загрузки маршрутов:', err);
     } finally {
       setLoading(false);
     }
   }, [loading]);
-
 
   const fetchCollections = async () => {
     try {
@@ -119,7 +104,7 @@ const SearchPage = () => {
       setRoutes([]);
       setCurrentPage(1);
       fetchRoutes(1);
-    } else if (activeRouteButton === 'ПОДБОРКИ') {
+    } else {
       setCollections([]);
       setCurrentPage(1);
       fetchCollections(1);
@@ -128,45 +113,41 @@ const SearchPage = () => {
 
   useEffect(() => {
     const leftBlock = document.querySelector('.left-block');
-    
+
     const handleScroll = () => {
       if (!leftBlock) return;
-      
+
       const scrollTop = leftBlock.scrollTop;
       const scrollHeight = leftBlock.scrollHeight;
       const clientHeight = leftBlock.clientHeight;
       const maxScroll = scrollHeight - clientHeight;
-      
-      // Если проскроллили дальше максимальной позиции, возвращаем на максимальную
+
       if (scrollTop > maxScroll) {
         leftBlock.scrollTop = maxScroll;
         return;
       }
-      
+
       const threshold = 300;
-      
-      if (scrollTop + clientHeight >= scrollHeight - threshold && 
-          !loading && 
-          hasMore && 
-          scrollTop > 0) {
+
+      if (scrollTop + clientHeight >= scrollHeight - threshold &&
+          !loading && hasMore && scrollTop > 0) {
         if (activeRouteButton === 'МАРШРУТЫ') {
           fetchRoutes(currentPage + 1);
-        } else if (activeRouteButton === 'ПОДБОРКИ') {
+        } else {
           fetchCollections(currentPage + 1);
         }
       }
     };
 
-    const throttledHandleScroll = _.throttle(handleScroll, 200);
+    const throttledScroll = _.throttle(handleScroll, 200);
 
-    leftBlock?.addEventListener('scroll', throttledHandleScroll);
+    leftBlock?.addEventListener('scroll', throttledScroll);
     return () => {
-      leftBlock?.removeEventListener('scroll', throttledHandleScroll);
-      throttledHandleScroll.cancel();
+      leftBlock?.removeEventListener('scroll', throttledScroll);
+      throttledScroll.cancel();
     };
   }, [loading, hasMore, currentPage, fetchRoutes, fetchCollections, activeRouteButton]);
 
-  // Сброс активных кнопок при клике вне сортировки (пример)
   useEffect(() => {
     const handleDocumentClick = (event) => {
       if (!event.target.closest('.sort-filter-container')) {
@@ -177,97 +158,52 @@ const SearchPage = () => {
     return () => document.removeEventListener('click', handleDocumentClick);
   }, []);
 
-  // Клики на кнопки
-  const handleRouteButtonClick = (buttonType) => {
-    setActiveRouteButton(buttonType);
+  const handleRouteButtonClick = (type) => setActiveRouteButton(type);
+  const handleSortButtonClick = (type) => setActiveSortButton(prev => prev === type ? '' : type);
+  const handleOpenRouteDetail = (id) => {
+    clearAllRoutes?.();
+    navigate(`/route/${id}`);
   };
-
-  const handleSortButtonClick = (buttonType) => {
-    setActiveSortButton((prev) => (prev === buttonType ? '' : buttonType));
-  };
-
-  // При клике на маршрут — переходим на /route/{id}
-  const handleOpenRouteDetail = (routeId) => {
-    clearAllRoutes?.(); // сброс перед переходом на страницу маршрута
-    navigate(`/route/${routeId}`);
-  };
-
-  // При клике на подборку — /collection/{id}
-  const handleOpenCollectionDetail = (collectionId) => {
-    navigate(`/collection/${collectionId}`);
-  };
+  const handleOpenCollectionDetail = (id) => navigate(`/collection/${id}`);
 
   return (
     <div className="search-page">
-      <Helmet>
-        <title>33routes - Поиск</title>
-      </Helmet>
-
-      {/* Поиск */}
+      <Helmet><title>33routes - Поиск</title></Helmet>
       <SearchBar />
 
-      {/* Кнопки «МАРШРУТЫ» / «ПОДБОРКИ» */}
       <div className="button-groups">
         <div className="type-button-container">
-          <Button
-            label="МАРШРУТЫ"
-            variant={activeRouteButton === 'МАРШРУТЫ' ? 'dark' : 'white'}
-            onClick={() => handleRouteButtonClick('МАРШРУТЫ')}
-          />
-          <Button
-            label="ПОДБОРКИ"
-            variant={activeRouteButton === 'ПОДБОРКИ' ? 'dark' : 'white'}
-            onClick={() => handleRouteButtonClick('ПОДБОРКИ')}
-          />
+          <Button label="МАРШРУТЫ" variant={activeRouteButton === 'МАРШРУТЫ' ? 'dark' : 'white'} onClick={() => handleRouteButtonClick('МАРШРУТЫ')} />
+          <Button label="ПОДБОРКИ" variant={activeRouteButton === 'ПОДБОРКИ' ? 'dark' : 'white'} onClick={() => handleRouteButtonClick('ПОДБОРКИ')} />
         </div>
-
         <div className="sort-filter-container">
-          <Button
-            label="СОРТИРОВАТЬ"
-            variant={activeSortButton === 'СОРТИРОВАТЬ' ? 'dark' : 'white'}
-            onClick={() => handleSortButtonClick('СОРТИРОВАТЬ')}
-          />
-          <Button
-            label="ФИЛЬТРЫ"
-            variant={activeSortButton === 'ФИЛЬТРЫ' ? 'dark' : 'white'}
-            onClick={() => handleSortButtonClick('ФИЛЬТРЫ')}
-          />
+          <Button label="СОРТИРОВАТЬ" variant={activeSortButton === 'СОРТИРОВАТЬ' ? 'dark' : 'white'} onClick={() => handleSortButtonClick('СОРТИРОВАТЬ')} />
+          <Button label="ФИЛЬТРЫ" variant={activeSortButton === 'ФИЛЬТРЫ' ? 'dark' : 'white'} onClick={() => handleSortButtonClick('ФИЛЬТРЫ')} />
         </div>
       </div>
 
-      {/* Список маршрутов или подборок */}
       <div className="list-content">
         {activeRouteButton === 'МАРШРУТЫ' && (
           <div className="route-list">
-            {routes.map((r, index) => (
+            {routes.map((r) => (
               <RouteCard
                 key={r.id}
-                id={r.id}
-                name={r.name}
-                description={r.description}
-                distance={r.distance}
-                duration={r.duration}
-                rating={r.rating}
-                images={r.images}
-                authorImage={r.authorImage} 
-                // при клике – переходим на /route/ID
+                {...r}
                 onOpenRouteDetail={handleOpenRouteDetail}
               />
             ))}
           </div>
         )}
-
         {activeRouteButton === 'ПОДБОРКИ' && (
           <div className="collection-list">
             {collections.map(c => (
-              <CollectionCard key={c.collection_id} collection={c} />
+              <CollectionCard key={c.collection_id} collection={c} onClick={() => handleOpenCollectionDetail(c.collection_id)} />
             ))}
           </div>
         )}
-
-          {loading && <div className="loading-indicator">Загрузка...</div>}
-          {!hasMore && <div className="end-message">Вы достигли конца списка</div>}
-        </div>
+        {loading && <div className="loading-indicator">Загрузка...</div>}
+        {!hasMore && <div className="end-message">Вы достигли конца списка</div>}
+      </div>
     </div>
   );
 };
