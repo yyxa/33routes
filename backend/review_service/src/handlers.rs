@@ -1,20 +1,15 @@
-use crate::models::AppState;
+use crate::auth::*;
+use crate::image::upload_image;
+use crate::models::*;
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Json, Path, State, Query},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
 };
-use serde::Deserialize;
 use chrono::Utc;
-
-#[derive(Debug, Deserialize)]
-pub struct PaginationParams {
-    #[serde(rename = "pagination-page-number")]
-    pub page_number: Option<i64>,
-    #[serde(rename = "pagination-per-page")]
-    pub per_page: Option<i64>,
-}
+use serde_json::json;
+use serde::Deserialize;
+use axum_extra::extract::CookieJar;
 
 async fn check_route_existence(state: &AppState, route_id: &i32) -> bool {
     let route_existence = state
@@ -136,91 +131,93 @@ pub async fn get_route_reviews(
     (headers, Json(response_body)).into_response()
 }
 
-#[derive(Debug, Deserialize)]
-pub struct AddReviewRequest {
-    pub user_id: i32,
-    pub rating: f64,
-    pub comment: Option<String>,
-    pub images: Option<Vec<String>>,
-}
-
 pub async fn add_review(
+    cookies: CookieJar,
     State(state): State<AppState>,
     Path(route_id): Path<i32>,
-    headers: HeaderMap,
-    Json(payload): Json<AddReviewRequest>,
+    Json(mut payload): Json<AddReviewRequest>,
 ) -> impl IntoResponse {
-    let _session_token = headers.get("session-token").and_then(|v| v.to_str().ok());
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return StatusCode::UNAUTHORIZED.into_response(),
+    };
 
     if !check_route_existence(&state, &route_id).await {
-        return (
-            StatusCode::NOT_FOUND,
-            "Route doesn't exist",
-        )
-            .into_response();
+        return (StatusCode::NOT_FOUND, "Route doesn't exist").into_response();
+    }
+
+    let images = if let Some(image_list) = payload.images.take() {
+        let mut uploaded = Vec::new();
+        for image in image_list {
+            match upload_image(&image).await {
+                Ok(url) => uploaded.push(url),
+                Err(e) => {
+                    eprintln!("Ошибка загрузки изображения: {}", e);
+                    return (StatusCode::INTERNAL_SERVER_ERROR, "Failed to upload image").into_response();
+                }
+            }
+        }
+        uploaded
+    } else {
+        Vec::new()
+    };
+
+    if payload.comment.as_deref().map_or(true, |text| text.trim().is_empty()) && images.is_empty() {
+        return (StatusCode::BAD_REQUEST, "Either text or images must be provided").into_response();
     }
 
     let created_at = Utc::now().timestamp();
-    let images = payload.images.clone().unwrap_or_default();
 
-    let result = state.db_client
-        .execute(
-            "INSERT INTO reviews (user_id, route_id, rating, comment, created_at, images, is_deleted)
-            VALUES ($1, $2, $3, $4, $5, $6, FALSE)",
-            &[
-                &payload.user_id,
-                &route_id,
-                &payload.rating,
-                &payload.comment,
-                &created_at,
-                &images,
-            ],
-        )
-        .await;
+    let result = state.db_client.execute(
+        "INSERT INTO reviews (user_id, route_id, rating, comment, created_at, images, is_deleted)
+         VALUES ($1, $2, $3, $4, $5, $6, FALSE)",
+        &[&user_id, &route_id, &payload.rating, &payload.comment, &created_at, &images],
+    ).await;
 
     match result {
-        Ok(_) => (StatusCode::OK).into_response(),
+        Ok(_) => StatusCode::OK.into_response(),
         Err(err) => {
             eprintln!("Database error: {}", err);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json("Internal Server Error")).into_response()
+            (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response()
         }
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct DeleteReviewRequest {
-    pub user_id: i32,
-    pub review_id: i32,
-}
-
 pub async fn delete_review(
+    cookies: CookieJar,
     State(state): State<AppState>,
     Path(route_id): Path<i32>,
-    headers: HeaderMap,
     Json(payload): Json<DeleteReviewRequest>,
 ) -> impl IntoResponse {
-    let _session_token = headers.get("session-token").and_then(|v| v.to_str().ok());
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return StatusCode::UNAUTHORIZED.into_response(),
+    };
 
     if !check_review_existence(&state, &payload.review_id).await {
-        return (
-            StatusCode::NOT_FOUND,
-            "Review doesn't exist",
-        )
-            .into_response();
+        return (StatusCode::NOT_FOUND, "Review doesn't exist").into_response();
     }
 
-    let result = state.db_client
-        .execute(
-            "UPDATE reviews SET is_deleted = TRUE WHERE review_id = $1 AND user_id = $2 AND route_id = $3",
-            &[&payload.review_id, &payload.user_id, &route_id],
-        )
-        .await;
+    let result = state.db_client.execute(
+        "UPDATE reviews SET is_deleted = TRUE WHERE review_id = $1 AND user_id = $2 AND route_id = $3",
+        &[&payload.review_id, &user_id, &route_id],
+    ).await;
 
     match result {
-        Ok(_) => (StatusCode::OK).into_response(),
+        Ok(_) => StatusCode::OK.into_response(),
         Err(err) => {
             eprintln!("Database error: {}", err);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json("Internal Server Error")).into_response()
+            (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response()
         }
     }
 }

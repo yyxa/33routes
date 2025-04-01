@@ -156,10 +156,12 @@ paths:
   /api/review/route/{route-id}/review:
     post:
       summary: "Добавление рецензии"
-      description: "Позволяет пользователю добавить рецензию к маршруту. Требуется аутентификация через cookie session_token."
+      description: >
+        Позволяет пользователю добавить рецензию к маршруту. Требуется аутентификация через cookie session_token.
       security:
         - sessionCookie: []
       parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
         - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные рецензии"
@@ -169,8 +171,6 @@ paths:
             schema:
               type: object
               properties:
-                user_id:
-                  type: integer
                 rating:
                   type: number
                   format: float
@@ -181,7 +181,6 @@ paths:
                   items:
                     type: string
               example:
-                user_id: 1
                 rating: 4.5
                 comment: "Amazing route, highly recommended!"
                 images: ["url_to_image1", "url_to_image2"]
@@ -190,10 +189,12 @@ paths:
           description: "Рецензия успешно добавлена"
     delete:
       summary: "Удаление рецензии"
-      description: "Позволяет пользователю удалить свою рецензию для маршрута. Требуется аутентификация через cookie session_token."
+      description: >
+        Позволяет пользователю удалить свою рецензию для маршрута. Требуется аутентификация через cookie session_token.
       security:
         - sessionCookie: []
       parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
         - $ref: '#/components/parameters/RouteIdParam'
       requestBody:
         description: "Данные для удаления рецензии"
@@ -203,12 +204,9 @@ paths:
             schema:
               type: object
               properties:
-                user_id:
-                  type: integer
                 review_id:
                   type: integer
               example:
-                user_id: 1
                 review_id: 1
       responses:
         '200':

@@ -7,6 +7,8 @@ use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
 mod models;
+mod auth;
+mod image;
 
 #[tokio::main]
 async fn main() {
@@ -38,11 +40,11 @@ async fn main() {
 
     let app = Router::new()
         .route(
-            "/api/review/route/:route_id/reviews",
+            "/api/review/route/{route_id}/reviews",
             get(handlers::get_route_reviews),
         )
         .route(
-            "/api/review/route/:route_id/review",
+            "/api/review/route/{route_id}/review",
             post(handlers::add_review).delete(handlers::delete_review),
         )
         .with_state(app_state)
