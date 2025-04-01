@@ -90,6 +90,10 @@ const RoutePage = () => {
         </div>
 
         <div className="route-info-layout">
+          <div className="route-description-block">
+            <div className="description-label">Описание:</div>{description && <p className="route-description">{description}</p>}
+          </div>
+
           <div className="route-stats-block">
             <div className="stat-row"><span className="stat-label">Протяженность:</span> {(length / 1000).toFixed(1)} км</div>
             <div className="stat-row"><span className="stat-label">Длительность:</span> {formatDuration(duration / 60)}</div>
@@ -97,9 +101,6 @@ const RoutePage = () => {
             <div className="stat-row"><span className="stat-label">Отзывов:</span> {reviewCount ?? '...'}</div>
           </div>
 
-          <div className="route-description-block">
-            <div className="description-label">Описание:</div>{description && <p className="route-description">{description}</p>}
-          </div>
         </div>
 
   

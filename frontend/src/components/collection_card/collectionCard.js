@@ -40,7 +40,7 @@ const CollectionCard = ({ collection }) => {
   return (
     <div className="collection-card">
       <div className="collection-card-header">
-        <Link to={`/collection/${collection_id}`} className="collection-name">
+        <Link to={`/collection/${collection_id}`} className="collection-name collection-name-link">
           {name}
         </Link>
         <div className="collection-author-avatar">

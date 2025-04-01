@@ -24,6 +24,17 @@
   color: #8B0000;
 }
 
+.collection-name-link {
+  color: #8B0000;
+  text-decoration: none;
+  transition: text-decoration 0.2s;
+}
+
+.collection-name-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .collection-author-avatar {
   width: 25px;
   height: 25px;
