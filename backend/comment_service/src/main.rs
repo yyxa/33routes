@@ -10,6 +10,8 @@ use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
 mod models;
+mod auth;
+mod image;
 
 #[tokio::main]
 async fn main() {
@@ -39,11 +41,11 @@ async fn main() {
 
     let app = Router::new()
         .route(
-            "/api/comment/review/:review_id/comments",
+            "/api/comment/review/{review_id}/comments",
             get(handlers::get_comments),
         )
         .route(
-            "/api/comment/review/:review_id/comment",
+            "/api/comment/review/{review_id}/comment",
             post(handlers::add_comment).delete(handlers::delete_comment),
         )
         .with_state(app_state)

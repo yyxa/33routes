@@ -244,11 +244,12 @@ paths:
                       $ref: '#/components/schemas/Comment'
                 example:
                   comments:
-                    - id: 1
+                    - comment_id: 1
                       user_id: 123
                       text: "Great route!"
                       created_at: 1616179200
                       images: ["url1", "url2"]
+                      reply_to: null
   /api/comment/review/{review-id}/comment:
     post:
       summary: "Добавление комментария"
@@ -256,6 +257,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
         - $ref: '#/components/parameters/ReviewIdParam'
       requestBody:
         description: "Данные комментария"
@@ -264,6 +266,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateCommentRequest'
+            example:
+              reply_to: 5
+              text: "Отличный обзор!"
+              images: ["base64data1", "base64data2"]
       responses:
         '200':
           description: "Комментарий успешно добавлен"
@@ -273,6 +279,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
         - $ref: '#/components/parameters/ReviewIdParam'
       requestBody:
         description: "Данные для удаления комментария"
@@ -281,6 +288,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DeleteCommentRequest'
+            example:
+              comment_id: 1
       responses:
         '200':
           description: "Комментарий успешно удалён"
@@ -2035,7 +2044,7 @@ components:
     Comment:
       type: object
       properties:
-        id:
+        comment_id:
           type: integer
           description: "Идентификатор комментария"
         user_id:
@@ -2045,14 +2054,44 @@ components:
           type: string
           description: "Текст комментария"
         created_at:
-          type: string
-          format: date-time
-          description: "Дата создания комментария"
+          type: integer
+          description: "Дата создания комментария (Unix timestamp)"
         images:
           type: array
           items:
             type: string
           description: "Ссылки на изображения комментария"
+        reply_to:
+          type: integer
+          nullable: true
+          description: "Идентификатор родительского комментария (если это ответ)"
+    CreateCommentRequest:
+      type: object
+      properties:
+        reply_to:
+          type: integer
+          nullable: true
+          description: "Идентификатор родительского комментария (если комментарий является ответом)"
+        text:
+          type: string
+          description: "Текст комментария. Может быть пустым, если переданы изображения."
+        images:
+          type: array
+          items:
+            type: string
+          description: "Массив данных изображений для загрузки"
+      example:
+        reply_to: 5
+        text: "Отличный обзор!"
+        images: ["base64data1", "base64data2"]
+    DeleteCommentRequest:
+      type: object
+      properties:
+        comment_id:
+          type: integer
+          description: "Идентификатор комментария, который необходимо удалить"
+      example:
+        comment_id: 1
     UsernameResponse:
       type: object
       properties:
