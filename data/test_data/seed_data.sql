@@ -13,7 +13,8 @@ VALUES
     ('hannah_orange', 'Hannah', 'Orange', 'Australia', 'Brisbane', 'hannah@example.com', 'hashed_password_10', 'user_avatar_10.png', EXTRACT(EPOCH FROM NOW())::BIGINT);
 
 
-INSERT INTO collections (user_id, name, rating, url, description, tags, created_at, is_deleted) VALUES
+INSERT INTO collections (user_id, name, rating, url, description, tags, created_at, is_deleted) 
+VALUES
     (5, 'Лесные прогулки Москвы', 4.7, 'forest-walks-moscow', 'Маршруты по живописным паркам и лесам Москвы и области.', ARRAY['forest', 'park']::tag_type[], 1711927200, FALSE),
     (1, 'Кремль и центр', 4.5, 'kremlin-center', 'Исторические маршруты в центре Москвы.', ARRAY['park']::tag_type[], 1711840800, FALSE),
     (9, 'Современные небоскрёбы', 4.1, 'urban-skyline', 'Прогулки среди высотных зданий.', ARRAY['park']::tag_type[], 1711747200, FALSE),
@@ -25,7 +26,8 @@ INSERT INTO collections (user_id, name, rating, url, description, tags, created_
     (8, 'Лыткарино: у воды и лес', 4.2, 'lytk-water-forest', 'Природный маршрут по югу МО.', ARRAY['near_water', 'forest']::tag_type[], 1711228800, FALSE);
 
 
-INSERT INTO collection_routes (collection_id, route_id) VALUES
+INSERT INTO collection_routes (collection_id, route_id) 
+VALUES
     (1, 5), (1, 6), (1, 7),
     (2, 1), (2, 6),
     (3, 6), (3, 9),

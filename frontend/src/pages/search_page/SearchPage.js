@@ -93,73 +93,25 @@ const SearchPage = () => {
     }
   }, [loading]);
 
-  const fetchCollections = useCallback(async (page = 1, perPage = 5) => {
-    if (loading) {
-      console.log('Загрузка остановлена - идёт предыдущая загрузка');
-      return;
-    }
-    
-    setLoading(true);
-    console.log('Начало загрузки подборок, страница:', page);
-    
+
+  const fetchCollections = async () => {
     try {
-      const res = await fetch(`http://localhost:8100/api/collection/collections?pagination-page-number=${page}&pagination-per-page=${perPage}`);
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      console.log('Получены данные подборок:', data);
-      
-      const collectionPromises = data.collections.map(async (id) => {
-        const detailRes = await fetch(`http://localhost:8100/api/collection/collection/${id}`);
-        const collectionData = await detailRes.json();
-        
-        const routePromises = collectionData.collection.routes.ids.map(async (routeId) => {
-          const routeRes = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
-          const routeData = await routeRes.json();
-          return {
-            name: routeData.route.name,
-            length: routeData.route.length,
-            duration: routeData.route.duration,
-            rating: routeData.route.rating
-          };
-        });
+      const res = await fetch(`http://localhost:8100/api/collection/collections?pagination-page-number=1&pagination-per-page=5`);
+      const ids = (await res.json()).collections;
 
-        const routesDetails = await Promise.all(routePromises);
-        
-        // Вычисляем общую длину маршрутов
-        const totalLength = routesDetails.reduce((sum, route) => sum + route.length, 0);
-        
-        return {
-          id: collectionData.collection.collection_id,
-          name: collectionData.collection.name,
-          description: collectionData.collection.description,
-          tags: collectionData.collection.tags,
-          rating: collectionData.collection.rating,
-          routesCount: collectionData.collection.routes.amount,
-          routes: routesDetails,
-          length: totalLength // Добавляем общую длину
-        };
-      });
+      const fullCollections = await Promise.all(
+        ids.map(async id => {
+          const r = await fetch(`http://localhost:8100/api/collection/collection/${id}`);
+          const data = await r.json();
+          return { ...data.collection, user: data.user };
+        })
+      );
 
-      const newCollections = await Promise.all(collectionPromises);
-      
-      setCollections(prev => [
-        ...prev, 
-        ...newCollections.filter(c => !prev.some(existing => existing.id === c.id))
-      ]);
-
-      setCurrentPage(page);
-      setHasMore(data.collections.length > 0);
-      
+      setCollections(fullCollections);
     } catch (err) {
-      console.error('Ошибка загрузки подборок:', err);
-    } finally {
-      setLoading(false);
+      console.error('Ошибка загрузки коллекций:', err);
     }
-  }, [loading]);
+  };
 
   useEffect(() => {
     clearAllRoutes?.();
@@ -307,15 +259,8 @@ const SearchPage = () => {
 
         {activeRouteButton === 'ПОДБОРКИ' && (
           <div className="collection-list">
-            {collections.map((c) => (
-              <CollectionCard
-                key={c.id}
-                id={c.id}
-                name={c.name}
-                description={c.description}
-                routes={c.routes}
-                onOpenCollectionDetail={handleOpenCollectionDetail}
-              />
+            {collections.map(c => (
+              <CollectionCard key={c.collection_id} collection={c} />
             ))}
           </div>
         )}
