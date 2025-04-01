@@ -5,8 +5,3 @@ use tokio_postgres::Client;
 pub struct AppState {
     pub db_client: Arc<Client>,
 }
-
-#[derive(Debug, serde::Deserialize)]
-pub struct LikePayload {
-    pub user_id: i32,
-}
