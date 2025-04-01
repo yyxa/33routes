@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: all
+.PadfasHONY: all
 all: build run
 
 .PHONY: build

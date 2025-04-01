@@ -37,14 +37,76 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
       });
       mapRef.current = map;
 
-      const vectorSrc = new VectorSource();
+      
+      const overlayDiv = document.createElement('div');
+      overlayDiv.id = 'image-overlay';
+      overlayDiv.style.position = 'absolute';
+      overlayDiv.style.pointerEvents = 'none';
+      overlayDiv.style.display = 'none';
+      overlayDiv.style.zIndex = 1000;
+      overlayDiv.style.border = '2px solid white';
+      overlayDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+      overlayDiv.style.borderRadius = '6px';
+      overlayDiv.style.overflow = 'hidden';
+      overlayDiv.style.width = '150px';
+      overlayDiv.style.height = '100px';
+      document.body.appendChild(overlayDiv);
+
+      map.on('pointermove', function (evt) {
+        const pixel = map.getEventPixel(evt.originalEvent);
+        const feature = map.forEachFeatureAtPixel(pixel, f => f);
+
+        if (feature && feature.get('image')) {
+          const imageUrl = feature.get('image');
+          overlayDiv.innerHTML = `<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+          const coordinate = feature.getGeometry().getCoordinates();
+          const [x, y] = map.getPixelFromCoordinate(coordinate);
+          overlayDiv.style.left = `${x - 75}px`; // центрируем по X
+          overlayDiv.style.top = `${y - 120}px`; // поднимаем вверх над маркером          
+          overlayDiv.style.display = 'block';
+        } else {
+          overlayDiv.style.display = 'none';
+        }
+      });
+const vectorSrc = new VectorSource();
       const vectorLayer = new VectorLayer({ 
         source: vectorSrc 
       });
       map.addLayer(vectorLayer);
 
       mapRef.current = map;
-      vectorLayerRef.current = vectorLayer;
+      
+      overlayDiv.id = 'image-overlay';
+      overlayDiv.style.position = 'absolute';
+      overlayDiv.style.pointerEvents = 'none';
+      overlayDiv.style.display = 'none';
+      overlayDiv.style.zIndex = 1000;
+      overlayDiv.style.border = '2px solid white';
+      overlayDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+      overlayDiv.style.borderRadius = '6px';
+      overlayDiv.style.overflow = 'hidden';
+      overlayDiv.style.width = '150px';
+      overlayDiv.style.height = '100px';
+      document.body.appendChild(overlayDiv);
+
+      map.on('pointermove', function (evt) {
+        const pixel = map.getEventPixel(evt.originalEvent);
+        const feature = map.forEachFeatureAtPixel(pixel, f => f);
+      
+        if (feature && feature.get('image')) {
+          const imageUrl = feature.get('image');
+          overlayDiv.innerHTML = `<img src="${imageUrl}" />`;
+          const coordinate = evt.coordinate;
+          const [x, y] = map.getPixelFromCoordinate(coordinate);
+      
+          overlayDiv.style.left = `${x + 10}px`;
+          overlayDiv.style.top = `${y - 110}px`;
+          overlayDiv.style.display = 'block';
+        } else {
+          overlayDiv.style.display = 'none';
+        }
+      });      
+vectorLayerRef.current = vectorLayer;
 
       const marker = new Feature({
         geometry: new Point(fromLonLat([37.6173, 55.7558])),
@@ -158,12 +220,13 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
             feature.setStyle(
               new Style({
                 image: new Icon({
-                  src: 'https://openlayers.org/en/v4.6.5/examples/data/icon.png', // или своя иконка
+                  src: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                   scale: 1,
                 }),
               })
             );
-            feature.set('routeId', routeId);
+            feature.set('image', `http://localhost:8100/api/media/image/${p.images[0]}`);
+        feature.set('routeId', routeId);
             vectorSource.addFeature(feature);
         });
 
