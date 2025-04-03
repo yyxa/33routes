@@ -96,9 +96,10 @@ const SearchPage = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Фильтры для МАРШРУТОВ
+  // Фильтры для МАРШРУТОВ.
+  // Значения задаются в единицах, удобных для UI: длина в км, длительность в часах.
   const [routeFilters, setRouteFilters] = useState({
-    order: 'rating_desc,created_desc,distance', // общая строка со всеми сортировками
+    order: 'rating_desc,created_desc,length_asc', // общая строка со всеми сортировками
     min_length: 0,
     max_length: 100,
     min_duration: 0,
@@ -106,7 +107,6 @@ const SearchPage = () => {
   });
 
   // Отдельное управление сортировкой для ПОДБОРОК
-  // (две независимые "кнопки": рейтинг (desc/asc) и дата (desc/asc))
   const [collectionFilters, setCollectionFilters] = useState({
     rating: 'rating_desc',   // rating_desc или rating_asc
     created: 'created_desc', // created_desc или created_asc
@@ -115,6 +115,9 @@ const SearchPage = () => {
   // Теги (только для подборок)
   const [selectedTags, setSelectedTags] = useState([]);
 
+  // Состояние для границ фильтров, полученных с сервера (опционально, для отображения)
+  const [filterBorders, setFilterBorders] = useState(null);
+
   // Флаг и ссылка на DOM для popup
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef(null);
@@ -122,23 +125,29 @@ const SearchPage = () => {
   // Для работы с картой через context
   const { clearAllRoutes } = useOutletContext();
 
-  // Закрываем popup при клике вне него
+  // При монтировании компонента выполняем запрос границ фильтров
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setShowPopup(false);
+    async function fetchBorders() {
+      try {
+        const res = await fetch('http://localhost:8100/api/search/borders');
+        const data = await res.json();
+        // Преобразуем границы из метров и секунд в км и часы:
+        // (например, 1000 м -> 1 км, 3600 сек -> 1 час)
+        const newBorders = {
+          min_length: data.min_length ? data.min_length / 1000 : 0,
+          max_length: data.max_length ? data.max_length / 1000 : 100,
+          min_duration: data.min_duration ? data.min_duration / 3600 : 0,
+          max_duration: data.max_duration ? data.max_duration / 3600 : 24,
+        };
+        setFilterBorders(newBorders);
+        // Обновляем фильтры маршрутов согласно полученным границам
+        setRouteFilters(prev => ({ ...prev, ...newBorders }));
+      } catch (error) {
+        console.error('Error fetching filter borders:', error);
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    }
+    fetchBorders();
   }, []);
-
-  // Очищаем все маршруты на карте при первой загрузке
-  useEffect(() => {
-    clearAllRoutes?.();
-  }, [clearAllRoutes]);
 
   // Смена URL-параметров при изменении типа / запроса
   useEffect(() => {
@@ -150,10 +159,7 @@ const SearchPage = () => {
       params.max_length = routeFilters.max_length;
       params.min_duration = routeFilters.min_duration;
       params.max_duration = routeFilters.max_duration;
-    } 
-    // Иначе можно добавлять что-то и для подборок, если нужно
-    // (например, params.tags = ...), но тут не обязательно.
-
+    }
     setSearchParams(params);
   }, [query, searchType, routeFilters, setSearchParams]);
 
@@ -163,7 +169,7 @@ const SearchPage = () => {
     return {
       rating: parts.includes('rating_asc') ? 'rating_asc' : 'rating_desc',
       created: parts.includes('created_asc') ? 'created_asc' : 'created_desc',
-      distance: parts.includes('distance_desc') ? 'distance_desc' : 'distance',
+      length: parts.includes('length_desc') ? 'length_desc' : 'length_asc',
     };
   };
 
@@ -171,8 +177,8 @@ const SearchPage = () => {
   const setRouteOrderKey = (key, value) => {
     const parts = getRouteOrderState();
     parts[key] = value; // обновили одно поле
-    // собираем заново строку вида "rating_desc,created_desc,distance"
-    const newOrder = [parts.rating, parts.created, parts.distance].join(',');
+    // собираем заново строку вида "rating_desc,created_desc,length"
+    const newOrder = [parts.rating, parts.created, parts.length].join(',');
     setRouteFilters(f => ({ ...f, order: newOrder }));
   };
 
@@ -194,7 +200,8 @@ const SearchPage = () => {
         url.searchParams.set('q', q);
 
         if (type === 'routes') {
-          // Применяем фильтры для маршрутов
+          // Применяем фильтры для маршрутов:
+          // переводим км в метры и часы в секунды
           url.searchParams.set('order', rf.order);
           url.searchParams.set('min_length', rf.min_length * 1000);
           url.searchParams.set('max_length', rf.max_length * 1000);
@@ -202,11 +209,8 @@ const SearchPage = () => {
           url.searchParams.set('max_duration', rf.max_duration * 3600);
         } else {
           // Применяем сортировку для подборок
-          // Собираем строку, например "rating_desc,created_desc"
           const orderString = `${cf.rating},${cf.created}`;
           url.searchParams.set('order', orderString);
-
-          // Теги (если выбраны)
           if (tags.length > 0) {
             url.searchParams.set('tags', tags.join(','));
           }
@@ -230,7 +234,7 @@ const SearchPage = () => {
                 id: d.route.route_id,
                 name: d.route.name,
                 description: d.route.description,
-                distance: d.route.length,
+                length: d.route.length,
                 duration: d.route.duration,
                 rating: d.route.rating,
                 images: (d.route.images || []).map(i => `http://localhost:8100/api/media/image/${i}`),
@@ -265,13 +269,7 @@ const SearchPage = () => {
   // Запуск поиска при каждом изменении нужных состояний
   useEffect(() => {
     clearAllRoutes?.();
-    performSearch(
-      query,
-      searchType,
-      routeFilters,
-      collectionFilters,
-      selectedTags
-    );
+    performSearch(query, searchType, routeFilters, collectionFilters, selectedTags);
     return () => performSearch.cancel();
   }, [query, searchType, routeFilters, collectionFilters, selectedTags, performSearch, clearAllRoutes]);
 
@@ -320,12 +318,12 @@ const SearchPage = () => {
           <div className="popup filter-popup" ref={popupRef}>
             {searchType === 'routes' ? (
               <>
-                {/* ---------------- Фильтры маршрутов ---------------- */}
+                {/* Фильтры маршрутов */}
                 <div className="popup-group">
                   <div className="popup-label">Длина маршрута (км)</div>
                   <ThumbRange
-                    min={0}
-                    max={100}
+                    min={filterBorders ? filterBorders.min_length : 0}
+                    max={filterBorders ? filterBorders.max_length : 100}
                     values={[routeFilters.min_length, routeFilters.max_length]}
                     onChange={([min, max]) =>
                       setRouteFilters(f => ({ ...f, min_length: min, max_length: max }))
@@ -338,7 +336,7 @@ const SearchPage = () => {
                       onChange={e =>
                         setRouteFilters(f => ({
                           ...f,
-                          min_length: clamp(+e.target.value, 0, f.max_length - 1),
+                          min_length: clamp(+e.target.value, filterBorders ? filterBorders.min_length : 0, f.max_length - 1),
                         }))
                       }
                     />
@@ -348,7 +346,7 @@ const SearchPage = () => {
                       onChange={e =>
                         setRouteFilters(f => ({
                           ...f,
-                          max_length: clamp(+e.target.value, f.min_length + 1, 100),
+                          max_length: clamp(+e.target.value, f.min_length + 1, filterBorders ? filterBorders.max_length : 100),
                         }))
                       }
                     />
@@ -358,8 +356,8 @@ const SearchPage = () => {
                 <div className="popup-group">
                   <div className="popup-label">Длительность (часы)</div>
                   <ThumbRange
-                    min={0}
-                    max={24}
+                    min={filterBorders ? filterBorders.min_duration : 0}
+                    max={filterBorders ? filterBorders.max_duration : 24}
                     values={[routeFilters.min_duration, routeFilters.max_duration]}
                     onChange={([min, max]) =>
                       setRouteFilters(f => ({ ...f, min_duration: min, max_duration: max }))
@@ -372,7 +370,7 @@ const SearchPage = () => {
                       onChange={e =>
                         setRouteFilters(f => ({
                           ...f,
-                          min_duration: clamp(+e.target.value, 0, f.max_duration - 1),
+                          min_duration: clamp(+e.target.value, filterBorders ? filterBorders.min_duration : 0, f.max_duration - 1),
                         }))
                       }
                     />
@@ -382,14 +380,14 @@ const SearchPage = () => {
                       onChange={e =>
                         setRouteFilters(f => ({
                           ...f,
-                          max_duration: clamp(+e.target.value, f.min_duration + 1, 24),
+                          max_duration: clamp(+e.target.value, f.min_duration + 1, filterBorders ? filterBorders.max_duration : 24),
                         }))
                       }
                     />
                   </div>
                 </div>
 
-                {/* ---------------- Сортировка маршрутов ---------------- */}
+                {/* Сортировка маршрутов */}
                 <div className="popup-group">
                   <div className="popup-label">Сортировка</div>
                   <div className="sort-toggle-group">
@@ -423,16 +421,16 @@ const SearchPage = () => {
                     </div>
                     <div className="sort-toggle-row">
                       <div
-                        className={`sort-toggle-button ${routeOrder.distance === 'distance' ? 'active' : ''}`}
-                        onClick={() => setRouteOrderKey('distance', 'distance')}
+                        className={`sort-toggle-button ${routeOrder.length === 'length_asc' ? 'active' : ''}`}
+                        onClick={() => setRouteOrderKey('length', 'length_asc')}
                       >
-                        расстояние (возр.)
+                        длина (возр.)
                       </div>
                       <div
-                        className={`sort-toggle-button ${routeOrder.distance === 'distance_desc' ? 'active' : ''}`}
-                        onClick={() => setRouteOrderKey('distance', 'distance_desc')}
+                        className={`sort-toggle-button ${routeOrder.length === 'length_desc' ? 'active' : ''}`}
+                        onClick={() => setRouteOrderKey('length', 'length_desc')}
                       >
-                        расстояние (убыв.)
+                        длина (убыв.)
                       </div>
                     </div>
                   </div>
@@ -440,7 +438,7 @@ const SearchPage = () => {
               </>
             ) : (
               <>
-                {/* ---------------- Сортировка подборок ---------------- */}
+                {/* Сортировка подборок */}
                 <div className="popup-group">
                   <div className="popup-label">Сортировка по рейтингу</div>
                   <div className="sort-toggle-row">
@@ -475,8 +473,7 @@ const SearchPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* ---------------- Теги для подборок ---------------- */}
+                {/* Теги для подборок */}
                 <div className="popup-group">
                   <div className="popup-label">Теги</div>
                   <select onChange={(e) => toggleTag(e.target.value)} value="">
@@ -506,7 +503,7 @@ const SearchPage = () => {
         )}
       </div>
 
-      {/* ---------------- Список результатов ---------------- */}
+      {/* Список результатов */}
       {loading && <div className="loading-indicator">Загрузка...</div>}
       {!loading && results.length === 0 && <div className="no-results">Ничего не найдено</div>}
 

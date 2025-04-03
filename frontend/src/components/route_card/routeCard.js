@@ -7,7 +7,7 @@ const RouteCard = ({
   id,
   name,
   description,
-  distance,
+  length,
   duration,
   rating,
   images = [],
@@ -155,7 +155,7 @@ const RouteCard = ({
 
       <div className="route-bottom-bar">
         <div className="route-card-info">
-          <span>{(distance / 1000).toFixed(1)} км</span>
+          <span>{(length / 1000).toFixed(1)} км</span>
           <span>{(duration > 3600 ? Math.floor(duration / 3600) + ' ч ' + Math.round((duration % 3600) / 60) : Math.round(duration / 60)) + ' мин'}</span>
           <span>{rating}★</span>
         </div>

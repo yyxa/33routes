@@ -40,6 +40,7 @@ async fn main() {
         .route("/api/search/users", get(handlers::search_users))
         .route("/api/search/routes", get(handlers::search_routes))
         .route("/api/search/collections", get(handlers::search_collections))
+        .route("/api/search/borders", get(handlers::search_borders))
         .with_state(app_state)
         .layer(cors);
 

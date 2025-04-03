@@ -694,11 +694,14 @@ paths:
   /api/search/users:
     get:
       summary: "Поиск пользователей"
-      description: "Поиск пользователей по имени, фамилии, username и пагинации."
+      description: >
+        Ищет пользователей по частичному совпадению строки поиска с именем, фамилией или username.
+        Параметр `q` является опциональным. Пагинация осуществляется посредством параметров запроса,
+        а информация о страницах возвращается в заголовках ответа.
       parameters:
         - name: q
           in: query
-          description: "Строка поиска (имя, фамилия, username)"
+          description: "Строка поиска для имени, фамилии или username (частичное совпадение)"
           schema:
             type: string
         - $ref: '#/components/parameters/PaginationPageNumber'
@@ -736,52 +739,62 @@ paths:
   /api/search/routes:
     get:
       summary: "Поиск маршрутов"
-      description: "Поиск маршрутов по названию, фильтрам (длина, длительность, рейтинг, теги, категория), пагинации, а также сортировка и поиск по геолокации."
+      description: >
+        Производит поиск маршрутов с возможностью фильтрации по названию и ряду параметров:
+        - **q**: строка для поиска в названии маршрута;
+        - **min_length** и **max_length**: минимальная и максимальная длина маршрута (в метрах);
+        - **min_duration** и **max_duration**: минимальная и максимальная длительность маршрута (в секундах);
+        - **tags**: теги маршрута, перечисленные через запятую (например, `forest,near_water`);
+        - **category**: категория маршрута (например, `walking`);
+        - **min_rating** и **max_rating**: диапазон рейтинга (0–5).
+        Параметр **order** позволяет задать сортировку. Допустимые значения сортировки:  
+        **rating_desc**, **rating_asc**, **created_desc**, **created_asc**, **length_desc**, **length_asc**.  
+        Если для одного поля заданы противоречивые сортировки, возвращается ошибка 400.
       parameters:
         - name: q
           in: query
-          description: "Строка поиска (название маршрута)"
+          description: "Строка поиска для названия маршрута"
           schema:
             type: string
         - name: min_length
           in: query
-          description: "Минимальная длина маршрута (м)"
+          description: "Минимальная длина маршрута в метрах"
           schema:
             type: integer
         - name: max_length
           in: query
-          description: "Максимальная длина маршрута (м)"
+          description: "Максимальная длина маршрута в метрах"
           schema:
             type: integer
         - name: min_duration
           in: query
-          description: "Минимальная длительность (секунды)"
+          description: "Минимальная длительность маршрута в секундах"
           schema:
             type: integer
         - name: max_duration
           in: query
-          description: "Максимальная длительность (секунды)"
+          description: "Максимальная длительность маршрута в секундах"
           schema:
             type: integer
         - name: tags
           in: query
-          description: "Теги, разделённые запятой (например, forest,near_water)."
+          description: "Теги маршрута, разделённые запятой (например, forest,near_water)"
           schema:
             type: string
         - name: category
           in: query
-          description: "Категория маршрута (например, walking)."
+          description: "Категория маршрута (например, walking)"
           schema:
             type: string
         - name: min_rating
           in: query
-          description: "Минимальный рейтинг (0..5)"
+          description: "Минимальный рейтинг маршрута (число с плавающей точкой, 0–5)"
           schema:
             type: number
             format: float
         - name: max_rating
           in: query
-          description: "Максимальный рейтинг (0..5)"
+          description: "Максимальный рейтинг маршрута (число с плавающей точкой, 0–5)"
           schema:
             type: number
             format: float
@@ -789,45 +802,11 @@ paths:
         - $ref: '#/components/parameters/PaginationPerPage'
         - name: order
           in: query
-          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc, distance, between."
+          description: >
+            Параметр сортировки. Может содержать несколько значений, разделённых запятой.  
+            Допустимые значения: **rating_desc**, **rating_asc**, **created_desc**, **created_asc**, **length_desc**, **length_asc**.
           schema:
             type: string
-        - name: lat
-          in: query
-          description: "Широта для сортировки по distance"
-          schema:
-            type: number
-            format: float
-        - name: lon
-          in: query
-          description: "Долгота для сортировки по distance"
-          schema:
-            type: number
-            format: float
-        - name: start_lat
-          in: query
-          description: "Широта начальной точки для order=between"
-          schema:
-            type: number
-            format: float
-        - name: start_lon
-          in: query
-          description: "Долгота начальной точки для order=between"
-          schema:
-            type: number
-            format: float
-        - name: end_lat
-          in: query
-          description: "Широта конечной точки для order=between"
-          schema:
-            type: number
-            format: float
-        - name: end_lon
-          in: query
-          description: "Долгота конечной точки для order=between"
-          schema:
-            type: number
-            format: float
       responses:
         "200":
           description: "Список найденных маршрутов (id) с заголовками пагинации."
@@ -850,41 +829,45 @@ paths:
                     items:
                       type: integer
         "400":
-          description: "Некорректные параметры (ошибка десериализации). Например, неправильные координаты или рейтинги."
+          description: "Некорректные параметры (например, ошибка десериализации или конфликт сортировки)."
         "500":
           description: "Внутренняя ошибка сервера."
   /api/search/collections:
     get:
       summary: "Поиск подборок"
-      description: "Поиск подборок по названию, рейтингу, тегам, пагинации и сортировке."
+      description: >
+        Выполняет поиск подборок по названию, рейтингу и тегам.
+        Дополнительно поддерживается сортировка и пагинация.
+        Параметр **order** может принимать следующие значения: **rating_desc**, **rating_asc**, **created_desc**, **created_asc**.
       parameters:
         - name: q
           in: query
-          description: "Поисковая строка (название подборки)."
+          description: "Строка поиска для названия подборки"
           schema:
             type: string
         - name: min_rating
           in: query
-          description: "Минимальный рейтинг (0..5)"
+          description: "Минимальный рейтинг подборки (число с плавающей точкой, 0–5)"
           schema:
             type: number
             format: float
         - name: max_rating
           in: query
-          description: "Максимальный рейтинг (0..5)"
+          description: "Максимальный рейтинг подборки (число с плавающей точкой, 0–5)"
           schema:
             type: number
             format: float
         - name: tags
           in: query
-          description: "Теги, разделённые запятой (например, park,forest)."
+          description: "Теги подборки, разделённые запятой (например, park,forest)"
           schema:
             type: string
         - $ref: '#/components/parameters/PaginationPageNumber'
         - $ref: '#/components/parameters/PaginationPerPage'
         - name: order
           in: query
-          description: "Тип сортировки: rating_desc, rating_asc, created_desc, created_asc."
+          description: >
+            Параметр сортировки. Допустимые значения: **rating_desc**, **rating_asc**, **created_desc**, **created_asc**.
           schema:
             type: string
       responses:
@@ -909,7 +892,22 @@ paths:
                     items:
                       type: integer
         "400":
-          description: "Некорректные параметры (ошибка десериализации). Например, неправильный формат рейтинга."
+          description: "Некорректные параметры (например, неверный формат рейтинга)."
+        "500":
+          description: "Внутренняя ошибка сервера."
+  /api/search/borders:
+    get:
+      summary: "Получение граничных значений фильтров маршрутов"
+      description: >
+        Возвращает минимальные и максимальные значения для длины (в метрах)
+        и длительности (в секундах) маршрутов, которые не удалены (is_deleted = false).
+      responses:
+        "200":
+          description: "Граничные значения успешно получены."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BordersResponse'
         "500":
           description: "Внутренняя ошибка сервера."
   /api/moderation/entity/report:
@@ -2138,3 +2136,18 @@ components:
           type: string
           nullable: true
           description: "Ссылка на фотографию профиля пользователя"
+    BordersResponse:
+      type: object
+      properties:
+        min_length:
+          type: integer
+          description: "Минимальная длина маршрута (м)"
+        max_length:
+          type: integer
+          description: "Максимальная длина маршрута (м)"
+        min_duration:
+          type: integer
+          description: "Минимальная длительность маршрута (сек)"
+        max_duration:
+          type: integer
+          description: "Максимальная длительность маршрута (сек)"
