@@ -125,6 +125,18 @@ const SearchPage = () => {
   // Для работы с картой через context
   const { clearAllRoutes } = useOutletContext();
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setShowPopup(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // При монтировании компонента выполняем запрос границ фильтров
   useEffect(() => {
     async function fetchBorders() {
