@@ -23,8 +23,8 @@ function AppContent() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("http://localhost:8100/api/auth/check_token", {
-          method: "POST",
+        const response = await fetch("http://localhost:8100/api/user/me", {
+          method: "GET",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
         });
