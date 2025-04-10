@@ -19,6 +19,7 @@ const SearchPage = () => {
 
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [cols, setCols] = useState([]);
 
   useEffect(() => {
     const params = { q: query, type: searchType };
@@ -86,10 +87,24 @@ const SearchPage = () => {
             ids.map(async (id) => {
               const r = await fetch(`http://localhost:8100/api/collection/collection/${id}`);
               const d = await r.json();
-              return { collection: d.collection, user: d.user };
+              const brief = await fetch(`http://localhost:8100/api/user/${d.user.user_id}/brief`)
+                .then(rr => rr.json());
+              return { 
+                collection_id: d.collection.collection_id, 
+                name: d.collection.name,
+                description: d.collection.description,
+                rating: d.collection.rating,
+                tags: d.collection.tags,
+                routes: d.collection.routes,
+                username: brief.username ,
+                avatar: d.user.image_url
+                  ? `http://localhost:8100/api/media/image/${d.user.image_url}`
+                  : `http://localhost:8100/api/media/image/default-avatar.svg`,
+
+              };
             })
           );
-          setResults(collections);
+          setCols(collections);
         }
       } catch (e) {
         console.error(e);
@@ -113,15 +128,7 @@ const SearchPage = () => {
       <div className="results">
         {searchType === 'routes'
           ? results.map((route) => <RouteCard key={route.id} {...route} />)
-          : results.map((col, i) => (
-              col?.collection
-                ? <CollectionCard
-                    key={col.collection.collection_id || i}
-                    collection={col.collection}
-                    user={col.user}
-                  />
-                : null
-            ))
+          : cols.map((col) => <CollectionCard key={col.collection_id} {...col}/>)
         }
       </div>
     </div>

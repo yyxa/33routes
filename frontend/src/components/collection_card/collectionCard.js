@@ -9,29 +9,39 @@ const formatDuration = (s) => {
   return `${h > 0 ? h + ' час' + (h > 1 ? 'а' : '') : ''} ${m > 0 ? m + ' минут' : ''}`.trim();
 };
 
-const CollectionCard = ({ collection }) => {
-  const {
-    collection_id,
-    name,
-    description,
-    rating,
-    tags,
-    routes,
-    user
-  } = collection;
-
+const CollectionCard = ({     
+  collection_id,
+  name,
+  description,
+  rating,
+  tags,
+  routes,
+  username,
+  avatar,
+}) => {
   const [routePreviews, setRoutePreviews] = useState([]);
 
   useEffect(() => {
+    const routeIds = routes.ids;
+
+    if (!Array.isArray(routeIds)) {
+      console.warn("Некорректная структура routes:", routes);
+      return;
+    }
+
     const fetchRoutes = async () => {
-      const previews = await Promise.all(
-        routes.ids.slice(0, 2).map(async (id) => {
-          const res = await fetch(`http://localhost:8100/api/route/route/${id}`);
-          const data = await res.json();
-          return data.route;
-        })
-      );
-      setRoutePreviews(previews);
+      try {
+        const previews = await Promise.all(
+          routeIds.slice(0, 2).map(async (id) => {
+            const res = await fetch(`http://localhost:8100/api/route/route/${id}`);
+            const data = await res.json();
+            return data.route;
+          })
+        );
+        setRoutePreviews(previews);
+      } catch (error) {
+        console.error("Ошибка загрузки маршрутов:", error);
+      }
     };
 
     fetchRoutes();
@@ -43,13 +53,13 @@ const CollectionCard = ({ collection }) => {
         <Link to={`/collection/${collection_id}`} className="collection-name collection-name-link">
           {name}
         </Link>
-        <div className="collection-author-avatar">
+        <Link to={`user/${username}`} className="collection-author-avatar">
           <img
-            src={user?.image_url ? `http://localhost:8100/api/media/image/${user.image_url}` : 'https://via.placeholder.com/32?text=👤'}
+            src={avatar}
             alt="Автор"
             className="author-image"
           />
-        </div>
+        </Link>
       </div>
 
       <div className="collection-card-body">
