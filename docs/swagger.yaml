@@ -394,6 +394,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CollectionIdParam'
         - $ref: '#/components/parameters/RouteIdParam'
+        - $ref: '#/components/parameters/SessionTokenCookie'
       responses:
         '200':
           description: "Маршрут успешно добавлен в подборку"
@@ -406,9 +407,43 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CollectionIdParam'
         - $ref: '#/components/parameters/RouteIdParam'
+        - $ref: '#/components/parameters/SessionTokenCookie'
       responses:
         '200':
           description: "Маршрут успешно удален из подборки"
+  /api/collection/collection/saved/add/{route_id}:
+    put:
+      summary: "Сохранение маршрута"
+      description: "Позволяет пользователю сохранить маршрут в избранное. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/RouteIdParam'
+      responses:
+        '200':
+          description: "Маршрут успешно сохранен"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/collection/collection/saved/remove/{route_id}:
+    delete:
+      summary: "Удаление маршрута из сохраненных"
+      description: "Позволяет пользователю удалить маршрут из избранного. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/RouteIdParam'
+      responses:
+        '200':
+          description: "Маршрут успешно удален из сохраненных"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
   /api/auth/register:
     post:
       summary: "Регистрация пользователя"
@@ -2037,7 +2072,7 @@ components:
       properties:
         message:
           type: string
-          example: "Image deleted successfully"
+          example: Operation successful"
     Comment:
       type: object
       properties:
