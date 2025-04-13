@@ -1,80 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
 import RootLayout from './layouts/RootLayout';
 import SearchPage from './pages/search_page/SearchPage';
 import RoutePage from './pages/route_page/RoutePage';
 import CollectionPage from './pages/collection_page/CollectionPage';
-import AuthModal from './components/auth_modal/AuthModal';
+import AuthPage from './pages/auth_page/AuthPage';
 import ImageViewer from './components/image_viewer/ImageViewer';
 import UserPage from './pages/user_page/UserPage';
+import CreateRoutePage from './pages/create_route_page/CreateRoutePage';
+import CreateCollectionPage from './pages/create_collection_page/CreateCollectionPage';
 
 function AppContent() {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
   });
 
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
   const state = location.state;
+  const backgroundLocation = state?.backgroundLocation;
+  const isModalAuth = location.pathname === '/auth';
 
   useEffect(() => {
-    const checkSession = async () => {
+    const check = async () => {
       try {
-        const response = await fetch("http://localhost:8100/api/user/me", {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('http://localhost:8100/api/user/me', {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
         });
-
-        if (!response.ok) {
-          setUser(null);
-          localStorage.removeItem("user");
-          return;
-        }
-
-        const data = await response.json();
+        if (!res.ok) throw new Error();
+        const data = await res.json();
         setUser(data);
-        localStorage.setItem("user", JSON.stringify(data));
-      } catch (error) {
+        localStorage.setItem('user', JSON.stringify(data));
+      } catch {
         setUser(null);
-        localStorage.removeItem("user");
+        localStorage.removeItem('user');
       }
     };
-
-    checkSession();
+    check();
   }, []);
 
-  const openAuthModal = () => setShowAuthModal(true);
-  const closeAuthModal = () => setShowAuthModal(false);
-  const handleLogin = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-    closeAuthModal();
-  };
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  const handleLogin = (data) => {
+    setUser(data);
+    localStorage.setItem('user', JSON.stringify(data));
+    navigate(backgroundLocation?.pathname || '/', { replace: true });
   };
 
-  const backgroundLocation = state?.backgroundLocation || (location.pathname.startsWith("/image/") ? { pathname: "/" } : location);
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    document.cookie =
+      'session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    navigate('/');
+  };
 
   return (
     <>
-      {showAuthModal && (
-        <AuthModal onClose={closeAuthModal} onLogin={handleLogin} />
+      {/* 🔥 При прямом заходе на /auth вручную рисуем SearchPage как фон */}
+      {isModalAuth && !backgroundLocation && (
+        <RootLayout
+          user={user}
+          onLoginClick={() =>
+            navigate('/auth', { state: { backgroundLocation: location } })
+          }
+          onLogoutClick={handleLogout}
+        >
+          <SearchPage />
+        </RootLayout>
       )}
 
-      <Routes location={backgroundLocation}>
+      {/* Остальные маршруты */}
+      <Routes location={backgroundLocation || location}>
         <Route
           path="/"
           element={
             <RootLayout
               user={user}
-              onLoginClick={openAuthModal}
+              onLoginClick={() =>
+                navigate('/auth', { state: { backgroundLocation: location } })
+              }
               onLogoutClick={handleLogout}
             />
           }
@@ -83,14 +98,14 @@ function AppContent() {
           <Route path="route/:routeId" element={<RoutePage />} />
           <Route path="collection/:collectionId" element={<CollectionPage />} />
           <Route path="user/:username" element={<UserPage />} />
+          <Route path="create/route" element={<CreateRoutePage />} />
+          <Route path="create/collection" element={<CreateCollectionPage />} />
         </Route>
+        <Route path="/image/:imageName" element={<ImageViewer />} />
       </Routes>
 
-      {location.pathname.startsWith('/image/') && (
-        <Routes>
-          <Route path="/image/:imageName" element={<ImageViewer />} />
-        </Routes>
-      )}
+      {/* 🔥 Модалка авторизации (всегда) */}
+      {isModalAuth && <AuthPage onLogin={handleLogin} />}
     </>
   );
 }

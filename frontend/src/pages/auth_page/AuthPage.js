@@ -1,56 +1,95 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './AuthPage.css';
 
-const AuthPage = () => {
+const AuthPage = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [error, setError] = useState('');
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const backgroundLocation = location.state?.backgroundLocation;
 
-  useEffect(() => {
-    if (window.VKIDSDK) {
-      const VKID = window.VKIDSDK;
+  const handleClose = () => {
+    navigate(backgroundLocation?.pathname || '/', { replace: true });
+  };
 
-      VKID.Config.init({
-        app: parseInt(process.env.REACT_APP_VK_APP_ID, 10),
-        redirectUrl: 'https://33routes.ru',
-        responseMode: VKID.ConfigResponseMode.PostMessage,
-        source: VKID.ConfigSource.LOWCODE,
-        scope: '',
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    const url = isRegistering
+      ? 'http://localhost:8100/api/auth/register'
+      : 'http://localhost:8100/api/auth/login';
+
+    const body = isRegistering
+      ? JSON.stringify({ username, email, password })
+      : JSON.stringify({ email, password });
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        credentials: 'include',
       });
 
-      const oAuth = new VKID.OAuthList();
-
-      oAuth
-        .render({
-          container: document.getElementById('vkid-container'),
-          oauthList: ['vkid'],
-        })
-        .on(VKID.WidgetEvents.ERROR, (error) => {
-          console.error('VKID Error:', error);
-        });
-
-      const handlePostMessage = (event) => {
-        if (event.origin === 'https://id.vk.com' && event.data?.code) {
-          const { code, device_id } = event.data;
-
-          window.history.replaceState({}, document.title, window.location.pathname);
-
-          console.log('Authorization Code:', code);
-          console.log('Device ID:', device_id);
-        }
-      };
-
-      window.addEventListener('message', handlePostMessage);
-
-      return () => {
-        window.removeEventListener('message', handlePostMessage);
-      };
+      if (response.ok) {
+        const data = await response.json();
+        onLogin?.(data);
+        handleClose(); // Закрываем после успешного входа
+      } else if (response.status === 409) {
+        setError('Пользователь уже существует');
+      } else if (response.status === 401) {
+        setError('Неверный email или пароль');
+      } else {
+        setError('Ошибка сервера');
+      }
+    } catch (err) {
+      console.error('Ошибка:', err);
+      setError('Ошибка сети');
     }
-  }, [navigate]);
+  };
 
   return (
-    <div className="auth-page">
-      <h1>Авторизация через ВКонтакте</h1>
-      <div id="vkid-container" className="vkid-button-container"></div>
+    <div className="auth-page-overlay" onClick={handleClose}>
+      <div className="auth-page" onClick={(e) => e.stopPropagation()}>
+        <div className="close-icon" onClick={handleClose}>×</div>
+        <h2>{isRegistering ? 'Регистрация' : 'Вход'}</h2>
+        <form onSubmit={handleSubmit}>
+          {isRegistering && (
+            <input
+              type="text"
+              placeholder="Имя пользователя"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          )}
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">{isRegistering ? 'Зарегистрироваться' : 'Войти'}</button>
+        </form>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <p onClick={() => setIsRegistering(!isRegistering)}>
+          {isRegistering ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться'}
+        </p>
+      </div>
     </div>
   );
 };

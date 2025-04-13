@@ -67,10 +67,59 @@ html, body {
   border: 1px solid #bbb;
 }
 
+.fab-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #00b956;
+  color: white;
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 56px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: background 0.3s;
+}
+.fab-button:hover {
+  background-color: #009e4d;
+}
+
+.fab-popup {
+  position: fixed;
+  right: 24px;
+  bottom: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.fab-popup button {
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background 0.2s;
+}
+.fab-popup button:hover {
+  background: #f2f2f2;
+}
+
+/* Центрирование zoom-кнопок справа */
 .ol-zoom {
   right: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%);
   left: auto !important;
-  bottom: 16px !important;
-  top: auto !important;
-  position: absolute !important;
+  bottom: auto !important;
 }

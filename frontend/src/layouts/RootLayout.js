@@ -15,6 +15,8 @@ import Point from 'ol/geom/Point';
 import LineString from 'ol/geom/LineString';
 import { Style, Stroke, Icon } from 'ol/style';
 import './RootLayout.css';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
   const mapContainerRef = useRef(null);
@@ -22,6 +24,9 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
   const vectorLayerRef = useRef(null);
   const [visibleRoutes, setVisibleRoutes] = useState([]);
   const [isSidebarHidden, setIsSidebarHidden] = useState(false);
+  const [showCreatePopup, setShowCreatePopup] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Ref для левого блока (sidebar)
   const leftBlockRef = useRef(null);
@@ -329,6 +334,27 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
           }} />
         </div>
       </div>
+      <>
+      <div
+        className="fab-button"
+        onClick={() => {
+          if (!user) {
+            navigate('/auth', { state: { backgroundLocation: location } });
+          } else {
+            setShowCreatePopup(prev => !prev);
+          }
+        }}
+      >
+        ＋
+      </div>
+
+      {user && showCreatePopup && (
+        <div className="fab-popup">
+          <button onClick={() => navigate('/create/route')}>Создать маршрут</button>
+          <button onClick={() => navigate('/create/collection')}>Создать подборку</button>
+        </div>
+      )}
+    </>
     </div>
   );
 };

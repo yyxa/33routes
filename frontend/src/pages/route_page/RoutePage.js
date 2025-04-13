@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import SearchBar from '../../components/search_bar/searchBar';
 import CommentCard from '../../components/comment_card/commentCard';
+import ReviewList from '../../components/review_list/reviewList';
 import showIcon from './images/show.svg';
 import './RoutePage.css';
 
@@ -69,7 +69,6 @@ const RoutePage = () => {
 
   return (
     <div className="route-page">
-      <SearchBar />
       <div className="route-card-container">
         <div className="route-header">
           <h2 className="route-name">{name}</h2>
@@ -153,6 +152,7 @@ const RoutePage = () => {
           > <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
         </button> */}
       </div>
+      <ReviewList routeId={routeId} />
     </div>
   );
 };
