@@ -10,6 +10,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 mod handlers;
 mod models;
+mod auth;
 
 #[tokio::main]
 async fn main() {
@@ -49,25 +50,25 @@ async fn main() {
                 .delete(handlers::delete_collection),
         )
         .route(
-            "/api/collection/collection/:collection_id",
+            "/api/collection/collection/{collection_id}",
             get(handlers::get_collection),
         )
         .route(
-            "/api/collection/collection/:collection_id/add/:route_id",
+            "/api/collection/collection/{collection_id}/add/{route_id}",
             put(handlers::add_route_to_collection),
         )
         .route(
-            "/api/collection/collection/:collection_id/remove/:route_id",
+            "/api/collection/collection/{collection_id}/remove/{route_id}",
             delete(handlers::remove_route_from_collection),
         )
-        //.route(
-        //    "/api/collection/collection/saved/add/:route_id",
-        //    put(handlers::add_route_to_saved),
-        //)
-        //.route(
-        //    "/api/collection/collection/saved/remove/:route_id",
-        //    delete(handlers::remove_route_from_saved),
-        //)
+        .route(
+            "/api/collection/collection/saved/add/{route_id}",
+            put(handlers::add_route_to_saved),
+        )
+        .route(
+            "/api/collection/collection/saved/remove/{route_id}",
+            delete(handlers::remove_route_from_saved),
+        )
         .with_state(app_state)
         .layer(cors);
 

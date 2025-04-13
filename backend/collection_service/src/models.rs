@@ -31,6 +31,7 @@ pub struct Collection {
     pub rating: Option<f64>,
     pub created_at: i64,
     pub routes: CollectionRoutes,
+    pub imgs: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -67,7 +68,6 @@ pub struct PaginationParams {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateCollectionRequest {
-    pub user_id: i32,
     pub name: String,
     pub description: String,
     pub tags: Option<Vec<TagType>>,
@@ -75,18 +75,18 @@ pub struct CreateCollectionRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateCollectionRequest {
-    pub user_id: i32,
     pub name: Option<String>,
     pub description: Option<String>,
     pub tags: Option<Vec<TagType>>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct DeleteCollectionRequest {
-    pub user_id: i32,
-}
+pub struct DeleteCollectionRequest {}
 
 #[derive(Debug, Deserialize)]
-pub struct ModifyCollectionRouteRequest {
-    pub user_id: i32,
+pub struct ModifyCollectionRouteRequest {}
+
+#[derive(Debug, Deserialize)]
+pub struct CollectionIdQuery {
+    pub collection_id: i32,
 }

@@ -1,10 +1,6 @@
 use reqwest;
-use serde_json::json;
 use serde_json::Value;
 use std::env;
-use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
-use axum_extra::extract::CookieJar;
 
 #[derive(Debug)]
 pub enum AuthError {
@@ -14,7 +10,7 @@ pub enum AuthError {
 
 pub async fn authenticate_request(session_token: &str) -> Result<i32, AuthError> {
     let backend_session_token =
-        env::var("BACKEND_SESSION_TOKEN").expect("BACKEND_SESSION_TOKEN не установлен");
+        env::var("BACKEND_SESSION_TOKEN").expect("BACKEND_SESSION_TOKEN not set");
     let auth_service_host =
         env::var("AUTH_SERVICE_HOST").unwrap_or_else(|_| "localhost".to_string());
     let auth_service_port =
@@ -26,7 +22,7 @@ pub async fn authenticate_request(session_token: &str) -> Result<i32, AuthError>
         .post(&url)
         .header("Content-Type", "application/json")
         .header("Cookie", format!("session_token={}", session_token))
-        .json(&json!({
+        .json(&serde_json::json!({
             "backend_session_token": backend_session_token,
         }))
         .send()

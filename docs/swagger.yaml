@@ -336,31 +336,14 @@ paths:
                 $ref: '#/components/schemas/CollectionDetail'
         '404':
           description: "Подборка не найдена"
-  /api/collection/collection:
-    post:
-      summary: "Создание новой подборки"
-      description: "Позволяет пользователю создать новую подборку. Требуется аутентификация через cookie session_token."
-      security:
-        - sessionCookie: []
-      requestBody:
-        description: "Данные для создания новой подборки"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCollectionRequest'
-      responses:
-        '201':
-          description: "Подборка успешно создана"
-        '500':
-          description: "Ошибка сервера"
     put:
       summary: "Обновление подборки"
       description: "Позволяет пользователю обновить существующую подборку. Передаются только изменённые поля. Требуется аутентификация через cookie session_token."
       security:
         - sessionCookie: []
       parameters:
-        - $ref: '#/components/parameters/CollectionIdHeader'
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/CollectionIdParam'
       requestBody:
         description: "Данные для обновления подборки"
         required: true
@@ -377,17 +360,31 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - $ref: '#/components/parameters/CollectionIdHeader'
+        - $ref: '#/components/parameters/SessionTokenCookie'
+        - $ref: '#/components/parameters/CollectionIdParam'
+      responses:
+        '200':
+          description: "Подборка успешно удалена"
+  /api/collection/collection:
+    post:
+      summary: "Создание новой подборки"
+      description: "Позволяет пользователю создать новую подборку. Требуется аутентификация через cookie session_token."
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
       requestBody:
-        description: "Данные для удаления подборки"
+        description: "Данные для создания новой подборки"
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteCollectionRequest'
+              $ref: '#/components/schemas/CreateCollectionRequest'
       responses:
-        '200':
-          description: "Подборка успешно удалена"
+        '201':
+          description: "Подборка успешно создана"
+        '500':
+          description: "Ошибка сервера"
   /api/collection/collection/{collection-id}/add/{route-id}:
     put:
       summary: "Добавление маршрута в подборку"
@@ -397,17 +394,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CollectionIdParam'
         - $ref: '#/components/parameters/RouteIdParam'
-      requestBody:
-        description: "Данные для добавления маршрута в подборку"
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  example: 1
       responses:
         '200':
           description: "Маршрут успешно добавлен в подборку"
@@ -420,17 +406,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CollectionIdParam'
         - $ref: '#/components/parameters/RouteIdParam'
-      requestBody:
-        description: "Данные для удаления маршрута из подборки"
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  example: 1
       responses:
         '200':
           description: "Маршрут успешно удален из подборки"
@@ -1562,13 +1537,6 @@ components:
       description: "Идентификатор подборки"
       schema:
         type: integer
-    CollectionIdHeader:
-      name: collection-id
-      in: header
-      required: true
-      description: "ID подборки"
-      schema:
-        type: integer
     CommentIdParam:
       name: comment-id
       in: path
@@ -1725,6 +1693,17 @@ components:
         created_at:
           type: string
           format: date-time
+        imgs:
+          type: array
+          items:
+            type: string
+          description: "Массив URL изображений маршрутов, входящих в подборку"
+      required:
+        - collection_id
+        - name
+        - url
+        - created_at
+        - imgs
     CollectionDetail:
       type: object
       properties:
