@@ -5,6 +5,7 @@ services:
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
       - "--entrypoints.web.address=:8100"
       - "--entrypoints.websecure.address=:8443"
       - "--api.insecure=true"
@@ -15,6 +16,7 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml
     restart: always
     networks:
       - 33routes_backend_network

@@ -22,6 +22,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.route_service.rule=PathPrefix(`/api/route/`)"
       - "traefik.http.services.route_service.loadbalancer.server.port=8100"
+      - "traefik.http.routers.route_service.middlewares=cors@file"
     depends_on:
       - 33routes_image_service
       - 33routes_auth_service
@@ -40,6 +41,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.review_service.rule=PathPrefix(`/api/review/`)"
   #     - "traefik.http.services.review_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.review_service.middlewares=cors@file"
   #   depends_on:
   #     - 33routes_image_service
   #     - 33routes_auth_service
@@ -58,6 +60,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.comment_service.rule=PathPrefix(`/api/comment/`)"
   #     - "traefik.http.services.comment_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.comment_service.middlewares=cors@file"
   #   depends_on:
   #     - 33routes_image_service
   #     - 33routes_auth_service
@@ -76,6 +79,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.collection_service.rule=PathPrefix(`/api/collection/`)"
   #     - "traefik.http.services.collection_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.collection_service.middlewares=cors@file"
   #   depends_on:
   #     - 33routes_image_service
   #     - 33routes_auth_service
@@ -94,6 +98,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.moderation_service.rule=PathPrefix(`/api/moderation/`)"
   #     - "traefik.http.services.moderation_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.moderation_service.middlewares=cors@file"
 
   33routes_image_service:
     container_name: 33routes_image_service_prod
@@ -109,6 +114,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.image_service.rule=PathPrefix(`/api/media/`)"
       - "traefik.http.services.image_service.loadbalancer.server.port=8100"
+      - "traefik.http.routers.image_service.middlewares=cors@file"
 
   # 33routes_search_service:
   #   container_name: 33routes_search_service_prod
@@ -124,6 +130,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.search_service.rule=PathPrefix(`/api/search/`)"
   #     - "traefik.http.services.search_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.search_service.middlewares=cors@file"
 
   33routes_auth_service:
     container_name: 33routes_auth_service_prod
@@ -139,6 +146,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.auth_service.rule=PathPrefix(`/api/auth/`)"
       - "traefik.http.services.auth_service.loadbalancer.server.port=8100"
+      - "traefik.http.routers.auth_service.middlewares=cors@file"
 
   # 33routes_user_service:
   #   container_name: 33routes_user_service_prod
@@ -155,6 +163,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.user_service.rule=PathPrefix(`/api/user/`)"
   #     - "traefik.http.services.user_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.user_service.middlewares=cors@file"
   #   depends_on:
   #     - 33routes_image_service
   #     - 33routes_auth_service
@@ -173,6 +182,7 @@ services:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.like_service.rule=PathPrefix(`/api/like/`)"
   #     - "traefik.http.services.like_service.loadbalancer.server.port=8100"
+  #     - "traefik.http.routers.like_service.middlewares=cors@file"
   #   depends_on:
   #   - 33routes_auth_service
     
