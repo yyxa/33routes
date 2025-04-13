@@ -28,7 +28,7 @@ function AppContent() {
   const navigate = useNavigate();
 
   const state = location.state;
-  const backgroundLocation = state?.backgroundLocation;
+  const backgroundLocation = state?.backgroundLocation || (location.pathname.startsWith('/image/') ? { pathname: '/' } : null);
   const isModalAuth = location.pathname === '/auth';
 
   useEffect(() => {
@@ -101,11 +101,16 @@ function AppContent() {
           <Route path="create/route" element={<CreateRoutePage />} />
           <Route path="create/collection" element={<CreateCollectionPage />} />
         </Route>
-        <Route path="/image/:imageName" element={<ImageViewer />} />
+        {/* <Route path="/image/:imageName" element={<ImageViewer />} /> */}
       </Routes>
 
       {/* 🔥 Модалка авторизации (всегда) */}
       {isModalAuth && <AuthPage onLogin={handleLogin} />}
+      {location.pathname.startsWith('/image/') && (
+        <Routes>
+          <Route path="/image/:imageName" element={<ImageViewer />} />
+        </Routes>
+      )}
     </>
   );
 }
