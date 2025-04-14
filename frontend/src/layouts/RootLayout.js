@@ -348,8 +348,6 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
             style={{ width: '20px', height: '20px' }} 
           />
         </button>
-        <div className="avatar-placeholder" onClick={() => !user && onLoginClick()}>
-          <span>{user ? user.name : 'Login'}</span>
         <div
           ref={avatarRef}
           className="avatar-placeholder"
