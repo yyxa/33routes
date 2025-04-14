@@ -47,7 +47,7 @@ async fn main() {
     let app = Router::new()
         .route("/api/user/{username}", get(handlers::get_user_profile))
         .route("/api/user/{user_id}/brief", get(handlers::get_user_brief))
-        .route("/api/user/me", get(handlers::get_my_username))
+        .route("/api/user/me", get(handlers::get_me))
         .route("/api/user/delete", delete(handlers::delete_user_profile))
         .route(
             "/api/user/settings",

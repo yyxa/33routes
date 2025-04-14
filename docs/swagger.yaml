@@ -411,6 +411,37 @@ paths:
       responses:
         '200':
           description: "Маршрут успешно удален из подборки"
+  /api/collection/collection/saved:
+    get:
+      summary: "Получить список сохраненных маршрутов пользователя"
+      description: |
+        Возвращает список идентификаторов маршрутов, сохраненных текущим пользователем.
+        Требуется аутентификация через cookie session_token.
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/SessionTokenCookie'
+      responses:
+        '200':
+          description: "Список сохраненных маршрутов успешно получен"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedRoutesResponse'
+              example:
+                routes: [123, 456, 789]
+        '401':
+          description: "Неавторизованный запрос"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: "Внутренняя ошибка сервера"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/collection/collection/saved/add/{route_id}:
     put:
       summary: "Сохранение маршрута"
@@ -656,7 +687,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UsernameResponse'
+                $ref: '#/components/schemas/MeResponse'
         '401':
           description: "Не авторизован"
         '500':
@@ -2124,12 +2155,15 @@ components:
           description: "Идентификатор комментария, который необходимо удалить"
       example:
         comment_id: 1
-    UsernameResponse:
+    MeResponse:
       type: object
       properties:
         username:
           type: string
           example: "john_doe"
+        user_id:
+          type: integer
+          example: 1
     UserBriefResponse:
       type: object
       properties:
@@ -2165,3 +2199,11 @@ components:
         max_duration:
           type: integer
           description: "Максимальная длительность маршрута (сек)"
+    SavedRoutesResponse:
+      type: object
+      properties:
+        routes:
+          type: array
+          items:
+            type: integer
+          description: "Список идентификаторов сохраненных маршрутов"

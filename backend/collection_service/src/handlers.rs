@@ -532,3 +532,40 @@ pub async fn remove_route_from_saved(
         }
     }
 }
+
+pub async fn get_saved_routes(
+    State(state): State<AppState>,
+    cookies: CookieJar,
+) -> impl IntoResponse {
+    let session_token = match cookies.get("session_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return StatusCode::UNAUTHORIZED.into_response(),
+    };
+    let user_id = match authenticate_request(&session_token).await {
+        Ok(id) => id,
+        Err(_) => return StatusCode::UNAUTHORIZED.into_response(),
+    };
+
+    let saved_routes_rows = state
+        .db_client
+        .query(
+            "SELECT route_id FROM saved_routes WHERE user_id = $1 ORDER BY route_id",
+            &[&user_id],
+        )
+        .await;
+
+    match saved_routes_rows {
+        Ok(rows) => {
+            let routes_ids: Vec<i32> = rows.into_iter().map(|row| row.get("route_id")).collect();
+            Json(SavedRoutesResponse { routes: routes_ids }).into_response()
+        },
+        Err(err) => {
+            eprintln!("Database error: {}", err);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Internal Server Error"),
+            )
+                .into_response()
+        }
+    }
+}

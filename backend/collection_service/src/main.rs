@@ -62,6 +62,10 @@ async fn main() {
             delete(handlers::remove_route_from_collection),
         )
         .route(
+            "/api/collection/collection/saved",
+            get(handlers::get_saved_routes),
+        )
+        .route(
             "/api/collection/collection/saved/add/{route_id}",
             put(handlers::add_route_to_saved),
         )

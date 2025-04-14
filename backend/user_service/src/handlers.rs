@@ -15,7 +15,7 @@ enum MyError {
     DbError(tokio_postgres::Error),
 }
 
-pub async fn get_my_username(
+pub async fn get_me(
     cookies: CookieJar,
     State(state): State<AppState>,
 ) -> impl IntoResponse {
@@ -35,7 +35,10 @@ pub async fn get_my_username(
     ).await {
         Ok(row) => {
             let username: String = row.get("username");
-            axum::Json(serde_json::json!({ "username": username })).into_response()
+            axum::Json(serde_json::json!({
+                "user_id": user_id,
+                "username": username
+            })).into_response()
         },
         Err(e) => {
             eprintln!("Error fetching username: {}", e);
