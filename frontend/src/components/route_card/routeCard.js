@@ -13,18 +13,17 @@ const RouteCard = ({
   images = [],
   authorImage,
   authorUsername,
-  onOpenAuthModal,
-  onShowRoute,
-  onOpenRouteDetail,
 }) => {
   const imagesContainerRef = useRef(null);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [showFavoritePopup, setShowFavoritePopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
+  const [collections, setCollections] = useState([]);
+  const [collectionIds, setCollectionIds] = useState([]);
+  const [isChecking, setIsChecking] = useState(false);
 
   const { toggleRouteOnMap } = useOutletContext();
   const navigate = useNavigate();
@@ -34,74 +33,12 @@ const RouteCard = ({
   const GAP = 15;
   const VISIBLE_WIDTH = IMAGE_WIDTH * 2.5;
 
-  const checkAuthAndFetchSaved = async () => {
-    try {
-      setIsCheckingAuth(true);
-      
-      // Проверяем авторизацию через /api/user/me
-      const authCheck = await fetch('http://localhost:8100/api/user/me', {
-        credentials: 'include',
-      });
-
-      if (!authCheck.ok) {
-        navigate('/auth', { state: { from: location } });
-        return false;
-      }
-
-      // Проверяем избранное
-      const savedRes = await fetch('http://localhost:8100/api/collection/collection/saved', {
-        credentials: 'include',
-      });
-
-      if (savedRes.ok) {
-        const data = await savedRes.json();
-        setIsSaved(data.routes?.includes(id) || false);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error('Ошибка при проверке избранного:', err);
-      return false;
-    } finally {
-      setIsCheckingAuth(false);
-    }
-  };
-
-  const handleToggleFavorite = async (e) => {
-    e.stopPropagation();
-    const isAuth = await checkAuthAndFetchSaved();
-    if (isAuth) {
-      setShowFavoritePopup(true);
-    }
-  };
-
-  const handleAddToFavorites = async () => {
-    try {
-      const endpoint = isSaved 
-        ? `http://localhost:8100/api/collection/collection/saved/remove/${id}`
-        : `http://localhost:8100/api/collection/collection/saved/add/${id}`;
-      
-      const res = await fetch(endpoint, {
-        method: isSaved ? 'DELETE' : 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      
-      if (res.ok) {
-        setIsSaved(!isSaved);
-      }
-    } catch (err) {
-      console.error('Ошибка запроса:', err);
-    }
-  };
-
   const updateGradient = (offset) => {
     const maxOffset = Math.max(0, images.length * (IMAGE_WIDTH + GAP) - GAP - VISIBLE_WIDTH);
     const wrapper = imagesContainerRef.current?.parentElement;
     if (!wrapper) return;
 
     let mask = '';
-
     if (offset > 0 && offset < maxOffset) {
       mask = 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 10%, rgba(255,255,255,1) 90%, rgba(255,255,255,0) 100%)';
     } else if (offset === 0 && offset < maxOffset) {
@@ -114,9 +51,6 @@ const RouteCard = ({
 
     wrapper.style.maskImage = mask;
     wrapper.style.webkitMaskImage = mask;
-    wrapper.style.maskSize = '100% 100%';
-    wrapper.style.maskRepeat = 'no-repeat';
-    wrapper.style.transition = 'mask-image 0.5s ease';
   };
 
   useEffect(() => {
@@ -146,40 +80,98 @@ const RouteCard = ({
     setIsVisible(!isVisible);
   };
 
+  const handleToggleFavorite = async (e) => {
+    e.stopPropagation();
+    setIsChecking(true);
+    try {
+      const authRes = await fetch('http://localhost:8100/api/user/me', {
+        credentials: 'include',
+      });
+  
+      if (!authRes.ok) return navigate('/auth');
+  
+      const userData = await authRes.json();
+      const username = userData.username;
+  
+      const savedRes = await fetch('http://localhost:8100/api/collection/collection/saved', {
+        credentials: 'include',
+      });
+  
+      const savedData = await savedRes.json();
+      setIsSaved(savedData.routes?.includes(id));
+  
+      const fetchUserCollections = async (username) => {
+        const res = await fetch(`http://localhost:8100/api/search/collections?q=%40${username}&pagination-page-number=1&pagination-per-page=100`);
+        const data = await res.json();
+        return data.results || [];
+      };
+  
+      const collectionIdsRaw = await fetchUserCollections(username);
+  
+      const fullData = await Promise.all(collectionIdsRaw.map(async (cid) => {
+        const r = await fetch(`http://localhost:8100/api/collection/collection/${cid}`);
+        const d = await r.json();
+        return {
+          collection_id: d.collection.collection_id,
+          name: d.collection.name,
+          routes: Array.isArray(d.collection.routes?.ids) ? d.collection.routes.ids : [],
+        };
+      }));
+  
+      const idsContainingThisRoute = fullData
+        .filter(c => c.routes.includes(id))
+        .map(c => c.collection_id);
+  
+      setCollections(fullData);
+      setCollectionIds(idsContainingThisRoute);
+  
+      setTimeout(() => {
+        setShowPopup(true);
+      }, 0);
+    } catch (err) {
+      console.error('Ошибка при получении подборок:', err);
+    } finally {
+      setIsChecking(false);
+    }
+  };  
+
+  const addToCollection = async (collectionId) => {
+    await fetch(`http://localhost:8100/api/collection/collection/${collectionId}/add/${id}`, {
+      method: 'PUT',
+      credentials: 'include',
+    });
+  };
+
+  const removeFromCollection = async (collectionId) => {
+    await fetch(`http://localhost:8100/api/collection/collection/${collectionId}/remove/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+  };
+
+  const handleCollectionClick = async (colId) => {
+    if (collectionIds.includes(colId)) {
+      await removeFromCollection(colId);
+      setCollectionIds(prev => prev.filter(id => id !== colId));
+    } else {
+      await addToCollection(colId);
+      setCollectionIds(prev => [...prev, colId]);
+    }
+  };
+
+  const handleAddToFavorites = async () => {
+    const endpoint = isSaved
+      ? `http://localhost:8100/api/collection/collection/saved/remove/${id}`
+      : `http://localhost:8100/api/collection/collection/saved/add/${id}`;
+    const method = isSaved ? 'DELETE' : 'PUT';
+    await fetch(endpoint, { method, credentials: 'include' });
+    setIsSaved(!isSaved);
+  };
+
   const handleImageClick = (imgUrl) => {
     const imageName = imgUrl.split('/').pop();
     navigate(`/image/${imageName}`, { state: { backgroundLocation: location } });
   };
-
-  const renderImageBlock = () => (
-    <div className="route-card-right">
-      <div className="route-card-images-wrapper" style={{ width: `${VISIBLE_WIDTH}px`, justifyContent: images.length <= 2 ? 'flex-end' : 'flex-start' }}>
-        <div className="route-card-images-container">
-          {images.length > 2 && (
-            <div className={`left-button-container ${showLeftArrow ? 'arrow-visible' : 'arrow-fade'}`}>
-              <button className="arrow-button left" onClick={handleScrollLeft}>&#8249;</button>
-            </div>
-          )}
-
-          <div className="route-card-images" ref={imagesContainerRef}>
-            {images.length > 0 ? (
-              images.map((img, index) => (
-                <img key={index} src={img} alt={`route-img-${index}`} className="route-image" onClick={() => handleImageClick(img)} />
-              ))
-            ) : (
-              <div className="no-image-placeholder">Нет изображений</div>
-            )}
-          </div>
-
-          {images.length > 2 && (
-            <div className={`right-button-container ${showRightArrow ? 'arrow-visible' : 'arrow-fade'}`}>
-              <button className="arrow-button right" onClick={handleScrollRight}>&#8250;</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="route-card">
@@ -196,13 +188,43 @@ const RouteCard = ({
         <div className="route-card-left">
           <p className="route-description">{description}</p>
         </div>
-        {images.length > 0 && renderImageBlock()}
+        {images.length > 0 && (
+          <div className="route-card-right">
+            <div className="route-card-images-wrapper" style={{ width: `${VISIBLE_WIDTH}px` }}>
+              <div className="route-card-images-container">
+                {images.length > 2 && (
+                  <div className={`left-button-container ${showLeftArrow ? 'arrow-visible' : ''}`}>
+                    <button className="arrow-button left" onClick={handleScrollLeft}>&#8249;</button>
+                  </div>
+                )}
+
+                <div className="route-card-images" ref={imagesContainerRef}>
+                  {images.map((img, i) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt={`route-${i}`}
+                      className="route-image"
+                      onClick={() => handleImageClick(img)}
+                    />
+                  ))}
+                </div>
+
+                {images.length > 2 && (
+                  <div className={`right-button-container ${showRightArrow ? 'arrow-visible' : ''}`}>
+                    <button className="arrow-button right" onClick={handleScrollRight}>&#8250;</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="route-bottom-bar">
         <div className="route-card-info">
           <span>{(length / 1000).toFixed(1)} км</span>
-          <span>{(duration > 3600 ? Math.floor(duration / 3600) + ' ч ' + Math.round((duration % 3600) / 60) : Math.round(duration / 60)) + ' мин'}</span>
+          <span>{Math.round(duration / 60)} мин</span>
           <span>{rating}★</span>
         </div>
 
@@ -229,61 +251,40 @@ const RouteCard = ({
             <button
               className="favorite-button"
               onClick={handleToggleFavorite}
-              disabled={isCheckingAuth}
-              style={{
-                backgroundColor: '#fff',
-                border: '1px solid #ccc',
-                width: '25px',
-                height: '25px',
-                borderRadius: '50%',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                opacity: isCheckingAuth ? 0.7 : 1,
-              }}
+              disabled={isChecking}
             >
-              {isCheckingAuth ? '...' : '+'}
+              {isChecking ? '...' : '+'}
             </button>
 
-            {showFavoritePopup && (
-              <div 
-                className="favorite-popup"
-                style={{
-                  position: 'absolute',
-                  bottom: '30px',
-                  right: '0',
-                  backgroundColor: '#fff',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                  padding: '10px',
-                  zIndex: 100,
-                  width: '150px',
-                }}
-              >
-                <div 
-                  className={`favorite-popup-item ${isSaved ? 'favorite-popup-item-active' : ''}`}
-                  onClick={handleAddToFavorites}
-                >
-                  В избранное
+            {showPopup && (
+              <>
+                <div className="favorite-popup">
+                  <div
+                    className={`favorite-popup-item ${isSaved ? 'favorite-popup-item-active' : ''}`}
+                    onClick={handleAddToFavorites}
+                  >
+                    В избранное
+                  </div>
+                  {collections.length > 0 ? (
+                    collections.map((col) => (
+                      <div
+                        key={col.collection_id}
+                        className={`favorite-popup-item ${collectionIds.includes(col.collection_id) ? 'favorite-popup-item-active' : ''}`}
+                        onClick={() => handleCollectionClick(col.collection_id)}
+                      >
+                        {col.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="favorite-popup-note">Подборок нет</div>
+                  )}
                 </div>
-                <div className="favorite-popup-note">
-                  (подборки появятся позже)
-                </div>
-              </div>
+                <div className="favorite-popup-overlay" onClick={() => setShowPopup(false)} />
+              </>
             )}
           </div>
         </div>
       </div>
-
-      {showFavoritePopup && (
-        <div 
-          className="favorite-popup-overlay"
-          onClick={() => setShowFavoritePopup(false)}
-        />
-      )}
     </div>
   );
 };

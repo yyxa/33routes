@@ -81,12 +81,6 @@ pub struct UpdateCollectionRequest {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct DeleteCollectionRequest {}
-
-#[derive(Debug, Deserialize)]
-pub struct ModifyCollectionRouteRequest {}
-
-#[derive(Debug, Deserialize)]
 pub struct CollectionIdQuery {
     pub collection_id: i32,
 }

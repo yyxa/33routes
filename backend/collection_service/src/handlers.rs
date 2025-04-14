@@ -295,7 +295,6 @@ pub async fn delete_collection(
     State(state): State<AppState>,
     cookies: CookieJar,
     Query(query): Query<CollectionIdQuery>,
-    Json(_payload): Json<DeleteCollectionRequest>,
 ) -> impl IntoResponse {
     let session_token = match cookies.get("session_token") {
         Some(cookie) => cookie.value().to_string(),
@@ -339,7 +338,6 @@ pub async fn add_route_to_collection(
     State(state): State<AppState>,
     Path((collection_id, route_id)): Path<(i32, i32)>,
     cookies: CookieJar,
-    Json(_payload): Json<ModifyCollectionRouteRequest>,
 ) -> impl IntoResponse {
     let session_token = match cookies.get("session_token") {
         Some(cookie) => cookie.value().to_string(),
@@ -397,7 +395,6 @@ pub async fn remove_route_from_collection(
     State(state): State<AppState>,
     Path((collection_id, route_id)): Path<(i32, i32)>,
     cookies: CookieJar,
-    Json(_payload): Json<ModifyCollectionRouteRequest>,
 ) -> impl IntoResponse {
     let session_token = match cookies.get("session_token") {
         Some(cookie) => cookie.value().to_string(),
