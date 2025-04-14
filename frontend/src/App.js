@@ -40,16 +40,31 @@ function AppContent() {
           headers: { 'Content-Type': 'application/json' },
         });
         if (!res.ok) throw new Error();
-        const data = await res.json();
-        setUser(data);
-        localStorage.setItem('user', JSON.stringify(data));
-      } catch {
+  
+        const me = await res.json();
+  
+        const resBrief = await fetch(`http://localhost:8100/api/user/${me.user_id}/brief`);
+        if (!resBrief.ok) throw new Error();
+  
+        const brief = await resBrief.json();
+  
+        const fullUser = {
+          ...me,
+          ...brief,
+        };
+  
+        setUser(fullUser);
+        localStorage.setItem('user', JSON.stringify(fullUser));
+      } catch (err) {
+        console.error('auth check error:', err);
         setUser(null);
         localStorage.removeItem('user');
       }
     };
+  
     check();
   }, []);
+  
 
   const handleLogin = (data) => {
     setUser(data);

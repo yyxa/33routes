@@ -22,7 +22,9 @@ const RouteCard = ({
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [showFavoritePopup, setShowFavoritePopup] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
   const { toggleRouteOnMap } = useOutletContext();
   const navigate = useNavigate();
@@ -31,6 +33,67 @@ const RouteCard = ({
   const IMAGE_WIDTH = 140;
   const GAP = 15;
   const VISIBLE_WIDTH = IMAGE_WIDTH * 2.5;
+
+  const checkAuthAndFetchSaved = async () => {
+    try {
+      setIsCheckingAuth(true);
+      
+      // Проверяем авторизацию через /api/user/me
+      const authCheck = await fetch('http://localhost:8100/api/user/me', {
+        credentials: 'include',
+      });
+
+      if (!authCheck.ok) {
+        navigate('/auth', { state: { from: location } });
+        return false;
+      }
+
+      // Проверяем избранное
+      const savedRes = await fetch('http://localhost:8100/api/collection/collection/saved', {
+        credentials: 'include',
+      });
+
+      if (savedRes.ok) {
+        const data = await savedRes.json();
+        setIsSaved(data.routes?.includes(id) || false);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Ошибка при проверке избранного:', err);
+      return false;
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  const handleToggleFavorite = async (e) => {
+    e.stopPropagation();
+    const isAuth = await checkAuthAndFetchSaved();
+    if (isAuth) {
+      setShowFavoritePopup(true);
+    }
+  };
+
+  const handleAddToFavorites = async () => {
+    try {
+      const endpoint = isSaved 
+        ? `http://localhost:8100/api/collection/collection/saved/remove/${id}`
+        : `http://localhost:8100/api/collection/collection/saved/add/${id}`;
+      
+      const res = await fetch(endpoint, {
+        method: isSaved ? 'DELETE' : 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      
+      if (res.ok) {
+        setIsSaved(!isSaved);
+      }
+    } catch (err) {
+      console.error('Ошибка запроса:', err);
+    }
+  };
 
   const updateGradient = (offset) => {
     const maxOffset = Math.max(0, images.length * (IMAGE_WIDTH + GAP) - GAP - VISIBLE_WIDTH);
@@ -81,23 +144,6 @@ const RouteCard = ({
   const handleToggleRoute = () => {
     toggleRouteOnMap(id);
     setIsVisible(!isVisible);
-  };
-
-  const handleToggleFavorite = async (e) => {
-    e.stopPropagation();
-    try {
-      const res = await fetch('http://localhost:8100/api/route/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ route_id: id }),
-      });
-      if (res.ok || res.status === 409) {
-        setIsSaved(true);
-      }
-    } catch (err) {
-      console.error('Ошибка запроса:', err);
-    }
   };
 
   const handleImageClick = (imgUrl) => {
@@ -161,7 +207,7 @@ const RouteCard = ({
         </div>
 
         <div className="route-interaction-container">
-        <button
+          <button
             className="eye-button"
             style={{
               width: '25px',
@@ -179,19 +225,65 @@ const RouteCard = ({
             <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
           </button>
 
-          <button
-            className="favorite-button"
-            onClick={handleToggleFavorite}
-            style={{
-              backgroundColor: isSaved ? '#ffe066' : '#fff',
-              borderColor: isSaved ? '#ffa500' : '#ccc',
-              color: isSaved ? '#d2691e' : '#333',
-            }}
-          >
-            ★
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              className="favorite-button"
+              onClick={handleToggleFavorite}
+              disabled={isCheckingAuth}
+              style={{
+                backgroundColor: '#fff',
+                border: '1px solid #ccc',
+                width: '25px',
+                height: '25px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                opacity: isCheckingAuth ? 0.7 : 1,
+              }}
+            >
+              {isCheckingAuth ? '...' : '+'}
+            </button>
+
+            {showFavoritePopup && (
+              <div 
+                className="favorite-popup"
+                style={{
+                  position: 'absolute',
+                  bottom: '30px',
+                  right: '0',
+                  backgroundColor: '#fff',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  padding: '10px',
+                  zIndex: 100,
+                  width: '150px',
+                }}
+              >
+                <div 
+                  className={`favorite-popup-item ${isSaved ? 'favorite-popup-item-active' : ''}`}
+                  onClick={handleAddToFavorites}
+                >
+                  В избранное
+                </div>
+                <div className="favorite-popup-note">
+                  (подборки появятся позже)
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {showFavoritePopup && (
+        <div 
+          className="favorite-popup-overlay"
+          onClick={() => setShowFavoritePopup(false)}
+        />
+      )}
     </div>
   );
 };

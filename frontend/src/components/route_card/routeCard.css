@@ -155,6 +155,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .favorite-button:hover {
@@ -212,7 +214,47 @@
   pointer-events: auto;
 }
 
-.route-card-right.minimal-images {
-  display: flex;
-  flex-direction: column;
+.favorite-popup {
+  position: absolute;
+  bottom: 30px;
+  right: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  padding: 10px;
+  z-index: 100;
+  width: 150px;
+}
+
+.favorite-popup-item {
+  padding: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.favorite-popup-item:hover {
+  background-color: rgba(139, 0, 0, 0.1);
+}
+
+.favorite-popup-item-active {
+  color: #8B0000;
+  background-color: rgba(139, 0, 0, 0.1);
+}
+
+.favorite-popup-note {
+  padding: 8px;
+  color: #888;
+  font-style: italic;
+}
+
+.favorite-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
 }

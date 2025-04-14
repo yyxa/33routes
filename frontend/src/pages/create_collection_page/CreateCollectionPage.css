@@ -1,56 +1,155 @@
 .create-collection-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.create-form-card {
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.create-form-card h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #8B0000;
+  margin-bottom: 10px;
+}
+
+.create-form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.create-form-card input,
+.create-form-card textarea {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.tags-section {
+  margin: 15px 0;
+}
+
+.tags-section h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-button {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.tag-button:hover {
+  background-color: #e0e0e0;
+}
+
+.tag-button.selected {
+  background-color: #8B0000;
+  color: white;
+  border-color: #8B0000;
+}
+
+.create-form-card button[type="submit"] {
+  padding: 12px;
+  font-size: 16px;
+  background-color: #8B0000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.create-form-card button[type="submit"]:hover {
+  background-color: #a10000;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+  background-color: #4BB543;
+}
+
+.notification.error {
+  background-color: #ff3333;
+}
+
+@keyframes slideIn {
+  from {
+    top: -50px;
+    opacity: 0;
   }
-  
-  .create-form-card {
-    background: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  to {
+    top: 20px;
+    opacity: 1;
   }
-  
-  .create-form-card h2 {
-    text-align: center;
-    font-size: 24px;
-    color: #8B0000;
-    margin-bottom: 10px;
+}
+
+button[disabled].loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  position: relative;
+}
+
+button[disabled].loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 3px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
   }
-  
-  .create-form-card form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  to {
+    transform: rotate(1turn);
   }
-  
-  .create-form-card input,
-  .create-form-card textarea {
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    resize: vertical;
-  }
-  
-  .create-form-card button {
-    padding: 12px;
-    font-size: 16px;
-    background-color: #8B0000;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .create-form-card button:hover {
-    background-color: #a10000;
-  }
-  
+}

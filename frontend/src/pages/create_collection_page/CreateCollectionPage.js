@@ -4,14 +4,33 @@ import './CreateCollectionPage.css';
 const CreateCollectionPage = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState(null);
+
+  const availableTags = ['forest', 'park', 'nearwater'];
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleTagToggle = (tag) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const body = {
       name,
       description,
-      tags: [],
+      tags: selectedTags,
     };
 
     try {
@@ -23,20 +42,30 @@ const CreateCollectionPage = () => {
       });
 
       if (res.status === 201) {
-        alert('Подборка создана!');
+        showNotification('Подборка успешно создана!');
         setName('');
         setDescription('');
+        setSelectedTags([]);
       } else {
-        alert('Ошибка при создании подборки');
+        const errorData = await res.json();
+        showNotification(errorData.message || 'Ошибка при создании подборки', 'error');
       }
     } catch (err) {
       console.error(err);
-      alert('Ошибка запроса');
+      showNotification('Ошибка сети или сервера', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="create-collection-page">
+      {notification && (
+        <div className={`notification ${notification.type}`}>
+          {notification.message}
+        </div>
+      )}
+      
       <div className="create-form-card">
         <h2>Создание подборки</h2>
         <form onSubmit={handleSubmit}>
@@ -54,11 +83,43 @@ const CreateCollectionPage = () => {
             rows="4"
             required
           />
-          <button type="submit">Создать</button>
+          
+          <div className="tags-section">
+            <h3>Теги</h3>
+            <div className="tags-container">
+              {availableTags.map(tag => (
+                <button
+                  type="button"
+                  key={tag}
+                  className={`tag-button ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                  onClick={() => handleTagToggle(tag)}
+                >
+                  {getTagDisplayName(tag)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className={isLoading ? 'loading' : ''}
+          >
+            {isLoading ? 'Создание...' : 'Создать'}
+          </button>
         </form>
       </div>
     </div>
   );
+};
+
+const getTagDisplayName = (tag) => {
+  const tagNames = {
+    forest: 'Лес',
+    park: 'Парк',
+    nearwater: 'У воды'
+  };
+  return tagNames[tag] || tag;
 };
 
 export default CreateCollectionPage;

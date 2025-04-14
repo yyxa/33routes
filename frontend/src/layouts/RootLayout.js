@@ -17,6 +17,7 @@ import { Style, Stroke, Icon } from 'ol/style';
 import './RootLayout.css';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
   const mapContainerRef = useRef(null);
@@ -34,6 +35,20 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
   // Состояния для поискового запроса и типа поиска (маршруты/подборки)
   const [query, setQuery] = useState('');
   const [searchType, setSearchType] = useState('routes');
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const avatarRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuOpen && avatarRef.current && !avatarRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
 
   // Состояния для фильтров
   const [routeFilters, setRouteFilters] = useState({
@@ -248,6 +263,16 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
     ids.forEach(toggleRouteOnMap);
   }, [clearAllRoutes]);
 
+  const menuItemStyle = {
+    display: 'block',
+    padding: '8px 16px',
+    color: '#333',
+    textDecoration: 'none',
+    fontSize: '14px',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  };
+  
   return (
     // Контейнер с relative для абсолютного позиционирования попапа
     <div className="root-layout" style={{ position: 'relative' }}>
@@ -293,11 +318,102 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
       </button>
 
       <div className="map-header-actions">
-        <div className="avatar-placeholder" onClick={() => !user && onLoginClick()}>
-          <span>{user ? user.name : 'Login'}</span>
+        <div
+          ref={avatarRef}
+          className="avatar-placeholder"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => {
+            if (!user) return onLoginClick();
+            setMenuOpen(prev => !prev);
+          }}
+        >
+          {user?.avatar_url ? (
+            <img
+              src={`http://localhost:8100/api/media/image/${user.avatar_url}`}
+              alt="avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <span style={{ fontSize: 14 }}>{user?.name?.[0] || 'Login'}</span>
+          )}
         </div>
-        <button className="menu-button" onClick={() => console.log("Menu clicked")}>...</button>
+
+        {user && menuOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 60,
+              right: 0,
+              background: 'white',
+              border: '1px solid #ccc',
+              borderRadius: 10,
+              padding: '10px 0',
+              zIndex: 3000,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              minWidth: 160,
+            }}
+          >
+            <Link
+              to={`/user/${user.username}`}
+              style={menuItemStyle}
+              onClick={() => setMenuOpen(false)}
+            >
+              Моя страница
+            </Link>
+
+            <div
+              style={menuItemStyle}
+              onClick={() => {
+                setQuery(`@${user.username}`);
+                setSearchType('routes');
+                setRouteFilters({
+                  order: 'rating_desc,created_desc,length_asc',
+                  min_length: filterBorders?.min_length ?? 0,
+                  max_length: filterBorders?.max_length ?? 100,
+                  min_duration: filterBorders?.min_duration ?? 0,
+                  max_duration: filterBorders?.max_duration ?? 24,
+                });
+                setMenuOpen(false);
+                navigate('/');
+              }}
+            >
+              Мои маршруты
+            </div>
+
+            <div
+              style={menuItemStyle}
+              onClick={() => {
+                setQuery(`@${user.username}`);
+                setSearchType('collections');
+                setCollectionFilters({
+                  rating: 'rating_desc',
+                  created: 'created_desc',
+                });
+                setSelectedTags([]); // если хочешь сбросить теги
+                setMenuOpen(false);
+                navigate('/');
+              }}
+            >
+              Мои подборки
+            </div>
+
+
+            <Link to={`/user/${user.username}?tab=reviews`} style={menuItemStyle}>Мои обзоры</Link>
+            <Link to={`/user/${user.username}?tab=settings`} style={menuItemStyle}>Настройки</Link>
+            <div onClick={onLogoutClick} style={{ ...menuItemStyle, color: 'red' }}>Выйти</div>
+          </div>
+        )}
       </div>
+
 
       <div
         className="left-block"
