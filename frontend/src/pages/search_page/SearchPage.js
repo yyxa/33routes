@@ -96,7 +96,8 @@ const SearchPage = () => {
                 rating: d.collection.rating,
                 tags: d.collection.tags,
                 routes: d.collection.routes,
-                username: brief.username ,
+                images: (d.collection.imgs || []).map(i => `http://localhost:8100/api/media/image/${i}`),
+                username: brief.username,
                 avatar: d.user.image_url
                   ? `http://localhost:8100/api/media/image/${d.user.image_url}`
                   : `http://localhost:8100/api/media/image/default-avatar.svg`,

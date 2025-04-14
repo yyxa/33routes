@@ -61,8 +61,8 @@
 }
 
 .collection-card-left {
+  flex-grow: 1;
   width: 45%;
-  max-width: 45%;
   display: flex;
   flex-direction: column;
 }
@@ -71,6 +71,14 @@
   color: #333;
   font-size: 0.95em;
   margin-bottom: 25px;
+}
+
+.collection-route-line {
+  margin-bottom: 10px;
+}
+
+.collection-route-name {
+  margin-bottom: 2px;
 }
 
 .collection-route-meta {
@@ -83,11 +91,23 @@
 }
 
 .collection-card-right {
-  flex: 0 0 55%;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   width: 55%;
-  max-width: 80%;
+}
+
+.collection-card-images-wrapper:hover .left-button-container.arrow-visible,
+.collection-card-images-wrapper:hover .right-button-container.arrow-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.collection-card-images-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 .collection-card-images-container {
@@ -101,10 +121,72 @@
   padding-right: 0%;
 }
 
+.left-button-container,
+.right-button-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.collection-card-images {
+  display: flex;
+  gap: 15px;
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.left-button-container {
+  left: 5px;
+}
+
+.right-button-container {
+  right: 5px;
+}
+
+.arrow-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #aaa;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  color: #444;
+  transition: background-color 0.2s, color 0.2s;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+}
+
+.arrow-button:hover {
+  color: #8B0000;
+  background-color: rgba(255, 255, 255, 1);
+}
+
 .collection-card-images {
   display: flex;
   transition: transform 0.3s ease;
   gap: 15px;
+}
+
+.collection-image {
+  width: 140px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  flex-shrink: 0;
+  cursor: pointer !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .no-image-placeholder {
@@ -133,4 +215,9 @@
   padding: 4px 10px;
   font-size: 0.85em;
   font-weight: 500;
+}
+
+.collection-card-right.minimal-images {
+  display: flex;
+  flex-direction: column;
 }

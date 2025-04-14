@@ -28,6 +28,8 @@ const CollectionPage = () => {
           routeIds.map(async (routeId) => {
             const r = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
             const d = await r.json();
+            const brief = await fetch(`http://localhost:8100/api/user/${d.user.user_id}/brief`)
+              .then(rr => rr.json());
             return {
               id: d.route.route_id,
               name: d.route.name,
@@ -36,7 +38,7 @@ const CollectionPage = () => {
               duration: d.route.duration,
               rating: d.route.rating,
               images: (d.route.images || []).map(i => `http://localhost:8100/api/media/image/${i}`),
-              authorUsername: d.user.name,
+              authorUsername: brief.username,
               authorImage: d.user.image_url
                 ? `http://localhost:8100/api/media/image/${d.user.image_url}`
                 : `http://localhost:8100/api/media/image/default-avatar.svg`,

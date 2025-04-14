@@ -18,6 +18,7 @@ import './RootLayout.css';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import sunIcon from './images/sun.svg';
 
 const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
   const mapContainerRef = useRef(null);
@@ -154,6 +155,28 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
       vectorLayerRef.current = vectorLayer;
     }
   }, []);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    const isDark = html.classList.contains('dark');
+
+    if (isDark) {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  };
 
   // Функция для переключения маршрута на карте
   const toggleRouteOnMap = async (routeId) => {
@@ -318,6 +341,15 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
       </button>
 
       <div className="map-header-actions">
+        <button className="toggle-theme" onClick={toggleTheme}>
+          <img 
+            src={sunIcon} 
+            alt="theme" 
+            style={{ width: '20px', height: '20px' }} 
+          />
+        </button>
+        <div className="avatar-placeholder" onClick={() => !user && onLoginClick()}>
+          <span>{user ? user.name : 'Login'}</span>
         <div
           ref={avatarRef}
           className="avatar-placeholder"

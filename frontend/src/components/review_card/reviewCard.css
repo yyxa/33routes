@@ -1,0 +1,13 @@
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 5px;
+  max-width: 100%;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}

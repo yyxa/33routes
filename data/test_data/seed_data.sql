@@ -97,18 +97,21 @@ VALUES
 --     (10, 10);
 
 -- -- Вставка тестовых данных в таблицу reviews
--- INSERT INTO reviews (user_id, route_id, rating, comment, created_at, is_deleted, images)
--- VALUES
---     (1, 1, 5.0, 'Amazing walk! The views were breathtaking.', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image1.jpg']),
---     (2, 2, 4.0, 'Nice trail, but a bit crowded.', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image2.jpg']),
---     (3, 3, 4.5, 'Loved the beachside stroll, very relaxing.', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image3.jpg']),
---     (4, 4, 5.0, 'The mountain hike was challenging but worth it!', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image4.jpg']),
---     (5, 5, 4.2, 'Great city tour, learned a lot!', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image5.jpg']),
---     (6, 6, 4.3, 'The river walk was peaceful and beautiful.', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image6.jpg']),
---     (7, 7, 4.8, 'An unforgettable desert trek!', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image7.jpg']),
---     (8, 8, 4.6, 'Loved visiting the historical sites.', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image8.jpg']),
---     (9, 9, 4.7, 'The lakeside path was stunning!', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image9.jpg']),
---     (10, 10, 4.4, 'A lovely countryside walk, very refreshing.', EXTRACT(EPOCH FROM NOW())::BIGINT, FALSE, ARRAY['review_image10.jpg']);
+INSERT INTO reviews (user_id, route_id, rating, comment, created_at)
+VALUES 
+(1, 1, 4.5, 'Great route!', 1713000000),
+(2, 1, 4.0, 'Very scenic and enjoyable.', 1713000010),
+(3, 2, 3.0, 'It was okay.', 1713000100),
+(4, 2, 3.5, 'Nice but nothing special.', 1713000110),
+(5, 3, 5.0, 'Amazing views!', 1713000200),
+(6, 3, 4.8, 'Loved the hills.', 1713000210),
+(7, 4, 2.5, 'Too crowded.', 1713000300),
+(8, 4, 3.0, 'Decent, but noisy.', 1713000310),
+(9, 5, 4.0, 'Nice walk through the woods.', 1713000400),
+(1, 6, 3.5, 'Pretty decent.', 1713000500),
+(2, 7, 5.0, 'Loved it!', 1713000600),
+(3, 8, 1.5, 'Too short.', 1713000700),
+(4, 9, 4.8, 'Perfect for a morning run.', 1713000800);
 
 -- -- Вставка тестовых данных в таблицу review_comments
 -- INSERT INTO review_comments (review_id, user_id, comment, created_at, reply_to, is_deleted, images)
