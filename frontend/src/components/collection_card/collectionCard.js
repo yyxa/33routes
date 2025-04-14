@@ -146,7 +146,7 @@ const CollectionCard = ({
           </div>
         </div>
         <div className="collection-card-right">
-          <div className="collection-card-images-wrapper" style={{ width: `${VISIBLE_WIDTH}px`, justifyContent: images.length <= 2 ? 'flex-end' : 'flex-start' }}>
+          <div className="collection-card-images-wrapper" style={{ width: `100%`, justifyContent: images.length <= 2 ? 'flex-end' : 'flex-start' }}>
             <div className="collection-card-images-container">
               {images.length > 2 && (
                 <div className={`left-button-container ${showLeftArrow ? 'arrow-visible' : 'arrow-fade'}`}>
