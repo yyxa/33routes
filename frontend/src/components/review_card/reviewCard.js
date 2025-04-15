@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const ReviewCard = ({ 
   username, 
-  avatar, // путь к аватару или заглушке
+  avatar, 
   rating, 
   comment, 
   collapsed, 

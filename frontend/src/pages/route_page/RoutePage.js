@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import CommentCard from '../../components/comment_card/commentCard';
+
 import ReviewList from '../../components/review_list/reviewList';
 import showIcon from './images/show.svg';
 import './RoutePage.css';
@@ -151,8 +152,9 @@ const RoutePage = () => {
           onClick={handleToggleRoute}
           > <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
         </button> */}
+        
+        <ReviewList routeId={routeId} />
       </div>
-      <ReviewList routeId={routeId} />
     </div>
   );
 };

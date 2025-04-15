@@ -224,7 +224,7 @@ const RouteCard = ({
       <div className="route-bottom-bar">
         <div className="route-card-info">
           <span>{(length / 1000).toFixed(1)} км</span>
-          <span>{Math.round(duration / 60)} мин</span>
+          <span>{(duration > 3600 ? Math.floor(duration / 3600) + ' ч ' + Math.round((duration % 3600) / 60) : Math.round(duration / 60)) + ' мин'}</span>
           <span>{rating}★</span>
         </div>
 

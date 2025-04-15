@@ -1,0 +1,85 @@
+.review-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 10px;
+  margin-top: 5px;
+  max-width: 100%;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.review-author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #bbbbbb;
+  background-color: #e1e1e1;
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+
+.author-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.username {
+  position: relative;
+  top: 1px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 1px;
+  font-size: 16px;
+  align-items: center;
+  margin-left: 10px;
+  margin-bottom: 2px;
+}
+
+.rating-number {
+  position: relative;
+  top: 2px;
+  margin-left: -4px;
+}
+
+.comment-author-avatar-placeholder {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #bbbbbb;
+  background-color: #e1e1e1;
+  position: relative;
+  left: 0px;
+  top: 0px;
+
+}
+
+.comment-author-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
