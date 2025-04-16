@@ -95,6 +95,10 @@ html.dark .collection-card-container {
   margin: 10px 0;
 }
 
+.route-label {
+  font-weight: bold;
+}
+
 .route-list {
   display: flex;
   flex-direction: column;

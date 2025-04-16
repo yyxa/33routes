@@ -94,7 +94,7 @@ const CollectionPage = () => {
           </div>
         </div>
 
-        <span className="stat-label">Маршруты:</span>
+        <span className="route-label">Маршруты:</span>
         
         <div className="routes-list">
           {routes.map((route) => (
