@@ -1,3 +1,8 @@
+html.dark .review-card {
+  background-color: #383838;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 .review-card {
   display: flex;
   flex-direction: column;

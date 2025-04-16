@@ -30,6 +30,8 @@ const RouteCard = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isDarkMode = document.documentElement.classList.contains('dark');
+
   const IMAGE_WIDTH = 140;
   const GAP = 15;
   const VISIBLE_WIDTH = IMAGE_WIDTH * 2.5;
@@ -251,8 +253,12 @@ const RouteCard = ({
               width: '25px',
               height: '25px',
               borderRadius: '50%',
-              backgroundColor: isVisible ? '#ccc' : '#fff',
-              border: '1px solid #ccc',
+              backgroundColor: isVisible
+                ? (isDarkMode ? '#8b8b8b' : '#ccc')
+                : (isDarkMode ? '#bbbbbb' : '#fff'),
+              border: isDarkMode
+                ? '1px solid #383838'
+                : '1px solid #ccc',
               cursor: 'pointer',
               display: 'flex',
               justifyContent: 'center',
@@ -260,7 +266,12 @@ const RouteCard = ({
             }}
             onClick={handleToggleRoute}
           >
-            <img src={showIcon} alt="Показать на карте" style={{ width: '16px', height: '16px' }} />
+            <img src={showIcon} alt="Показать на карте" 
+              style={{ 
+                width: '16px', 
+                height: '16px',
+              }} 
+            />
           </button>
 
           <div style={{ position: 'relative' }}>

@@ -1,11 +1,14 @@
-.collection-card-container {
-  font-family: sans-serif;
-  padding: 0 10px;
+html.dark .collection-card-container {
+  background-color: #2c2c2c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
 }
 
 .collection-card-container {
   background-color: #fff;
   border-radius: 16px;
+  font-family: sans-serif;
+  padding: 0 10px;
   padding-top: 15px;
   padding-bottom: 15px;
   padding-left: 30px;

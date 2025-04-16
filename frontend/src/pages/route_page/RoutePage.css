@@ -3,6 +3,10 @@
   padding: 0 10px;
 }
 
+html.dark .route-card-container {
+  background-color: #383838;
+}
+
 .route-card-container {
   background-color: #fff;
   border-radius: 16px;
