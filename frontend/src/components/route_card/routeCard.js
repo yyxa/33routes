@@ -21,6 +21,7 @@ const RouteCard = ({
   const [isVisible, setIsVisible] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [collections, setCollections] = useState([]);
   const [collectionIds, setCollectionIds] = useState([]);
   const [isChecking, setIsChecking] = useState(false);
@@ -96,9 +97,15 @@ const RouteCard = ({
       const savedRes = await fetch('http://localhost:8100/api/collection/collection/saved', {
         credentials: 'include',
       });
+
+      const completedRes = await fetch('http://localhost:8100/api/collection/collection/completed', {
+        credentials: 'include',
+      });
   
       const savedData = await savedRes.json();
+      const completedData = await completedRes.json();
       setIsSaved(savedData.routes?.includes(id));
+      setIsCompleted(completedData.routes?.includes(id));
   
       const fetchUserCollections = async (username) => {
         const res = await fetch(`http://localhost:8100/api/search/collections?q=%40${username}&pagination-page-number=1&pagination-per-page=100`);
@@ -133,7 +140,7 @@ const RouteCard = ({
     } finally {
       setIsChecking(false);
     }
-  };  
+  };
 
   const addToCollection = async (collectionId) => {
     await fetch(`http://localhost:8100/api/collection/collection/${collectionId}/add/${id}`, {
@@ -167,6 +174,15 @@ const RouteCard = ({
     await fetch(endpoint, { method, credentials: 'include' });
     setIsSaved(!isSaved);
   };
+
+  const handleAddToCompleted = async () => {
+    const endpoint = isCompleted
+      ? `http://localhost:8100/api/collection/collection/completed/remove/${id}`
+      : `http://localhost:8100/api/collection/collection/completed/add/${id}`;
+    const method = isCompleted ? 'DELETE' : 'PUT';
+    await fetch(endpoint, { method, credentials: 'include' });
+    setIsCompleted(!isCompleted);
+  }
 
   const handleImageClick = (imgUrl) => {
     const imageName = imgUrl.split('/').pop();
@@ -264,6 +280,12 @@ const RouteCard = ({
                     onClick={handleAddToFavorites}
                   >
                     В избранное
+                  </div>
+                  <div 
+                    className={`favorite-popup-item ${isCompleted ? 'favorite-popup-item-active' : ''}`}
+                    onClick={handleAddToCompleted}
+                  >
+                    Завершенные
                   </div>
                   {collections.length > 0 ? (
                     collections.map((col) => (

@@ -11,7 +11,6 @@ const ReviewList = ({ routeId }) => {
   const fetchReviews = async () => {
     const response = await fetch(`http://localhost:8100/api/review/route/${routeId}/reviews`);
     const data = await response.json();
-    console.log(data);
   
     const reviews = await Promise.all(
       data.reviews.map(async (review) => {

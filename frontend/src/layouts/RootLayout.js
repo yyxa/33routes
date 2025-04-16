@@ -370,7 +370,7 @@ const RootLayout = ({ user, onLoginClick, onLogoutClick, selectedRoute }) => {
             <img
               src={`http://localhost:8100/api/media/image/${user.avatar_url}`}
               alt="avatar"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ width: '50%', height: '50%', objectFit: 'cover' }}
             />
           ) : (
             <span style={{ fontSize: 14 }}>{user?.name?.[0] || 'Login'}</span>

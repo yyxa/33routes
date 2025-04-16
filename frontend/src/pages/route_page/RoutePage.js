@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import CommentCard from '../../components/comment_card/commentCard';
@@ -24,6 +25,7 @@ const getPluralForm = (n) => {
 const RoutePage = () => {
   const { routeId } = useParams();
   const [routeData, setRouteData] = useState(null);
+  const [authorInfo, setAuthorInfo] = useState(null);
   const [reviewCount, setReviewCount] = useState(null);
   // const [isVisible, setIsVisible] = useState(false);
   const { toggleRouteOnMap } = useOutletContext();
@@ -47,7 +49,11 @@ const RoutePage = () => {
       try {
         const response = await fetch(`http://localhost:8100/api/route/route/${routeId}`);
         const data = await response.json();
+        const brief = await fetch(`http://localhost:8100/api/user/${data.user.user_id}/brief`)
+          .then(rr => rr.json());
+        
         setRouteData(data);
+        setAuthorInfo(brief);
       } catch (error) {
         console.error('Ошибка загрузки маршрута:', error);
       }
@@ -72,15 +78,15 @@ const RoutePage = () => {
     <div className="route-page">
       <div className="route-card-container">
         <div className="route-header">
-          <h2 className="route-name">{name}</h2>
-          <div className="route-author">
+          <div className="route-name">{name}</div>
+          <Link to={`/user/${authorInfo.username}`} className="route-author">
             <span>{user.name}</span>
             <img
               src={user.image_url ? `http://localhost:8100/api/media/image/${user.image_url}` : 'https://via.placeholder.com/32?text=👤'}
               alt="Автор"
               className="author-avatar"
             />
-          </div>
+          </Link>
         </div>
         <div className="route-tags">
           {tags?.length > 0 &&

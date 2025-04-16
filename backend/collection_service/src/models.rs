@@ -89,3 +89,8 @@ pub struct CollectionIdQuery {
 pub struct SavedRoutesResponse {
     pub routes: Vec<i32>,
 }
+
+#[derive(Debug, Serialize)]
+pub struct CompletedRoutesResponse {
+    pub routes: Vec<i32>,
+}

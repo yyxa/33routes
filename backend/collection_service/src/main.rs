@@ -73,6 +73,18 @@ async fn main() {
             "/api/collection/collection/saved/remove/{route_id}",
             delete(handlers::remove_route_from_saved),
         )
+        .route(
+            "/api/collection/collection/completed",
+            get(handlers::get_completed_routes),
+        )
+        .route (
+            "/api/collection/collection/completed/add/{route_id}",
+            put(handlers::add_route_to_completed),
+        )
+        .route (
+            "/api/collection/collection/completed/remove/{route_id}",
+            delete(handlers::remove_route_from_completed),
+        )
         .with_state(app_state)
         .layer(cors);
 

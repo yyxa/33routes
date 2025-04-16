@@ -78,9 +78,9 @@ func addUserToDB(db *sql.DB, user *models.UserRegisterInfo) (uint, error) {
 		return 0, fmt.Errorf("error hashing password")
 	}
 
-	query := `INSERT INTO users (username, name, email, password_hash, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING user_id`
+	query := `INSERT INTO users (username, name, email, password_hash, created_at, avatar_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id`
 	var userId int
-	err = db.QueryRow(query, user.Username, user.Name, user.Email, hashedPassword, time.Now().Unix()).Scan(&userId)
+	err = db.QueryRow(query, user.Username, user.Name, user.Email, hashedPassword, time.Now().Unix(), "default-avatar.svg").Scan(&userId)
 
 	if err != nil {
 		return 0, err
