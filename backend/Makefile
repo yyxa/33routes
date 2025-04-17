@@ -116,14 +116,19 @@ pg-cli:
 
 .PHONY: pg-seed-data
 pg-seed-data:
-	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/seed_data.sql
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/users.sql
 	@for file in ../data/sql/*.sql; do \
 		if [ -f "$$file" ]; then \
 			echo "Загрузка $$file..."; \
 			docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < "$$file"; \
 		fi \
 	done
-	@
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/route_points.sql
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/collections.sql
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/collection_routes.sql
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/reviews.sql
+	@docker exec -i $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) < ../data/test_data/review_comments.sql
+
 
 .PHONY: upload-images
 upload-images:
