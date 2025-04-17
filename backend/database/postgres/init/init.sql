@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     city VARCHAR(50),
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    avatar_url TEXT UNIQUE,
+    avatar_url TEXT,
     bio TEXT,
     phone VARCHAR(20),
     created_at BIGINT NOT NULL,
