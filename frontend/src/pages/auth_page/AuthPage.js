@@ -38,15 +38,34 @@ const AuthPage = ({ onLogin }) => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        onLogin?.(data);
-        handleClose(); // Закрываем после успешного входа
-      } else if (response.status === 409) {
-        setError('Пользователь уже существует');
-      } else if (response.status === 401) {
-        setError('Неверный email или пароль');
+        // Check if response has content before parsing JSON
+        const contentLength = response.headers.get('Content-Length');
+        if (contentLength && parseInt(contentLength) > 0) {
+          const data = await response.json();
+          onLogin?.(data);
+        } else {
+          // For responses with no body but successful status
+          onLogin?.({ success: true });
+        }
+        
+        window.location.reload();
+        // Redirect back
+        navigate(backgroundLocation?.pathname || '/', { replace: true });
       } else {
-        setError('Ошибка сервера');
+        // Handle different error statuses
+        if (response.status === 409) {
+          setError('Пользователь уже существует');
+        } else if (response.status === 401) {
+          setError('Неверный email или пароль');
+        } else {
+          // Try to get error message from response if available
+          try {
+            const errorData = await response.json();
+            setError(errorData.error || 'Ошибка сервера');
+          } catch {
+            setError(`Ошибка: ${response.status}`);
+          }
+        }
       }
     } catch (err) {
       console.error('Ошибка:', err);

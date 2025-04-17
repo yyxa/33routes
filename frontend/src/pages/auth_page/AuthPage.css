@@ -1,25 +1,25 @@
 .auth-page-overlay {
-  position: fixed; /* Полностью фиксированное позиционирование */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Покрывает весь экран */
-  height: 100%; /* Покрывает весь экран */
-  background: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
-  display: flex; /* Flexbox для центрирования */
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Убедимся, что оверлей выше всех элементов */
+  z-index: 1000;
 }
 
 .auth-page {
-  background: white;
+  background: #f8f8f8;
   padding: 20px 20px;
   border-radius: 8px;
-  width: 90%; /* Ширина модального окна по умолчанию */
-  max-width: 400px; /* Ограничиваем ширину модального окна */
+  width: 90%;
+  max-width: 400px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  position: relative; /* Для позиционирования крестика */
-  text-align: center; /* Центрирование содержимого */
+  position: relative;
+  text-align: center;
 }
 
 .auth-page h2 {
@@ -30,38 +30,38 @@
 }
 
 .auth-page input {
-  width: 90%; /* Уменьшаем ширину полей ввода */
-  max-width: 300px; /* Ограничиваем максимальную ширину */
+  width: 90%;
+  max-width: 300px;
   padding: 12px;
-  margin: 10px auto; /* Центрируем поля ввода */
+  margin: 10px auto;
   border: 1px solid #ccc;
-  border-radius: 6px; /* Закругляем углы полей ввода */
+  border-radius: 6px;
   font-size: 16px;
-  display: block; /* Убираем inline */
+  display: block;
 }
 
 .auth-page button {
-  width: 90%; /* Уменьшаем ширину кнопки */
-  max-width: 300px; /* Ограничиваем максимальную ширину */
+  width: 90%;
+  max-width: 300px;
   padding: 12px;
-  background: #007bff;
+  background: #00b956;
   color: white;
   border: none;
-  border-radius: 6px; /* Закругляем углы кнопки */
+  border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
   transition: background 0.3s;
-  margin: 10px auto; /* Центрируем кнопку */
-  display: block; /* Убираем inline */
+  margin: 10px auto;
+  display: block;
 }
 
 .auth-page button:hover {
-  background: #0056b3;
+  background: #009447;
 }
 
 .auth-page p {
   cursor: pointer;
-  color: #007bff;
+  color: #00b956;
   text-align: center;
   margin-top: 15px;
   font-size: 14px;
@@ -73,15 +73,15 @@
 
 .close-icon {
   position: absolute;
-  top: 0px; /* Отступ сверху */
-  right: 15px; /* Отступ справа */
+  top: 0px;
+  right: 15px;
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
-  color: #555;
+  color: #333;
   transition: color 0.2s ease;
 }
 
 .close-icon:hover {
-  color: #007bff;
+  color: #00b956;
 }
