@@ -24,6 +24,17 @@ func checkUserExistence(db *sql.DB, username *string, email *string) error {
 	return err
 }
 
+func checkAdminCredentials(db *sql.DB, username *string, password *string) error {
+	query := `SELECT id 
+						FROM admins 
+						WHERE username = $1 and password = $2`
+	row := db.QueryRow(query, username, password)
+
+	err := row.Scan(new(int))
+
+	return err
+}
+
 func authInfoCheck(db *sql.DB, email *string, password *string) error {
 	var hashedPassword string
 	err := checkUserExistence(db, nil, email)
@@ -177,6 +188,56 @@ func Login(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
 
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session_token",
+			Value:    token,
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteLaxMode,
+			Path:     "/",
+			Expires:  time.Now().Add(6 * 30 * 24 * time.Hour),
+		})
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func AdminLogin(db *sql.DB, redisDb *redis.Client) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var adminData models.AdminLoginStruct
+		var adminId uint
+
+		if err := json.NewDecoder(r.Body).Decode(&adminData); err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		err := checkAdminCredentials(db, &adminData.Username, &adminData.Password)
+
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		query := `SELECT id 
+							FROM admins 
+							WHERE username = $1`
+
+		if err = db.QueryRow(query, adminData.Username).Scan(&adminId); err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			} else {
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+			}
+		}
+
+		token, err := CreateAdminToken(redisDb, &adminId)
+
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "admin_token",
 			Value:    token,
 			HttpOnly: true,
 			Secure:   false,

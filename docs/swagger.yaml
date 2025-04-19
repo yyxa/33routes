@@ -1531,12 +1531,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/admin/login:
+    post:
+      summary: "Авторизация администратора"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "admin"
+                password:
+                  type: string
+                  example: "securepassword123"
+      responses:
+        '200':
+          description: "Администратор успешно авторизован"
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+        '401':
+          description: "Неверные учетные данные"
+        '500':
+          description: "Внутренняя ошибка сервера"
+  /api/admin/check_token:
+    get:
+      summary: "Проверка валидности токена администратора"
+      security:
+        - adminCookie: []
+      parameters:
+        - name: admin_token
+          in: cookie
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Токен валиден"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  admin_id:
+                    type: integer
+                    example: 1
+        '400':
+          description: "Отсутствует токен"
+        '401':
+          description: "Токен недействителен"
+        '500':
+          description: "Внутренняя ошибка сервера"
 components:
   securitySchemes:
     sessionCookie:
       type: apiKey
       in: cookie
       name: session_token
+    adminCookie:
+      type: apiKey
+      in: cookie
+      name: admin_token
   headers:
     PaginationCurrentPage:
       description: "Текущая страница"
@@ -1629,6 +1688,13 @@ components:
       in: header
       required: true
       description: "Токен сессии"
+      schema:
+        type: string
+    AdminTokenCookie:
+      name: admin_token
+      in: cookie
+      required: true
+      description: "Токен администратора"
       schema:
         type: string
   schemas:
@@ -2207,3 +2273,15 @@ components:
           items:
             type: integer
           description: "Список идентификаторов сохраненных маршрутов"
+    AdminLoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "admin"
+        password:
+          type: string
+          example: "securepassword123"

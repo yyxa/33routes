@@ -48,7 +48,7 @@ func main() {
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8081"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
+		AllowCredentials: false,
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		MaxAge:           300,
 	}))
@@ -56,6 +56,8 @@ func main() {
 	r.Post("/api/auth/register", handlers.RegisterUser(db, redisDb))
 	r.Post("/api/auth/check_token", handlers.CheckToken(db, redisDb))
 	r.Post("/api/auth/login", handlers.Login(db, redisDb))
+	r.Post("/api/admin/login", handlers.AdminLogin(db, redisDb))
+	r.Get("/api/admin/check_token", handlers.VerifyAdminToken(db, redisDb))
 
 	log.Println("Auth server is running")
 	err = http.ListenAndServe(":8100", r)

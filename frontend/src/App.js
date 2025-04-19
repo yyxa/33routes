@@ -17,6 +17,7 @@ import ImageViewer from './components/image_viewer/ImageViewer';
 import UserPage from './pages/user_page/UserPage';
 import CreateRoutePage from './pages/create_route_page/CreateRoutePage';
 import CreateCollectionPage from './pages/create_collection_page/CreateCollectionPage';
+import AdminLoginPage from './pages/admin_login_page/AdminLoginPage'
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -97,6 +98,7 @@ function AppContent() {
 
       {/* Остальные маршруты */}
       <Routes location={backgroundLocation || location}>
+        <Route path="admin/login" element={<AdminLoginPage />} />
         <Route
           path="/"
           element={

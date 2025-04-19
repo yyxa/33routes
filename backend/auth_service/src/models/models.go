@@ -24,3 +24,9 @@ type UserLoginResponse struct {
 type CheckTokenRequest struct {
 	BackendSessionToken string `json:"backend_session_token"`
 }
+
+type AdminLoginStruct struct {
+	Id 			 uint 	`json:"id"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}

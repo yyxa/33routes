@@ -135,7 +135,9 @@ services:
       - 33routes_backend_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth_service.rule=PathPrefix(`/api/auth/`)"
+      # - "traefik.http.routers.auth_service.rule=PathPrefix(`/api/auth/`)"
+      - "traefik.http.routers.auth_service.rule=PathPrefix(`/api/auth/`) || PathPrefix(`/api/admin/`)"
+
       - "traefik.http.services.auth_service.loadbalancer.server.port=8100"
       - "traefik.http.routers.auth_service.middlewares=cors@file"
 
