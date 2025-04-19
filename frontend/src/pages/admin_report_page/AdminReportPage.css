@@ -1,0 +1,99 @@
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Важно, чтобы не схлопывалась */
+  padding: 8px 0; /* Опционально — регулировка по высоте */
+}
+
+.reports-page {
+  overflow: visible; /* обязательно */
+  position: relative;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+}
+
+.report-page {
+  padding: 24px;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: white;
+  /* border: 1px solid #ddd; */
+  border-radius: 10px;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eeeeee;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.actions button {
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.reports-table {
+  position: relative;
+  width: 100%;
+  border-collapse: collapse;
+  overflow: visible;
+  z-index: 1;
+}
+
+.reports-table tbody tr {
+  position: relative; /* Позволяет dropdown-меню быть абсолютным внутри строки */
+  overflow: visible !important; /* Убираем скрытие */
+  z-index: 1;
+}
+
+.dropdown-button {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  margin-right: 10px;
+  margin-bottom: 3px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  min-width: 160px;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f2f2f2;
+}

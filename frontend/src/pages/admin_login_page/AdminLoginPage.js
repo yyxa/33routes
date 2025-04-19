@@ -24,7 +24,7 @@ const AdminLoginPage = () => {
         return;
       }
 
-      window.location.href = "/admin/dashboard";
+      window.location.href = "/admin/";
     } catch (err) {
       setErrorMsg("Ошибка соединения с сервером");
     }

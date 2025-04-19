@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS users (
     user_site VARCHAR(255)
 );
 
+CREATE TABLE IF NOT EXISTS admins (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(50) NOT NULL
+);
+
 CREATE TYPE theme_type AS ENUM ('light', 'dark', 'system');
 
 CREATE TABLE IF NOT EXISTS user_settings (

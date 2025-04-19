@@ -18,6 +18,9 @@ import UserPage from './pages/user_page/UserPage';
 import CreateRoutePage from './pages/create_route_page/CreateRoutePage';
 import CreateCollectionPage from './pages/create_collection_page/CreateCollectionPage';
 import AdminLoginPage from './pages/admin_login_page/AdminLoginPage'
+import AdminReportPage from './pages/admin_report_page/AdminReportPage'
+import AdminBugReportPage from './pages/admin_bug_report_page/AdminBugReportPage'
+import AdminLayout from './layouts/AdminLayout'
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -99,6 +102,12 @@ function AppContent() {
       {/* Остальные маршруты */}
       <Routes location={backgroundLocation || location}>
         <Route path="admin/login" element={<AdminLoginPage />} />
+        <Route path="admin" element={<AdminLayout />}>
+          <Route index element={<navigate to="reports" />} />
+          <Route path="reports" element={<AdminReportPage />} />
+          <Route path="bugs" element={<AdminBugReportPage />} />
+        </Route>
+
         <Route
           path="/"
           element={

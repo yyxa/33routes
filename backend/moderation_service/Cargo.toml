@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.7.7"
+axum = "0.8.1"
 axum-server = "0.7.1"
+axum-extra = { version = "0.10.0", features = ["cookie"] }
 tokio = { version = "1.41.0", features = ["full"] }
 tokio-postgres = "0.7.12"
 dotenv = "0.15.0"

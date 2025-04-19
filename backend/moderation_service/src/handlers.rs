@@ -4,6 +4,7 @@ use axum::{
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
 };
+use axum_extra::extract::CookieJar;
 use chrono::Utc;
 
 async fn check_user_exists(state: &AppState, user_id: &i32) -> bool {
@@ -87,17 +88,15 @@ pub async fn report_entity(
 
 
 pub async fn get_entity_reports(
+    cookies: CookieJar,
     State(state): State<AppState>,
-    headers: HeaderMap,
     Query(params): Query<GetReportsParams>,
 ) -> impl IntoResponse {
-    if headers.get("session-token").is_none() {
-        return (
-            StatusCode::UNAUTHORIZED,
-            "Missing session-token header",
-        )
-            .into_response();
-    }
+    let admin_token = match cookies.get("admin_token") {
+        Some(cookie) => cookie.value().to_string(),
+        None => return axum::http::StatusCode::UNAUTHORIZED.into_response(),
+    };
+
 
     let page_number = params.page_number.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(10).clamp(1, 100);
